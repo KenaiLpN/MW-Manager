@@ -16,11 +16,13 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: "Dashboard", href: "/dashboard", iconName: "Dashboard" },
-  { name: "Anydesk", href: "/anydesk", iconName: "TvMinimalPlay" },
-  { name: "Chamados", href: "/chamados", iconName: "Ticket" },
-  { name: "Clientes", href: "/clientes", iconName: "UsersRound" },
+  { name: "Cadastros", href: "/cadastros", iconName: "Dashboard" },
+  { name: "Tabelas", href: "/anydesk", iconName: "TvMinimalPlay" },
+  { name: "Comercial", href: "/chamados", iconName: "Ticket" },
+  { name: "Orçamentos", href: "/clientes", iconName: "UsersRound" },
+  { name: "Notas", href: "/perfil", iconName: "CircleUserRound" },
   { name: "Perfil", href: "/perfil", iconName: "CircleUserRound" },
+  { name: "Segurança", href: "/perfil", iconName: "CircleUserRound" },
 ];
 
 export function Header() {
@@ -42,7 +44,7 @@ export function Header() {
 
   return (
     <header className="flex bg-[#151D27] p-5 justify-between items-center">
-      <h1 className="text-[#F6F6F6] text-2xl font-bold">CSTec</h1>
+      <h1 className="text-[#F6F6F6] text-2xl font-bold">MW Manager</h1>
 
       <div className="flex space-x-10 mr-10">
         {navItems.map((item) => {
