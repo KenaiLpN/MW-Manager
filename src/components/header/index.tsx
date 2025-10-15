@@ -1,5 +1,4 @@
 "use client";
-
 import { LayoutDashboard, LucideIcon, TvMinimalPlay, Ticket, UsersRound, CircleUserRound, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -29,12 +28,12 @@ export function Header() {
   const pathname = usePathname();
 
   const baseLinkClasses =
-    "flex space-x-2  items-center text-[#52E8FB] transition font-medium duration-300 ease-in-out p-2 rounded-md ";
+    "flex items-center text-[#52E8FB] transition font-medium duration-300 ease-in-out h-20 p-5";
 
-  const activeLinkClasses = "text-[#52E8FB] bg-[#113D4B] font-medium";
+  const activeLinkClasses = "text-[#FFFF] bg-[#1854af] font-medium";
 
   const inactive =
-    "text-[#F6F6F6] transition font-medium duration-300 ease-in-out hover:text-[#FDFDFD] p-1 hover:bg-[#252F3D]";
+    "text-[#F6F6F6] transition font-medium duration-300 ease-in-out hover:text-[#FDFDFD] hover:bg-[#1854af]";
 
   const getLinkClasses = (href: string) => {
     const isActive = pathname === href;
@@ -43,10 +42,10 @@ export function Header() {
   };
 
   return (
-    <header className="flex bg-[#151D27] p-5 justify-between items-center">
-      <h1 className="text-[#F6F6F6] text-2xl font-bold">MW Manager</h1>
+    <header className="flex bg-[#133c86]  justify-between items-center">
+      <h1 className="text-[#F6F6F6] text-2xl font-bold m-4">MW Manager</h1>
 
-      <div className="flex space-x-10 mr-10">
+      <div className="flex space-x-4">
         {navItems.map((item) => {
           const IconComponent = iconMap[item.iconName];
 
@@ -65,7 +64,7 @@ export function Header() {
       </div>
       <div>
         <button>
-          <LogOut className="text-[#F6F6F6] hover:bg-[#252F3D] transition ease-in-out rounded-md " />
+          <LogOut className="text-[#F6F6F6] hover:bg-[#66ACE4] transition ease-in-out rounded-md m-5 " />
         </button>
       </div>
     </header>
