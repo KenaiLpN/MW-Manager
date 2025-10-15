@@ -42,7 +42,7 @@ export function Header() {
   };
 
   return (
-    <header className="flex bg-[#133c86]  justify-between items-center">
+    <header className="flex bg-[#133c86] border-b border-[#e4e9f0] justify-between items-center">
       <h1 className="text-[#F6F6F6] text-2xl font-bold m-4">MW Manager</h1>
 
       <div className="flex space-x-4">
