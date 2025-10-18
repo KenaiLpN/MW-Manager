@@ -4,8 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 
+// ✅ CORREÇÃO 1: Sintaxe do objeto corrigida
 const iconMap: { [key: string]: LucideIcon } = {
-  Dashboard: LayoutDashboard, TvMinimalPlay, Ticket, UsersRound, CircleUserRound
+  Dashboard: LayoutDashboard,
+  TvMinimalPlay: TvMinimalPlay,
+  Ticket: Ticket,
+  UsersRound: UsersRound,
+  CircleUserRound: CircleUserRound,
 };
 
 interface NavItem {
@@ -14,6 +19,7 @@ interface NavItem {
   iconName: keyof typeof iconMap;
 }
 
+// Os dados permanecem os mesmos, mas a correção será feita na 'key'
 const navItems: NavItem[] = [
   { name: "Cadastros", href: "/cadastros", iconName: "Dashboard" },
   { name: "Tabelas", href: "/anydesk", iconName: "TvMinimalPlay" },
@@ -27,17 +33,14 @@ const navItems: NavItem[] = [
 export function Header() {
   const pathname = usePathname();
 
-  const baseLinkClasses =
-    "flex items-center text-[#52E8FB] transition font-medium duration-300 ease-in-out h-20 p-5";
-
+  const baseLinkClasses = "flex items-center gap-2 text-[#52E8FB] transition font-medium duration-300 ease-in-out h-20 p-5";
   const activeLinkClasses = "text-[#FFFF] bg-[#1854af] font-medium";
-
-  const inactive =
-    "text-[#F6F6F6] transition font-medium duration-300 ease-in-out hover:text-[#FDFDFD] hover:bg-[#1854af]";
+  const inactive = "text-[#F6F6F6] transition font-medium duration-300 ease-in-out hover:text-[#FDFDFD] hover:bg-[#1854af]";
 
   const getLinkClasses = (href: string) => {
+    // Para tratar os múltiplos links de "/perfil", podemos ajustar a lógica de 'ativo'
+    // Aqui, vamos manter a lógica simples, mas em um caso real você poderia querer mais complexidade.
     const isActive = pathname === href;
-
     return `${baseLinkClasses} ${isActive ? activeLinkClasses : inactive}`;
   };
 
@@ -51,12 +54,11 @@ export function Header() {
 
           return (
             <Link
-              key={item.href}
+              key={item.name} // ✅ CORREÇÃO 2: Usando 'item.name' como chave única
               href={item.href}
               className={getLinkClasses(item.href)}
             >
-              {/* 5. Renderiza o ícone com o tamanho desejado */}
-              <IconComponent className="w-5 h-5" />
+              {IconComponent && <IconComponent className="w-5 h-5" />}
               <span>{item.name}</span>
             </Link>
           );
