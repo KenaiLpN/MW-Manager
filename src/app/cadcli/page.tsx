@@ -11,6 +11,10 @@ export default function CadCliPage() {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+
+  const modalSearchLayout = "p-1 w-40 rounded bg-white m-4 border border-gray-300"
+
+
   return (
     <div className="flex">
       <aside>
@@ -30,8 +34,8 @@ export default function CadCliPage() {
             />
             <div className="flex space-x-2">
               <button className="p-1 w-40 rounded bg-white">Colunas</button>
-              <button className="p-1 w-40 rounded bg-white">Colunas</button>
-              <button className="p-1 w-40 rounded bg-white">Colunas</button>
+              <button className="p-1 w-40 rounded bg-white">Filtro</button>
+              <button className="p-1 w-40 rounded bg-white">Exportar Lista</button>
             </div>
             <button
               onClick={openModal}
@@ -43,37 +47,39 @@ export default function CadCliPage() {
             <Modal isOpen={isModalOpen} onClose={closeModal}>
 
 
-              <h2 className="text-2xl font-bold mb-4">Cadastro de Cliente</h2>
+              <h2 className="text-2xl font-bold m-4">Cadastro de Cliente</h2>
               <div>
+                <h1 className="ml-4">ID </h1>
+
                 <input
                   type="type"
                   placeholder="Nome"
-                  className="p-1 w-40 rounded bg-white ml-4"
+                  className={modalSearchLayout}
+                />
+                <input
+                  type="text"
+                  placeholder="CPF / CNPJ"
+                  className={modalSearchLayout}
+                />
+                <input
+                  type="text"
+                  placeholder="Email"
+                  className={modalSearchLayout}
+                />
+                <input
+                  type="text"
+                  placeholder="Celular"
+                  className={modalSearchLayout}
                 />
                 <input
                   type="text"
                   placeholder="Nome"
-                  className="p-1 w-40 rounded bg-white ml-4"
+                  className={modalSearchLayout}
                 />
                 <input
                   type="text"
                   placeholder="Nome"
-                  className="p-1 w-40 rounded bg-white ml-4"
-                />
-                <input
-                  type="text"
-                  placeholder="Nome"
-                  className="p-1 w-40 rounded bg-white ml-4"
-                />
-                <input
-                  type="text"
-                  placeholder="Nome"
-                  className="p-1 w-40 rounded bg-white ml-4"
-                />
-                <input
-                  type="text"
-                  placeholder="Nome"
-                  className="p-1 w-40 rounded bg-white ml-4"
+                  className={modalSearchLayout}
                 />
               </div>
 
