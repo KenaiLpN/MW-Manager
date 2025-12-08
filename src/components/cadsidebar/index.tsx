@@ -38,7 +38,7 @@ export function CadSidebar() {
   };
 
   return (
-    <div className="flex flex-col bg-[#133c86] w-50 h-200 items-center">
+    <div className="flex flex-col bg-[#133c86] w-50 h-screen items-center">
       {navItems.map((item) => {
         return (
           <Link
@@ -46,7 +46,7 @@ export function CadSidebar() {
             href={item.href}
             className={getLinkClasses(item.href)}
           >
-            {/* 5. Renderiza o ícone com o tamanho desejado */}
+           
 
             <span>{item.name}</span>
           </Link>
