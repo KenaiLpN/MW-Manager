@@ -6,15 +6,8 @@ import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../components/modal";
 import TabelaClientes from "@/components/tabelaclientes";
 import api from "@/services/api";
-
+import { Cliente } from "@/types";
 // Tipagem de cliente
-interface Cliente {
-  id_usuario: number;
-  nome: string;
-  email: string;
-  cpf: string;
-  chk_ativo?: boolean;
-}
 
 export default function CadCliPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -23,36 +16,74 @@ export default function CadCliPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [formData, setFormData] = useState({
+    nome: "",
+    email: "",
+    cpf: "",
+    chk_ativo: true,
+  });
+
+  const [saving, setSaving] = useState<boolean>(false);
+
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setFormData({ nome: "", cpf: "", email: "", chk_ativo: true });
+  };
 
   const modalSearchLayout =
     "p-1 w-40 rounded bg-white m-4 border border-gray-300";
 
+  async function fetchClientes() {
+    try {
+      const response = await api.get("/users");
+      setClientes(response.data);
+    } catch (err) {
+      if (isAxiosError(err)) {
+        if (err.response) {
+          setError(`Erro ${err.response.status}: Falha ao buscar dados.`);
+        } else if (err.request) {
+          setError("Erro de conexão: Verifique se a API está online.");
+        }
+      } else if (err instanceof Error) {
+        setError(`Erro inesperado: ${err.message}`);
+      } else {
+        setError("Ocorreu um erro desconhecido na requisição.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
   // 4. Lógica de GET (Busca de Clientes)
   useEffect(() => {
-    async function fetchClientes() {
-      try {
-        const response = await api.get("/users");
-        setClientes(response.data);
-      } catch (err) {
-        if (isAxiosError(err)) {
-          if (err.response) {
-            setError(`Erro ${err.response.status}: Falha ao buscar dados.`);
-          } else if (err.request) {
-            setError("Erro de conexão: Verifique se a API está online.");
-          }
-        } else if (err instanceof Error) {
-          setError(`Erro inesperado: ${err.message}`);
-        } else {
-          setError("Ocorreu um erro desconhecido na requisição.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchClientes();
   }, []);
+
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+const handleSalvar = async () => {
+    setSaving(true);
+    try {
+      // Faz o POST para a rota /users (ou a rota correta de criação)
+      await api.post("/users", formData);
+      
+      alert("Cliente cadastrado com sucesso!");
+      
+      closeModal();      // Fecha o modal
+      fetchClientes();   // Atualiza a tabela com o novo cliente
+      
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao cadastrar cliente. Verifique o console.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
 
   return (
     <div className="flex">
@@ -95,60 +126,95 @@ export default function CadCliPage() {
           </div>
         </div>
         <Modal isOpen={isModalOpen} onClose={closeModal}>
-          <h2 className="text-2xl font-bold m-4">Cadastro de Cliente</h2>
-          <div>
-            <h1 className="ml-4">ID </h1>
+  <h2 className="text-2xl font-bold m-4 text-gray-800">Cadastro de Cliente</h2>
 
-            <input
-              type="type"
-              placeholder="Nome"
-              className={modalSearchLayout}
-            />
-            <input
-              type="text"
-              placeholder="CPF / CNPJ"
-              className={modalSearchLayout}
-            />
-            <input
-              type="text"
-              placeholder="Email"
-              className={modalSearchLayout}
-            />
-            <input
-              type="text"
-              placeholder="Celular"
-              className={modalSearchLayout}
-            />
-            <input
-              type="text"
-              placeholder="Nome"
-              className={modalSearchLayout}
-            />
-            <input
-              type="text"
-              placeholder="Nome"
-              className={modalSearchLayout}
-            />
-          </div>
+ 
+  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+    
+    {/* COLUNA 1: NOME */}
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-semibold text-gray-600">Nome</label>
+      <input
+        name="nome"
+        value={formData.nome}
+        onChange={handleChange}
+        type="text"
+        placeholder="Nome Completo"
+        className="p-2 w-full rounded border border-gray-300" 
+      />
+    </div>
 
-          <div className="flex justify-end gap-4">
-            <button
-              onClick={closeModal}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={() => {
-                alert("Ação confirmada!");
-                closeModal();
-              }}
-              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-            >
-              Confirmar
-            </button>
-          </div>
-        </Modal>
+    {/* COLUNA 2: CPF */}
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-semibold text-gray-600">CPF</label>
+      <input
+        name="cpf" 
+        value={formData.cpf} 
+        onChange={handleChange}
+        type="text"
+        placeholder="000.000.000-00"
+        className="p-2 w-full rounded border border-gray-300"
+      />
+    </div>
+
+    {/* COLUNA 1 (Linha 2): EMAIL */}
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-semibold text-gray-600">Email</label>
+      <input
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        type="email"
+        placeholder="exemplo@email.com"
+        className="p-2 w-full rounded border border-gray-300"
+      />
+    </div>
+
+    {/* COLUNA 2 (Linha 2): CELULAR */}
+    {/* <div className="flex flex-col gap-1">
+      <label className="text-sm font-semibold text-gray-600">Celular</label>
+      <input
+        name="celular"
+        value={formData.cpf} // Ajuste conforme seu formData
+        onChange={handleChange}
+        type="text"
+        placeholder="(11) 99999-9999"
+        className="p-2 w-full rounded border border-gray-300"
+      />
+    </div> */}
+
+   
+    {/* <div className="col-span-2 flex flex-col gap-1">
+      <label className="text-sm font-semibold text-gray-600">Observação / Endereço</label>
+      <input
+        name="observacao" 
+        value={formData.cpf} 
+        onChange={handleChange}
+        type="text"
+        placeholder="Endereço completo ou observações"
+        className="p-2 w-full rounded border border-gray-300"
+      />
+    </div> */}
+
+  </div>
+
+  {/* BOTÕES DE AÇÃO */}
+  <div className="flex justify-end gap-4 m-4 pt-4 border-t">
+    <button
+      onClick={closeModal}
+      className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+    >
+      Cancelar
+    </button>
+    <button
+      onClick={handleSalvar}
+      disabled={saving}
+      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 transition-colors"
+    >
+      {saving ? 'Salvando...' : 'Confirmar'}
+    </button>
+  </div>
+</Modal>
       </div>
     </div>
   );

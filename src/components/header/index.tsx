@@ -61,7 +61,7 @@ export function Header() {
   };
 
   return (
-    <header className="flex bg-[#133c86] border-b border-[#e4e9f0] justify-between items-center">
+    <header className="flex bg-[#34495E] border-b border-[#e4e9f0] justify-between items-center">
       <div className="ml-5">
         {/* <Image src={logoFundacao} alt="Logo" width={60} height={20}/> */}
         <h1 className="text-[#F6F6F6] text-2xl font-bold">PROJOV</h1>

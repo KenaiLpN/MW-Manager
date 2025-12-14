@@ -34,6 +34,14 @@ export interface AnydeskApiResponse {
   msg: string;
 }
 
+export interface Cliente {
+  id_usuario: number;
+  nome: string;
+  email: string;
+  cpf: string;
+  chk_ativo?: boolean;
+}
+
 export interface Client {
   cod_cli: number;
   nome: string;

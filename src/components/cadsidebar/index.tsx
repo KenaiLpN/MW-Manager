@@ -38,7 +38,7 @@ export function CadSidebar() {
   };
 
   return (
-    <div className="flex flex-col bg-[#133c86] w-50 h-screen items-center">
+    <div className="flex flex-col bg-[#34495E] w-50 h-screen items-center">
       {navItems.map((item) => {
         return (
           <Link

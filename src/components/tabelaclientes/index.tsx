@@ -2,14 +2,9 @@
 
 import React from 'react';
 
+import { Cliente } from '@/types';
 // Tipagem de cliente (Refletindo a API real)
-interface Cliente {
-  id_usuario: number;
-  nome: string;
-  email: string;
-  cpf: string;
-  chk_ativo?: boolean;
-}
+
 
 interface TabelaClientesProps {
     clientes: Cliente[];
