@@ -28,12 +28,12 @@ const TabelaClientes: React.FC<TabelaClientesProps> = ({ clientes, loading, erro
     
     // Renderização da Tabela
     return (
-      <div className="p-4 overflow-x-auto">
+      <div className="p-4 overflow-x-auto ">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-[#bacce6]">
-            <tr>
+            <tr >
               {/* Colunas ajustadas para refletir o JSON */}
-              <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tl-lg">
                 ID
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
@@ -49,7 +49,7 @@ const TabelaClientes: React.FC<TabelaClientesProps> = ({ clientes, loading, erro
                 Status
               </th>
 
-              <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tr-lg">
                 Ações
               </th>
             </tr>
