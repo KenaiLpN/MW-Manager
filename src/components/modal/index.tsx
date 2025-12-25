@@ -18,7 +18,7 @@ const Modal = ({ isOpen, onClose, children }: ModalProps) => {
     >
       <div
         onClick={(e: React.MouseEvent) => e.stopPropagation()}
-        className="bg-white rounded-lg shadow-xl p-6 relative w-full max-w-md"
+        className="bg-white rounded-lg shadow-xl p-6 relative w-250"
       >
         <button
           onClick={onClose}

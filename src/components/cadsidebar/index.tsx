@@ -9,7 +9,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: "Clientes", href: "/cadcli" },
+  { name: "Usuários", href: "/users" },
   { name: "Pessoas", href: "/pessoas" },
   { name: "Unidades", href: "/unidades" },
   { name: "Montadoras", href: "/montadoras" },
@@ -27,7 +27,7 @@ export function CadSidebar() {
   const baseLinkClasses =
     "flex items-center text-[#52E8FB] transition font-medium duration-300 ease-in-out h-14 w-50 justify-center";
 
-  const activeLinkClasses = "text-[#FFFF] bg-[#1854af] font-medium";
+  const activeLinkClasses = "text-[#FFFF] bg-[#1f2b36] font-medium";
 
   const inactive = "text-[#F6F6F6] transition font-medium duration-300 ease-in-out hover:text-[#FDFDFD] hover:bg-[#1854af]";
 
@@ -38,7 +38,7 @@ export function CadSidebar() {
   };
 
   return (
-    <div className="flex flex-col bg-[#34495E] w-50 h-screen items-center">
+    <div className="flex flex-col bg-[#34495E] w-50 h-full items-center">
       {navItems.map((item) => {
         return (
           <Link

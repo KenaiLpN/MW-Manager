@@ -1,50 +1,55 @@
+"use client";
+import { useState } from "react";
+import api from "@/services/api";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+
 export default function LoginPage() {
-  return(
-  <main className="flex flex-col justify-center items-center h-screen w-screen bg-[#0D1117]">
-    <div className="bg-[#090C10] h-120 w-120 rounded-2xl border border-[#222528]">
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const router = useRouter();
 
-        <h1 className="flex justify-center mt-10 mb-2 text-4xl font-bold text-[#00D3F3]">Bem-Vindo</h1>
-        <h2 className="flex justify-center text-[#99A1AF]">Faça login para continuar</h2>
-       
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      const response = await api.post("/login", { email, senha });
+      
+      const { token } = response.data;
 
+      // Salva o token nos Cookies (Expira em 1 dia)
+      Cookies.set("mw_token", token, { expires: 1 });
 
-        <form action="submit"
-              className="flex flex-col justify-center items-center mt-10 ml-15 mr-15 gap-2">
-          
-          <div className="">
-            <label className="text-[#D1D5DC] font-medium">Email</label>
-            <input
-              // {...register("email")}
-              type="email"
-              required
-              className="border w-105 border-[#656E7D] mb-5  bg-[#0D121C] p-3 rounded-md placeholder-[#656E7D] mt-2"
-              placeholder="email@exemplo.com"
-              // disabled={isLoading}
-            />
-          </div>
-          <div className="">
-            <label className="text-[#D1D5DC] font-medium">Senha</label>
-            <input
-              // {...register("email")}
-              type="password"
-              required
-              className="border w-105 border-[#656E7D] mb-5  bg-[#0D121C] p-3 rounded-md placeholder-[#656E7D] mt-2"
-              placeholder="senha"
-              // disabled={isLoading}
-            />
-          </div>
+      // Redireciona para a página principal (Dashboard ou CadCli)
+      router.push("/home"); 
+    } catch (error) {
+      alert("Erro ao fazer login. Verifique seus dados.");
+    }
+  }
 
-          <button className=" w-105 mb-5 bg-gradient-to-r from-[#00B8DB] to-[#155EFC] p-2 h-13 rounded-md hover:scale-105 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100">
-            <h1 className="flex justify-center font-bold text-[#F9FCFF] ">Entrar</h1>
-          </button>
-
-
-        </form>
-
-
-
-
+  return (
+    <div className="flex items-center justify-center h-screen bg-gray-200">
+      <form onSubmit={handleLogin} className="p-8 bg-white rounded shadow-md w-96">
+        <h1 className="text-2xl font-bold mb-4 text-center text-gray-800">Login</h1>
+        
+        <input 
+          type="email" 
+          placeholder="E-mail" 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-2 mb-4 border rounded"
+        />
+        <input 
+          type="password" 
+          placeholder="Senha" 
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+          className="w-full p-2 mb-4 border rounded"
+        />
+        
+        <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+          Entrar
+        </button>
+      </form>
     </div>
-  </main>
-  )
+  );
 }
