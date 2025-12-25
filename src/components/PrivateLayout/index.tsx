@@ -28,7 +28,7 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
 
        
         <main className="flex-1 flex flex-col bg-gray-100 overflow-y-auto">           
-           <div className="mt-20 flex-1">
+           <div className=" flex-1">
               {children}
            </div>
         </main>

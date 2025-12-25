@@ -178,12 +178,12 @@ export default function CadCliPage() {
   };
 
   return (
-    <div className="flex">
+    <div className="flex flex-row h-full w-full">
       <aside>
         <CadSidebar />
       </aside>
 
-      <div className="m-5 flex flex-col w-full">
+      <div className="flex flex-col w-full h-full ">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
           {" "}
           <input
@@ -200,7 +200,7 @@ export default function CadCliPage() {
           </button>
         </div>
 
-        <div className="flex-grow">
+        <div className="flex-1 overflow-auto">
           <TabelaClientes clientes={clientes} loading={loading} error={error} />
 
           <div className="p-4">
