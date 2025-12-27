@@ -16,6 +16,8 @@ import { usePathname } from "next/navigation";
 import React from "react";
 import Image from "next/image";
 import logoFundacao from "../../images/logofundacao.png";
+import { BotaoSair } from "../LogoutButton";
+
 
 
 const iconMap: { [key: string]: LucideIcon } = {
@@ -85,9 +87,7 @@ export function Header() {
         })}
       </div>
       <div>
-        <button>
-          <LogOut className="text-[#F6F6F6] hover:bg-[#66ACE4] transition ease-in-out rounded-md m-5 " />
-        </button>
+        <BotaoSair/>
       </div>
     </header>
   );

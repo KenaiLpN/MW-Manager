@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { isAxiosError } from "axios";
+
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../components/modal";
 import TabelaClientes from "@/components/tabelaclientes";

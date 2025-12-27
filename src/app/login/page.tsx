@@ -17,7 +17,7 @@ export default function LoginPage() {
       const { token } = response.data;
 
       // Salva o token nos Cookies (Expira em 1 dia)
-      Cookies.set("mw_token", token, { expires: 1 });
+      Cookies.set("token", token, { expires: 1 });
 
       // Redireciona para a página principal (Dashboard ou CadCli)
       router.push("/home"); 
