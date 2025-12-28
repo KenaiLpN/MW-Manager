@@ -1,4 +1,5 @@
 "use client";
+
 import {
   LayoutDashboard,
   LucideIcon,
@@ -6,26 +7,27 @@ import {
   Ticket,
   UsersRound,
   CircleUserRound,
-  LogOut,
   ScrollText,
   LockKeyhole,
-  Settings
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
-import Image from "next/image";
-import logoFundacao from "../../images/logofundacao.png";
+import React, { useEffect, useState } from "react";
 import { BotaoSair } from "../LogoutButton";
+import { UserMenu } from "../perfildropdown";
+import api from "@/services/api"; // Importe seu api configurado
 
-
-
+// ... (Mantenha seus arrays de iconMap e navItems iguais) ...
 const iconMap: { [key: string]: LucideIcon } = {
   Dashboard: LayoutDashboard,
   TvMinimalPlay: TvMinimalPlay,
   Ticket: Ticket,
   UsersRound: UsersRound,
-  CircleUserRound: CircleUserRound,ScrollText,LockKeyhole, Settings
+  CircleUserRound: CircleUserRound,
+  ScrollText,
+  LockKeyhole,
+  Settings,
 };
 
 interface NavItem {
@@ -34,30 +36,54 @@ interface NavItem {
   iconName: keyof typeof iconMap;
 }
 
-// Os dados permanecem os mesmos, mas a correção será feita na 'key'
 const navItems: NavItem[] = [
   { name: "Cadastros", href: "/cadastros", iconName: "Dashboard" },
   { name: "Tabelas", href: "/anydesk", iconName: "TvMinimalPlay" },
   { name: "Comercial", href: "/chamados", iconName: "Ticket" },
   { name: "Orçamentos", href: "/orcamentos", iconName: "UsersRound" },
   { name: "Notas", href: "/notas", iconName: "ScrollText" },
-  { name: "Perfil", href: "/perfil", iconName: "CircleUserRound" },
   { name: "Segurança", href: "/seguranca", iconName: "LockKeyhole" },
-  { name: "Configurações", href: "/configuracoes", iconName: "Settings" },
 ];
 
 export function Header() {
+  // 1. Estado inicial
+  const [user, setUser] = useState({
+    nome: "Carregando...", // Valor temporário
+    role: "",
+  });
+
   const pathname = usePathname();
 
-  const baseLinkClasses =
-    "flex items-center gap-2 text-[#52E8FB] transition font-medium duration-300 ease-in-out h-20 p-5";
+  // 2. useEffect para buscar os dados assim que o Header aparecer
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        // Chama a rota /me que criamos no backend
+        // O api.get envia o cookie 'token' automaticamente graças ao withCredentials: true
+        const response = await api.get("/me");
+
+        // 3. Atualiza o estado com os dados REAIS do banco
+        setUser({
+          nome: response.data.nome, // Backend retorna 'nome'
+          role: response.data.role || "Usuário", // Backend retorna 'role'
+        });
+
+      } catch (error) {
+        console.error("Erro ao carregar perfil:", error);
+        // Se der erro (ex: token expirado), mostra Desconhecido
+        setUser({ nome: "Desconhecido", role: "Visitante" });
+      }
+    }
+
+    fetchUserData();
+  }, []); // Array vazio = executa apenas 1 vez no load
+
+  // ... (funções de classe css mantidas iguais) ...
+  const baseLinkClasses = "flex items-center gap-2 text-[#52E8FB] transition font-medium duration-300 ease-in-out h-20 p-5";
   const activeLinkClasses = "text-[#FFFF] bg-[#1854af] font-medium";
-  const inactive =
-    "text-[#F6F6F6] transition font-medium duration-300 ease-in-out hover:text-[#FDFDFD] hover:bg-[#1854af]";
+  const inactive = "text-[#F6F6F6] transition font-medium duration-300 ease-in-out hover:text-[#FDFDFD] hover:bg-[#1854af]";
 
   const getLinkClasses = (href: string) => {
-    // Para tratar os múltiplos links de "/perfil", podemos ajustar a lógica de 'ativo'
-    // Aqui, vamos manter a lógica simples, mas em um caso real você poderia querer mais complexidade.
     const isActive = pathname === href;
     return `${baseLinkClasses} ${isActive ? activeLinkClasses : inactive}`;
   };
@@ -65,18 +91,18 @@ export function Header() {
   return (
     <header className="flex bg-[#34495E] border-b border-[#e4e9f0] justify-between items-center">
       <div className="ml-5">
-        {/* <Image src={logoFundacao} alt="Logo" width={60} height={20}/> */}
         <h1 className="text-[#F6F6F6] text-2xl font-bold">PROJOV</h1>
-        <p className="text-[#F6F6F6] text-xs">Rua Pará, nº 159 - - BARUERI - SP - . Tel.: (11) 4166-2630</p>
+        <p className="text-[#F6F6F6] text-xs">
+          Rua Pará, nº 159 - BARUERI - SP. Tel.: (11) 4166-2630
+        </p>
       </div>
 
       <div className="flex space-x-2">
         {navItems.map((item) => {
           const IconComponent = iconMap[item.iconName];
-
           return (
             <Link
-              key={item.name} // ✅ CORREÇÃO 2: Usando 'item.name' como chave única
+              key={item.name}
               href={item.href}
               className={getLinkClasses(item.href)}
             >
@@ -86,8 +112,13 @@ export function Header() {
           );
         })}
       </div>
-      <div>
-        <BotaoSair/>
+
+      <div className="flex items-center gap-4 pr-5">
+        {/* 4. Passando os dados CORRETOS para o seu componente */}
+        <UserMenu nome={user.nome} role={user.role} />
+        
+        {/* Botão de Sair */}
+        <BotaoSair />
       </div>
     </header>
   );

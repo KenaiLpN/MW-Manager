@@ -42,6 +42,10 @@ export interface Cliente {
   chk_ativo?: boolean;
 }
 
+export interface UserProfile {
+nome: string;
+}
+
 export interface Client {
   cod_cli: number;
   nome: string;

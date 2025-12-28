@@ -28,33 +28,38 @@ export default function CadCliPage() {
     estado: "",
     cep: "",
     telefone: "",
+    role: "",
     senha_hash: "",
     senha2: "",
     chk_ativo: true,
   });
 
   const buscaCEP = async (cep: string) => {
-  const cepLimpo = cep.replace(/\D/g, "");
-  if (cepLimpo.length === 8) {
-    try {
-      const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-      const data = await response.json();
-      if (!data.erro) {
-        setFormData((prev) => ({
-          ...prev,
-          endereco: data.logradouro,
-          bairro: data.bairro,
-          cidade: data.localidade,
-          estado: data.uf,
-        }));
+    const cepLimpo = cep.replace(/\D/g, "");
+    if (cepLimpo.length === 8) {
+      try {
+        const response = await fetch(
+          `https://viacep.com.br/ws/${cepLimpo}/json/`
+        );
+        const data = await response.json();
+        if (!data.erro) {
+          setFormData((prev) => ({
+            ...prev,
+            endereco: data.logradouro,
+            bairro: data.bairro,
+            cidade: data.localidade,
+            estado: data.uf,
+          }));
+        }
+      } catch (err) {
+        console.error("Erro ao buscar CEP");
       }
-    } catch (err) {
-      console.error("Erro ao buscar CEP");
     }
-  }
-};
+  };
 
   const [saving, setSaving] = useState<boolean>(false);
+
+  const roles = ["Usuário interno", "Aprendiz", "Educador/Tutor" , "Funcionário", "Parceiro" ];
 
   const estados = [
     "AC",
@@ -99,14 +104,12 @@ export default function CadCliPage() {
       estado: "",
       cep: "",
       telefone: "",
+      role: "",
       senha_hash: "",
       senha2: "",
       chk_ativo: true,
     });
   };
-
-  const modalSearchLayout =
-    "p-1 w-40 rounded bg-white m-4 border border-gray-300";
 
   async function fetchClientes(paginaParaBuscar: number) {
     setLoading(true); // Garanta que o loading apareça na troca de página
@@ -155,7 +158,7 @@ export default function CadCliPage() {
       return;
     }
 
-    if(formData.senha_hash.length < 8){
+    if (formData.senha_hash.length < 8) {
       alert("A senha deve ter pelo menos 8 caracteres.");
       return;
     }
@@ -280,10 +283,10 @@ export default function CadCliPage() {
               />
             </div>
 
-            {/* COLUNA 2 (Linha 2): CELULAR */}
+            {/* COLUNA 2 (Linha 2): TELEFONE */}
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Celular
+                Telefone
               </label>
               <input
                 name="telefone"
@@ -294,7 +297,26 @@ export default function CadCliPage() {
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
-               <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-gray-600">
+                Função
+              </label>
+            <select 
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            className="p-2 w-full rounded border border-gray-300"
+            >
+              <option value="">Selecione a função</option>
+              {roles.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
+            </div>
+
+            <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">CEP</label>
               <input
                 name="cep"
@@ -306,7 +328,7 @@ export default function CadCliPage() {
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
-                 <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
                 Estado
               </label>
@@ -325,7 +347,7 @@ export default function CadCliPage() {
               </select>
             </div>
 
-            <div className="col-span-2 flex flex-col gap-1">
+            <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
                 Endereço
               </label>
@@ -334,7 +356,7 @@ export default function CadCliPage() {
                 value={formData.endereco}
                 onChange={handleChange}
                 type="text"
-                placeholder="Endereço completo ou observações"
+                placeholder="Rua"
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
@@ -364,13 +386,11 @@ export default function CadCliPage() {
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
-       
-
-         
-
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Senha</label>
+              <label className="text-sm font-semibold text-gray-600">
+                Senha
+              </label>
               <input
                 name="senha_hash"
                 value={formData.senha_hash}
@@ -381,7 +401,9 @@ export default function CadCliPage() {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Confirme sua Senha</label>
+              <label className="text-sm font-semibold text-gray-600">
+                Confirme sua Senha
+              </label>
               <input
                 name="senha2"
                 value={formData.senha2}
