@@ -48,7 +48,7 @@ const navItems: NavItem[] = [
 export function Header() {
   // 1. Estado inicial
   const [user, setUser] = useState({
-    nome: "Carregando...", // Valor temporário
+    nome: "", // Valor temporário
     role: "",
   });
 
@@ -56,26 +56,16 @@ export function Header() {
 
   // 2. useEffect para buscar os dados assim que o Header aparecer
   useEffect(() => {
-    async function fetchUserData() {
-      try {
-        // Chama a rota /me que criamos no backend
-        // O api.get envia o cookie 'token' automaticamente graças ao withCredentials: true
-        const response = await api.get("/me");
+    // Busca os dados salvos no navegador
+    const dadosSalvos = localStorage.getItem("projov_user");
 
-        // 3. Atualiza o estado com os dados REAIS do banco
-        setUser({
-          nome: response.data.nome, // Backend retorna 'nome'
-          role: response.data.role || "Usuário", // Backend retorna 'role'
-        });
-
-      } catch (error) {
-        console.error("Erro ao carregar perfil:", error);
-        // Se der erro (ex: token expirado), mostra Desconhecido
-        setUser({ nome: "Desconhecido", role: "Visitante" });
-      }
+    if (dadosSalvos) {
+      const usuarioParseado = JSON.parse(dadosSalvos);
+      setUser({
+        nome: usuarioParseado.nome,
+        role: usuarioParseado.role || "Sem cargo",
+      });
     }
-
-    fetchUserData();
   }, []); // Array vazio = executa apenas 1 vez no load
 
   // ... (funções de classe css mantidas iguais) ...

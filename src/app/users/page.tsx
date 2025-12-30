@@ -7,7 +7,7 @@ import Modal from "../../components/modal";
 import TabelaClientes from "@/components/tabelaclientes";
 import api from "@/services/api";
 import { Cliente } from "@/types";
-// Tipagem de cliente
+
 
 export default function CadCliPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -112,28 +112,28 @@ export default function CadCliPage() {
   };
 
   async function fetchClientes(paginaParaBuscar: number) {
-    setLoading(true); // Garanta que o loading apareça na troca de página
+    setLoading(true); 
     try {
-      // Passamos a pagina e o limite na URL
+      
       const response = await api.get(
         `/users?page=${paginaParaBuscar}&limit=10`
       );
 
-      // A resposta agora tem essa estrutura. Ajuste conforme sua API.
+      
       setClientes(response.data.data);
       setTotalPages(response.data.meta.totalPages);
     } catch (err) {
-      // ... (seu tratamento de erro continua igual)
+     
     } finally {
       setLoading(false);
     }
   }
-  // 4. Lógica de GET (Busca de Clientes)
+  
   useEffect(() => {
     fetchClientes(page);
-  }, [page]); // Toda vez que 'page' mudar, ele busca de novo
+  }, [page]); 
 
-  // Funções para os botões de paginação
+  
   const handlePreviousPage = () => {
     if (page > 1) setPage((prev) => prev - 1);
   };
@@ -165,13 +165,13 @@ export default function CadCliPage() {
     setSaving(true);
     try {
       const { senha2, ...dataToSend } = formData;
-      // Faz o POST para a rota /users (ou a rota correta de criação)
+      
       await api.post("/users", dataToSend);
 
       alert("Cliente cadastrado com sucesso!");
 
-      closeModal(); // Fecha o modal
-      fetchClientes(page); // Atualiza a tabela com o novo cliente
+      closeModal(); 
+      fetchClientes(page); 
     } catch (err) {
       console.error(err);
       alert("Erro ao cadastrar cliente. Verifique o console.");
@@ -240,7 +240,7 @@ export default function CadCliPage() {
           </h2>
 
           <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* COLUNA 1: NOME */}
+          
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
                 Nome
@@ -255,7 +255,7 @@ export default function CadCliPage() {
               />
             </div>
 
-            {/* COLUNA 2: CPF */}
+           
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">CPF</label>
               <input
@@ -268,7 +268,7 @@ export default function CadCliPage() {
               />
             </div>
 
-            {/* COLUNA 1 (Linha 2): EMAIL */}
+           
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
                 Email
@@ -283,7 +283,7 @@ export default function CadCliPage() {
               />
             </div>
 
-            {/* COLUNA 2 (Linha 2): TELEFONE */}
+           
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
                 Telefone
