@@ -290,7 +290,7 @@ export default function CadCliPage() {
               </label>
               <input
                 name="telefone"
-                value={formData.telefone} // Ajuste conforme seu formData
+                value={formData.telefone}
                 onChange={handleChange}
                 type="text"
                 placeholder="(11) 99999-9999"
@@ -415,7 +415,7 @@ export default function CadCliPage() {
             </div>
           </div>
 
-          {/* BOTÕES DE AÇÃO */}
+         
           <div className="flex justify-end gap-4 m-4 pt-4 border-t">
             <button
               onClick={closeModal}

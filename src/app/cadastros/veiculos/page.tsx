@@ -2,7 +2,7 @@ import { CadSidebar } from "@/components/cadsidebar";
 
 export default function VeiculosPage() {
     return (
-     <div className="flex">
+     <div className="flex h-full">
               <aside>
                  <CadSidebar/>
               </aside>

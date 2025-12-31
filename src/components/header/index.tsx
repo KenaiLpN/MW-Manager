@@ -37,7 +37,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: "Cadastros", href: "/cadastros", iconName: "Dashboard" },
+  { name: "Cadastros", href: "/cadastros/users", iconName: "Dashboard" },
   { name: "Tabelas", href: "/anydesk", iconName: "TvMinimalPlay" },
   { name: "Comercial", href: "/chamados", iconName: "Ticket" },
   { name: "Orçamentos", href: "/orcamentos", iconName: "UsersRound" },
