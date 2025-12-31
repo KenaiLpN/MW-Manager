@@ -29,7 +29,7 @@ export function BotaoSair() {
     <button
       type="button"
       onClick={handleLogout}
-      className="text-red-500 mr-5 ml-25 hover:bg-red-500"
+      className="text-red-600 mr-3 rounded-xl items-center justify-center"
     >
       <LogOut />
     </button>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 
 import { CadSidebar } from "@/components/cadsidebar";
-import Modal from "../../components/modal";
+import Modal from "../../../components/modal";
 import TabelaClientes from "@/components/tabelaclientes";
 import api from "@/services/api";
 import { Cliente } from "@/types";
@@ -197,7 +197,7 @@ export default function CadCliPage() {
           <div className="flex space-x-2"></div>
           <button
             onClick={openModal}
-            className="px-6 py-3 bg-[#34495E] text-white font-semibold rounded-lg shadow-md hover:bg-[#1f2b36] focus:outline-none focus:ring-2 focus:ring-[#1f2b36] focus:ring-opacity-75 mr-4 cursor-pointer"
+            className="px-6 py-3 bg-[#34495E] text-white font-semibold rounded-lg shadow-md hover:bg-[#253341a4] mr-4 cursor-pointer"
           >
             Novo
           </button>
@@ -305,7 +305,7 @@ export default function CadCliPage() {
             name="role"
             value={formData.role}
             onChange={handleChange}
-            className="p-2 w-full rounded border border-gray-300"
+            className="p-2 w-full rounded border border-gray-300 cursor-pointer"
             >
               <option value="">Selecione a função</option>
               {roles.map((role) => (
@@ -336,7 +336,7 @@ export default function CadCliPage() {
                 name="estado"
                 value={formData.estado}
                 onChange={handleChange}
-                className="p-2 w-full rounded border border-gray-300"
+                className="p-2 w-full rounded border border-gray-300 cursor-pointer"
               >
                 <option value="">Selecione o estado</option>
                 {estados.map((uf) => (
@@ -419,14 +419,14 @@ export default function CadCliPage() {
           <div className="flex justify-end gap-4 m-4 pt-4 border-t">
             <button
               onClick={closeModal}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors cursor-pointer"
             >
               Cancelar
             </button>
             <button
               onClick={handleSalvar}
               disabled={saving}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 transition-colors"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 transition-colors cursor-pointer"
             >
               {saving ? "Salvando..." : "Confirmar"}
             </button>

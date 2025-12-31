@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { LogOut, User, Settings, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { BotaoSair } from "../LogoutButton";
 
 interface UserMenuProps {
   nome: string;
@@ -37,7 +38,7 @@ export function UserMenu({ nome, role }: UserMenuProps) {
       {/* Botão Trigger (O que aparece na Topbar) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 outline-none focus:ring-2 focus:ring-blue-500/20"
+        className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#253341a4] transition-colors duration-200 outline-none focus:ring-2 focus:ring-gray-500/10"
       >
         <div className="flex items-end gap-2">
           {/* Avatar Circle */}
@@ -85,7 +86,10 @@ export function UserMenu({ nome, role }: UserMenuProps) {
               Configurações
             </Link>
           </div>
-
+          <div className="flex items-center justify-center py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-800 cursor-pointer">
+            <BotaoSair />
+            Sair
+          </div>
           <div className="border-t border-gray-100 py-1"></div>
         </div>
       )}

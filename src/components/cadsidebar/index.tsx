@@ -9,25 +9,25 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: "Usuários", href: "/users" },
-  { name: "Pessoas", href: "/pessoas" },
-  { name: "Unidades", href: "/unidades" },
-  { name: "Montadoras", href: "/montadoras" },
-  { name: "Fornecedores", href: "/fornecedores" },
-  { name: "Produtos", href: "/produtos" },
-  { name: "Serviços", href: "/servicos" },
-  { name: "Veículos", href: "/veiculos" },
-  { name: "Empresas", href: "/empresas" },
-  { name: "Certificados", href: "/certificados" },
+  { name: "Usuários", href: "/cadastros/users" },
+  { name: "Pessoas", href: "/cadastros/pessoas" },
+  { name: "Unidades", href: "/cadastros/unidades" },
+  { name: "Montadoras", href: "/cadastros/montadoras" },
+  { name: "Fornecedores", href: "/cadastros/fornecedores" },
+  { name: "Produtos", href: "/cadastros/produtos" },
+  { name: "Serviços", href: "/cadastros/servicos" },
+  { name: "Veículos", href: "/cadastros/veiculos" },
+  { name: "Empresas", href: "/cadastros/empresas" },
+  { name: "Certificados", href: "/cadastros/certificados" },
 ];
 
 export function CadSidebar() {
   const pathname = usePathname();
 
   const baseLinkClasses =
-    "flex items-center text-[#52E8FB] transition font-medium duration-300 ease-in-out h-14 w-50 justify-center";
+    "flex items-center transition font-medium duration-300 ease-in-out h-14 w-50 justify-center hover:bg-[#253341a4] ";
 
-  const activeLinkClasses = "text-[#FFFF] bg-[#1f2b36] font-medium";
+  const activeLinkClasses = "text-[#FFFF] bg-[#253341a4] font-medium focus:ring-2 focus:ring-gray-500/10";
 
   const inactive = "text-[#F6F6F6] transition font-medium duration-300 ease-in-out hover:text-[#FDFDFD] hover:bg-[#1854af]";
 

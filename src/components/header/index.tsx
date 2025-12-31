@@ -69,9 +69,9 @@ export function Header() {
   }, []); // Array vazio = executa apenas 1 vez no load
 
   // ... (funções de classe css mantidas iguais) ...
-  const baseLinkClasses = "flex items-center gap-2 text-[#52E8FB] transition font-medium duration-300 ease-in-out h-20 p-5";
-  const activeLinkClasses = "text-[#FFFF] bg-[#1854af] font-medium";
-  const inactive = "text-[#F6F6F6] transition font-medium duration-300 ease-in-out hover:text-[#FDFDFD] hover:bg-[#1854af]";
+  const baseLinkClasses = "flex items-center gap-2 text-[#52E8FB] transition font-medium duration-500 ease-in-out h-20 p-5";
+  const activeLinkClasses = "text-[#F6F6F6] bg-[#253341a4] font-medium focus:ring-2 focus:ring-gray-500/10";
+  const inactive = "text-[#F6F6F6] transition font-medium duration-300 ease-in-out hover:text-[#FDFDFD] hover:bg-[#253341a4]";
 
   const getLinkClasses = (href: string) => {
     const isActive = pathname === href;
@@ -87,7 +87,7 @@ export function Header() {
         </p>
       </div>
 
-      <div className="flex space-x-2">
+      <div className="flex">
         {navItems.map((item) => {
           const IconComponent = iconMap[item.iconName];
           return (
@@ -106,9 +106,8 @@ export function Header() {
       <div className="flex items-center gap-4 pr-5">
         {/* 4. Passando os dados CORRETOS para o seu componente */}
         <UserMenu nome={user.nome} role={user.role} />
-        
-        {/* Botão de Sair */}
-        <BotaoSair />
+
+      
       </div>
     </header>
   );
