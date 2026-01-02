@@ -39,6 +39,7 @@ export interface Cliente {
   nome: string;
   email: string;
   cpf: string;
+  role: string;
   chk_ativo?: boolean;
 }
 

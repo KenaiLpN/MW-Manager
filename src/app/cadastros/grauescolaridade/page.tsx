@@ -1,15 +1,15 @@
 import { CadSidebar } from "@/components/cadsidebar";
 
-export default function ProdutosPage() {
+export default function GrauEscolaridade() {
     return (
      <div className="flex h-full">
               <aside>
                  <CadSidebar/>
               </aside>
-        <h1 className="text-[#133c86] font-bold text-2xl m-10">Produtos</h1>
+        <h1 className="text-[#133c86] font-bold text-2xl m-10">Graus de Escolaridade</h1>
 
-      
-     </div>
+        
+</div>
        
     
-)}
+    )}

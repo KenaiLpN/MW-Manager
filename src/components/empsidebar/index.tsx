@@ -9,22 +9,18 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: "Usuários", href: "/cadastros/users" },
-  { name: "Unidades", href: "/cadastros/unidades" },
-  { name: "Instituições de Ensino", href: "/cadastros/instensino" },
-  { name: "Situações do Participante", href: "/cadastros/sitparticipantes" },
-  { name: "Ocorrências", href: "/cadastros/ocorrencias" },
-  { name: "Profissões", href: "/cadastros/profissoes" },
-  { name: "Graus de Parentesco", href: "/cadastros/grauparentesco" },
-  { name: "Graus de Escolaridade", href: "/cadastros/grauescolaridade" },
-  { name: "Feriados", href: "/cadastros/feriados" },
-  { name: "Motivos de Desligamento", href: "/cadastros/motivodesligamento" },
-  { name: "Instituições Parceiras", href: "/cadastros/instparceiras" },
-  { name: "Status Encaminhamento", href: "/cadastros/statusencaminhamento" },
-  { name: "Regiões", href: "/cadastros/regioes" },
+  { name: "Ramos de Atividade", href: "/empresa/cadramosatividade" },
+  { name: "Empresas", href: "/empresa/cadempresas" },
+  { name: "Unidades de Parceiro", href: "/empresa/cadunidadeparceiro" },
+  { name: "Orientadores", href: "/empresa/cadoriantadores" },
+  { name: "Consulta Parceiros", href: "/empresa/consultaparceiros" },
+  { name: "Consulta Unidades de Parceiro", href: "/empresa/consultaunidadesparceiro" },
+  { name: "Boletos", href: "/empresa/boletos" },
+  { name: "Nota Fiscal", href: "/empresa/nfe" },
+    
 ];
 
-export function CadSidebar() {
+export function EmpSidebar() {
   const pathname = usePathname();
 
   const baseLinkClasses =
