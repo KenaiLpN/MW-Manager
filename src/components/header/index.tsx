@@ -16,10 +16,11 @@ interface NavItem {
 const navItems: NavItem[] = [
   { name: "Cadastros", href: "/cadastros/users" },
   { name: "Empresa", href: "/empresa/cadramosatividade" },
-  { name: "Comercial", href: "/chamados" },
-  { name: "Orçamentos", href: "/orcamentos" },
-  { name: "Notas", href: "/notas" },
-  { name: "Segurança", href: "/seguranca"},
+  { name: "Acessos", href: "/acessos" },
+  { name: "Vagas", href: "/orcamentos" },
+  { name: "Aprendiz", href: "/aprendiz" },
+  { name: "Pedagógico", href: "/pedagogico"},
+  { name: "Estatísticas", href: "/estatisticas"},
 ];
 
 export function Header() {

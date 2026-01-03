@@ -39,8 +39,14 @@ export interface Cliente {
   nome: string;
   email: string;
   cpf: string;
+  endereco?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+  telefone?: string;
+  cep?: string;
   role: string;
-  chk_ativo?: boolean;
+ chk_ativo?: boolean;
 }
 
 export interface UserProfile {

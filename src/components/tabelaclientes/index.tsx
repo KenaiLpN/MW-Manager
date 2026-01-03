@@ -3,18 +3,22 @@
 import React from "react";
 
 import { Cliente } from "@/types";
-// Tipagem de cliente (Refletindo a API real)
+
 
 interface TabelaClientesProps {
   clientes: Cliente[];
   loading: boolean;
   error: string | null;
+  onEdit: (cliente: Cliente) => void;
+  onDelete: (id: number) => void;
 }
 
 const TabelaClientes: React.FC<TabelaClientesProps> = ({
   clientes,
   loading,
   error,
+  onEdit,
+  onDelete,
 }) => {
   if (loading) {
     return (
@@ -100,10 +104,14 @@ const TabelaClientes: React.FC<TabelaClientesProps> = ({
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 {/* Botões de Ação (ex: Editar, Excluir) */}
-                <button className="text-indigo-600 hover:text-indigo-900 mr-4">
+                <button 
+                onClick={() => onEdit(cliente)}
+                className="text-indigo-600 hover:text-indigo-900 mr-4">
                   Editar
                 </button>
-                <button className="text-red-600 hover:text-red-900">
+                <button 
+                onClick={() => onDelete(cliente.id_usuario)}
+                className="text-red-600 hover:text-red-900">
                   Excluir
                 </button>
               </td>
