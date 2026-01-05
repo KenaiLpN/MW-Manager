@@ -6,20 +6,22 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
       - name: Install dependencies
         run: npm install
+
       - name: Build project
         run: npm run build
+
       - name: Deploy via FTP
-        uses: locaweb/ftp-deploy@v1
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ${{ secrets.HOST }}
-          user: ${{ secrets.USERNAME }}
+          server: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
           password: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          localDir: ./out/
-          server-dir: /home/syschron1/
-          exclude: |
-           **/node_modules/**
-          
+          protocol: ftp
+          local-dir: ./out/         # ESSENCIAL: Envia apenas o site estático gerado
+          server-dir: /home/syschron1/ # Ajuste se sua pasta na Locaweb for 'www' ou outra
