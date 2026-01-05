@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal";
-import TabelaClientes from "@/components/tabelaclientes";
+import TabelaUsuarios from "@/components/tabelausuarios";
 import api from "@/services/api";
 import { Cliente } from "@/types";
 
@@ -58,9 +58,43 @@ export default function CadCliPage() {
 
   const [saving, setSaving] = useState<boolean>(false);
 
-  const roles = ["Usuário interno", "Aprendiz", "Educador/Tutor", "Funcionário", "Parceiro"];
+  const roles = [
+    "Usuário interno",
+    "Aprendiz",
+    "Educador/Tutor",
+    "Funcionário",
+    "Parceiro",
+  ];
 
-  const estados = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
+  const estados = [
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MT",
+    "MS",
+    "MG",
+    "PA",
+    "PB",
+    "PR",
+    "PE",
+    "PI",
+    "RJ",
+    "RN",
+    "RS",
+    "RO",
+    "RR",
+    "SC",
+    "SP",
+    "SE",
+    "TO",
+  ];
 
   const openModalNew = () => {
     setEditingId(null);
@@ -110,8 +144,10 @@ export default function CadCliPage() {
   async function fetchClientes(paginaParaBuscar: number) {
     setLoading(true);
     try {
-      const response = await api.get(`/users?page=${paginaParaBuscar}&limit=10`);
-      
+      const response = await api.get(
+        `/users?page=${paginaParaBuscar}&limit=10`
+      );
+
       setClientes(response.data.data);
       setTotalPages(response.data.meta.totalPages);
     } catch (err) {
@@ -147,16 +183,18 @@ export default function CadCliPage() {
   // --- NOVA FUNÇÃO DE DELETE ---
   const handleDeleteUser = async (id: number) => {
     // 1. Confirmação visual nativa do browser
-    const confirmacao = window.confirm("Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.");
-    
+    const confirmacao = window.confirm(
+      "Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita."
+    );
+
     if (!confirmacao) return;
 
     try {
       await api.delete(`/users/${id}`);
       alert("Usuário excluído com sucesso!");
-      
+
       // Atualiza a lista na página atual
-      fetchClientes(page); 
+      fetchClientes(page);
     } catch (err: any) {
       console.error("Erro ao excluir:", err);
       // Mensagem amigável caso o backend devolva erro (ex: usuário tem vínculos)
@@ -188,12 +226,12 @@ export default function CadCliPage() {
       // Limpeza de campos vazios para não quebrar o Zod
       Object.keys(dataToSend).forEach((key) => {
         const value = dataToSend[key as keyof typeof dataToSend];
-        
+
         // Se for a senha e estiver vazia, ignora (para não mandar senha vazia na edição)
-        if (key === 'senha_hash' && (!value || value === "")) return;
-        
+        if (key === "senha_hash" && (!value || value === "")) return;
+
         // Se for string vazia em geral, não envia
-        if (typeof value === 'string' && value.trim() === "") return;
+        if (typeof value === "string" && value.trim() === "") return;
 
         payload[key] = value;
       });
@@ -207,7 +245,7 @@ export default function CadCliPage() {
         // --- MODO CRIAÇÃO (POST) ---
         // Garante que a senha vá na criação se não foi filtrada pela lógica acima
         if (!payload.senha_hash && formData.senha_hash) {
-            payload.senha_hash = formData.senha_hash;
+          payload.senha_hash = formData.senha_hash;
         }
         await api.post("/users", payload);
         alert("Cliente cadastrado com sucesso!");
@@ -218,7 +256,7 @@ export default function CadCliPage() {
     } catch (err: any) {
       // 4. Tratamento de Erro
       console.error("Erro completo:", err);
-      
+
       if (err.response?.data) {
         console.log("Detalhes do erro Zod:", err.response.data);
         alert(`Erro de validação: ${JSON.stringify(err.response.data)}`);
@@ -229,8 +267,6 @@ export default function CadCliPage() {
       setSaving(false);
     }
   };
-
-
 
   return (
     <div className="flex flex-row h-full w-full">
@@ -255,13 +291,12 @@ export default function CadCliPage() {
         </div>
 
         <div className="flex-1 overflow-auto">
-          <TabelaClientes
+          <TabelaUsuarios
             clientes={clientes}
             loading={loading}
             error={error}
             onEdit={handleEditUser}
             onDelete={handleDeleteUser}
-            
           />
 
           <div className="p-4">
@@ -314,50 +349,130 @@ export default function CadCliPage() {
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">CPF</label>
-              <input name="cpf" value={formData.cpf} onChange={handleChange} type="text" className="p-2 w-full rounded border border-gray-300" />
+              <input
+                name="cpf"
+                value={formData.cpf}
+                onChange={handleChange}
+                type="text"
+                className="p-2 w-full rounded border border-gray-300"
+              />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Email</label>
-              <input name="email" value={formData.email} onChange={handleChange} type="email" className="p-2 w-full rounded border border-gray-300" />
+              <label className="text-sm font-semibold text-gray-600">
+                Email
+              </label>
+              <input
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                type="email"
+                className="p-2 w-full rounded border border-gray-300"
+              />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Telefone</label>
-              <input name="telefone" value={formData.telefone} onChange={handleChange} type="text" className="p-2 w-full rounded border border-gray-300" />
+              <label className="text-sm font-semibold text-gray-600">
+                Telefone
+              </label>
+              <input
+                name="telefone"
+                value={formData.telefone}
+                onChange={handleChange}
+                type="text"
+                className="p-2 w-full rounded border border-gray-300"
+              />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Função</label>
-              <select name="role" value={formData.role} onChange={handleChange} className="p-2 w-full rounded border border-gray-300 cursor-pointer">
+              <label className="text-sm font-semibold text-gray-600">
+                Função
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="p-2 w-full rounded border border-gray-300 cursor-pointer"
+              >
                 <option value="">Selecione a função</option>
-                {roles.map((role) => (<option key={role} value={role}>{role}</option>))}
+                {roles.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">CEP</label>
-              <input name="cep" value={formData.cep} onChange={handleChange} onBlur={(e) => buscaCEP(e.target.value)} type="text" className="p-2 w-full rounded border border-gray-300" />
+              <input
+                name="cep"
+                value={formData.cep}
+                onChange={handleChange}
+                onBlur={(e) => buscaCEP(e.target.value)}
+                type="text"
+                className="p-2 w-full rounded border border-gray-300"
+              />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Estado</label>
-              <select name="estado" value={formData.estado} onChange={handleChange} className="p-2 w-full rounded border border-gray-300 cursor-pointer">
+              <label className="text-sm font-semibold text-gray-600">
+                Estado
+              </label>
+              <select
+                name="estado"
+                value={formData.estado}
+                onChange={handleChange}
+                className="p-2 w-full rounded border border-gray-300 cursor-pointer"
+              >
                 <option value="">UF</option>
-                {estados.map((uf) => (<option key={uf} value={uf}>{uf}</option>))}
+                {estados.map((uf) => (
+                  <option key={uf} value={uf}>
+                    {uf}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Endereço</label>
-              <input name="endereco" value={formData.endereco} onChange={handleChange} type="text" className="p-2 w-full rounded border border-gray-300" />
+              <label className="text-sm font-semibold text-gray-600">
+                Endereço
+              </label>
+              <input
+                name="endereco"
+                value={formData.endereco}
+                onChange={handleChange}
+                type="text"
+                className="p-2 w-full rounded border border-gray-300"
+              />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Bairro</label>
-              <input name="bairro" value={formData.bairro} onChange={handleChange} type="text" className="p-2 w-full rounded border border-gray-300" />
+              <label className="text-sm font-semibold text-gray-600">
+                Bairro
+              </label>
+              <input
+                name="bairro"
+                value={formData.bairro}
+                onChange={handleChange}
+                type="text"
+                className="p-2 w-full rounded border border-gray-300"
+              />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Cidade</label>
-              <input name="cidade" value={formData.cidade} onChange={handleChange} type="text" className="p-2 w-full rounded border border-gray-300" />
+              <label className="text-sm font-semibold text-gray-600">
+                Cidade
+              </label>
+              <input
+                name="cidade"
+                value={formData.cidade}
+                onChange={handleChange}
+                type="text"
+                className="p-2 w-full rounded border border-gray-300"
+              />
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Senha {editingId && <span className="text-xs font-normal text-gray-500">(Deixe em branco para manter)</span>}
+                Senha{" "}
+                {editingId && (
+                  <span className="text-xs font-normal text-gray-500">
+                    (Deixe em branco para manter)
+                  </span>
+                )}
               </label>
               <input
                 name="senha_hash"

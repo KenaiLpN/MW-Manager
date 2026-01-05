@@ -1,20 +1,19 @@
 // src/components/TabelaClientes.tsx
 
 import React from "react";
+import {  Unidade } from "@/types";
 
-import { Cliente } from "@/types";
 
-
-interface TabelaClientesProps {
-  clientes: Cliente[];
+interface TabelaUnidadesProps {
+  unidades: Unidade[];
   loading: boolean;
   error: string | null;
-  onEdit: (cliente: Cliente) => void;
+  onEdit: (unidade: Unidade) => void;
   onDelete: (id: number) => void;
 }
 
-const TabelaClientes: React.FC<TabelaClientesProps> = ({
-  clientes,
+const TabelaUnidades: React.FC<TabelaUnidadesProps> = ({
+  unidades,
   loading,
   error,
   onEdit,
@@ -23,7 +22,7 @@ const TabelaClientes: React.FC<TabelaClientesProps> = ({
   if (loading) {
     return (
       <div className="text-center p-8 text-[#133c86]">
-        Carregando clientes...
+        Carregando unidades...
       </div>
     );
   }
@@ -36,10 +35,10 @@ const TabelaClientes: React.FC<TabelaClientesProps> = ({
     );
   }
 
-  if (clientes.length === 0) {
+  if (!unidades || unidades.length === 0) {
     return (
       <div className="text-center p-8 text-gray-500">
-        Nenhum cliente cadastrado.
+        Nenhuma unidade cadastrada.
       </div>
     );
   }
@@ -58,19 +57,22 @@ const TabelaClientes: React.FC<TabelaClientesProps> = ({
               ID
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Nome
+              Campus
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Função
+              Endereço
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              CPF
+              Número
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Email
+              Bairro
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Status
+              Cidade
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
+              Estado
             </th>
 
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tr-lg">
@@ -79,38 +81,38 @@ const TabelaClientes: React.FC<TabelaClientesProps> = ({
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {clientes.map((cliente) => (
-            // Usando id_usuario como chave
-            <tr key={cliente.id_usuario} className="hover:bg-gray-50">
+          {unidades.map((unidade) => (
+            // Usando id_unidade como chave
+            <tr key={unidade.id_unidade} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {cliente.id_usuario}
+                {unidade.id_unidade}
               </td>
 
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {cliente.nome}
+                {unidade.nomeUnidade}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {cliente.role}
+                {unidade.responsavel}
               </td>
 
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {formatCPF(cliente.cpf)}
+                CNPJ
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {cliente.email}
+                {unidade.emailResponsavel}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {cliente.chk_ativo ? "Ativo" : "Inativo"}
+                {unidade.chk_ativo ? "Ativo" : "Inativo"}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 {/* Botões de Ação (ex: Editar, Excluir) */}
                 <button 
-                onClick={() => onEdit(cliente)}
+                onClick={() => onEdit(unidade)}
                 className="text-indigo-600 hover:text-indigo-900 mr-4">
                   Editar
                 </button>
                 <button 
-                onClick={() => onDelete(cliente.id_usuario)}
+                onClick={() => onDelete(unidade.id_unidade)}
                 className="text-red-600 hover:text-red-900">
                   Excluir
                 </button>
@@ -123,4 +125,4 @@ const TabelaClientes: React.FC<TabelaClientesProps> = ({
   );
 };
 
-export default TabelaClientes;
+export default TabelaUnidades;

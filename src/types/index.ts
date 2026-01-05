@@ -48,6 +48,24 @@ export interface Cliente {
   role: string;
  chk_ativo?: boolean;
 }
+export interface Unidade {
+  id_unidade: number;
+  nomeUnidade: string;
+  responsavel: string;
+  emailResponsavel: string;
+  telefone: string;
+  cnpj: string;
+  endereco?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+  complemento?: string;
+  numero?: string;
+  telefoneResponsavel?: string;
+  cep?: string;
+  roleResponsavel?: string;
+ chk_ativo?: boolean;
+}
 
 export interface UserProfile {
 nome: string;
