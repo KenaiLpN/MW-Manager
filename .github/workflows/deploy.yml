@@ -18,4 +18,8 @@ jobs:
           user: ${{ secrets.USERNAME }}
           password: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          localDir: "/home/syschron1/" # Ou a pasta de saída desejada
+          localDir: ./out/
+          server-dir: /home/syschron1/
+          exclude: |
+           **/node_modules/**
+          
