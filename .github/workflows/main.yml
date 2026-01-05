@@ -1,0 +1,60 @@
+name: Deploy Next.js to Locaweb
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Baixa o código do repositório
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # 2. Prepara o ambiente Node.js (versão 20 conforme seus @types/node)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. Instala as dependências e faz o Build
+      - name: Install dependencies & Build
+        run: |
+          npm ci
+          npm run build
+
+      # 4. Envia os arquivos para a Locaweb via SSH (SCP)
+      # Enviamos apenas o necessário para rodar em produção
+      - name: Copy files via SSH
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          # Limpa a pasta de destino antes de copiar (cuidado!) ou apenas sobrescreve
+          # Aqui copiamos: .next (build), public (imagens), package.json (scripts) e next.config (configurações)
+          source: ".next/**,public/**,package.json,next.config.ts,next.config.js" 
+          target: "/home/syschron1/" # CAMINHO DA SUA PASTA NA LOCAWEB
+          strip_components: 0
+
+      # 5. Conecta no servidor para instalar dependências leves e reiniciar o servidor
+      - name: Install Prod Deps & Restart PM2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /var/www/projov-web
+            
+            # Instala apenas dependências de produção (ignora eslint, tailwind, typescript)
+            npm install --production
+            
+            # Reinicia o servidor (usando PM2 é o recomendado)
+            # Se ainda não tiver o PM2: npm install -g pm2
+            pm2 reload ecosystem.config.js --update-env || pm2 restart all
