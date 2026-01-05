@@ -24,4 +24,4 @@ jobs:
           port: ${{ secrets.PORT }}
           protocol: ftp
           local-dir: ./out/         # ESSENCIAL: Envia apenas o site estático gerado
-          server-dir: /home/syschron1/ # Ajuste se sua pasta na Locaweb for 'www' ou outra
+          server-dir: ./public_html/ # Ajuste se sua pasta na Locaweb for 'www' ou outra
