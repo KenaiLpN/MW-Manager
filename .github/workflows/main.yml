@@ -38,7 +38,7 @@ jobs:
           # Limpa a pasta de destino antes de copiar (cuidado!) ou apenas sobrescreve
           # Aqui copiamos: .next (build), public (imagens), package.json (scripts) e next.config (configurações)
           source: ".next/**,public/**,package.json,next.config.ts,next.config.js" 
-          target: "/var/www/projov-web" # CAMINHO DA SUA PASTA NA LOCAWEB
+          target: "/home/syschron1/" # CAMINHO DA SUA PASTA NA LOCAWEB
           strip_components: 0
 
       # 5. Conecta no servidor para instalar dependências leves e reiniciar o servidor
