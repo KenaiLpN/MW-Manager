@@ -28,16 +28,11 @@ const currentPath = request.nextUrl.pathname;
 
 // Configuração: Em quais rotas esse middleware vai rodar?
 export const config = {
-  // O matcher abaixo diz: "Rode em tudo, MENOS arquivos estáticos, imagens, favicon, etc"
   matcher: [
     /*
-     * Corresponde a todas as rotas de requisição exceto:
-     * 1. /api (rotas de API)
-     * 2. /_next/static (arquivos estáticos)
-     * 3. /_next/image (arquivos de otimização de imagem)
-     * 4. favicon.ico (ícone do navegador)
-     * 5. Imagens publicas se houver (svg, png, jpg)
+     * Captura todas as rotas de páginas, permitindo que o middleware
+     * decida o redirecionamento, ignorando apenas arquivos técnicos.
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
