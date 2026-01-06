@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   // 1. Tenta pegar o token dos cookies
-  const token = request.cookies.get('mw_token')?.value;
+  const token = request.cookies.get('token')?.value;
 
   // 2. Define as rotas que são PÚBLICAS (não precisam de login)
   const loginURL = new URL('/login', request.url);
