@@ -17,7 +17,7 @@ export default function LoginPage() {
 
       localStorage.setItem("projov_user", JSON.stringify(dadosDoUsuario));
 
-      window.location.href = "/";
+      window.location.href = "/home";
     } catch (error) {
       console.error(error);
       alert("Erro ao fazer login. Verifique seus dados.");
