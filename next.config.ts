@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export', // Necessário para a Locaweb (FTP)
+  output: 'export', 
   images: {
-    unoptimized: true, // Necessário pois não há servidor Node na Locaweb para otimizar imagens
+    unoptimized: true, 
   },
-  // Adicione estas linhas para ignorar os erros e forçar o build:
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -2,37 +2,27 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // 1. Tenta pegar o token dos cookies
   const token = request.cookies.get('token')?.value;
+  const { pathname } = request.nextUrl;
 
-  // 2. Define as rotas que são PÚBLICAS (não precisam de login)
-  const loginURL = new URL('/login', request.url);
-  const homedURL = new URL('/home', request.url);
-
-const currentPath = request.nextUrl.pathname;
-
-
-  // Se o usuário já está logado e tenta acessar /login, manda pro dashboard
-  if (token && currentPath === '/login') {
-    return NextResponse.redirect(homedURL);
+  // 1. Se o usuário acessar a raiz "/" pura, manda para o login ou home
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL(token ? '/home' : '/login', request.url));
   }
 
-  // Se NÃO tem token e NÃO está na página de login, manda pro login
-  if (!token && currentPath !== '/login') {
-    return NextResponse.redirect(loginURL);
+  // 2. Se não tiver token e tentar acessar áreas privadas, manda para o login
+  if (!token && pathname.startsWith('/home')) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Se estiver tudo ok, deixa passar
+  // 3. Se já tiver token e tentar ir para o login, manda para a home
+  if (token && pathname === '/login') {
+    return NextResponse.redirect(new URL('/home', request.url));
+  }
+
   return NextResponse.next();
 }
 
-// Configuração: Em quais rotas esse middleware vai rodar?
 export const config = {
-  matcher: [
-    /*
-     * Captura todas as rotas de páginas, permitindo que o middleware
-     * decida o redirecionamento, ignorando apenas arquivos técnicos.
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/', '/home/:path*', '/login'],
 };
