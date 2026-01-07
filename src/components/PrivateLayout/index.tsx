@@ -1,24 +1,61 @@
-"use client"; // Obrigatório ser client-side para ler a rota
+"use client"; 
 
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"; // Adicionei useRouter
+import { useEffect, useState } from "react"; // Adicionei os hooks
 import { Header } from "../header";
-// Importe sua TopBar aqui também se tiver
 
 export default function PrivateLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  
+  // Estado para controlar se podemos mostrar a tela ou não
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
-  // Lista de rotas públicas onde a Sidebar/Topbar NÃO devem aparecer
+  useEffect(() => {
+    // 1. Defina quais rotas são públicas (não precisam de login)
+    // Dica: Adicione '/' se sua home for pública, ou remova se for privada
+    const publicRoutes = ["/login", "/cadastro", "/recuperar-senha"];
+    const isPublicPage = publicRoutes.includes(pathname);
+
+    // 2. Função que verifica o cookie
+    const checkAuth = () => {
+      // Procura pelo cookie chamado "token"
+      const hasToken = document.cookie.split("; ").find((row) => row.startsWith("token="));
+
+      if (isPublicPage) {
+        // Se é rota pública, libera geral
+        setIsAuthorized(true);
+      } else {
+        // Se é rota privada...
+        if (!hasToken) {
+          // Não tem token? Manda pro login e bloqueia a tela
+          setIsAuthorized(false);
+          router.push("/login");
+        } else {
+          // Tem token? Libera o acesso
+          setIsAuthorized(true);
+        }
+      }
+    };
+
+    checkAuth();
+  }, [pathname, router]);
+
+  // 3. Bloqueio de renderização (Loading)
+  // Enquanto o useEffect não confirma a autorização, retornamos null (tela branca)
+  // ou um Spinner de carregamento para não mostrar conteúdo proibido.
+  if (!isAuthorized) {
+    return null; 
+  }
+
+  // --- LÓGICA DE LAYOUT ORIGINAL ABAIXO ---
+
   const isPublicPage = pathname === "/login" || pathname === "/cadastro";
 
   if (isPublicPage) {
-    // Se for login, retorna apenas o conteúdo (o formulário de login) sem barras
     return <>{children}</>;
   }
 
-  const showSidebar = pathname.startsWith("/cadastro");
-
-  
-  // Se for rota privada, retorna a estrutura com Topbar + Conteúdo
   return (
     <div className="flex flex-col h-screen w-full bg-gray-100">
         {/* TOPBAR FIXA */}
@@ -26,7 +63,6 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
             <Header />
        </header>
 
-       
         <main className="flex-1 flex flex-col bg-gray-100 overflow-y-auto">           
            <div className=" flex-1">
               {children}
