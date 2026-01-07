@@ -1,7 +1,6 @@
 "use client"; // Obrigatório ser client-side para ler a rota
 
-import { usePathname } from "next/navigation";
-import { CadSidebar } from "@/components/cadsidebar"; // Sua sidebar
+import { usePathname } from "next/navigation"
 import { Header } from "../header";
 // Importe sua TopBar aqui também se tiver
 
@@ -18,6 +17,7 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
 
   const showSidebar = pathname.startsWith("/cadastro");
 
+  
   // Se for rota privada, retorna a estrutura com Topbar + Conteúdo
   return (
     <div className="flex flex-col h-screen w-full bg-gray-100">
