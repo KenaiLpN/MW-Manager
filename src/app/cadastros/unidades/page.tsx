@@ -10,13 +10,13 @@ import TabelaUnidades from "@/components/tabelaunidades";
 
 // Definição da interface do Form para garantir tipagem
 interface UnidadeFormData {
-  nomeUnidade: string;
+  nome_unidade: string;
   cnpj: string;
   telefone: string;
   responsavel: string;
-  telefoneResponsavel: string;
-  emailResponsavel: string;
-  roleResponsavel: string;
+  telefone_responsavel: string;
+  email_responsavel: string;
+  role_responsavel: string;
   cep: string;
   endereco: string;
   numero: string;
@@ -32,7 +32,7 @@ export default function Unidades() {
   const [editingId, setEditingId] = useState<number | null>(null);
 
   // Se possível, mude o tipo de Cliente[] para algo como Unidade[]
-  const [unidades, setUnidades] = useState<any[]>([]); 
+  const [unidades, setUnidades] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
@@ -40,13 +40,13 @@ export default function Unidades() {
 
   // Estado inicializado com os campos corretos da Unidade
   const [formData, setFormData] = useState<UnidadeFormData>({
-    nomeUnidade: "",
+    nome_unidade: "",
     cnpj: "",
     telefone: "",
     responsavel: "",
-    telefoneResponsavel: "",
-    emailResponsavel: "",
-    roleResponsavel: "",
+    telefone_responsavel: "",
+    email_responsavel: "",
+    role_responsavel: "",
     cep: "",
     endereco: "",
     numero: "",
@@ -82,28 +82,48 @@ export default function Unidades() {
 
   const [saving, setSaving] = useState<boolean>(false);
 
-  const roles = [
-    "Matriz",
-    "Filial",
-    "Parceiro",
-    "Outro",
-  ];
+  const roles = ["Matriz", "Filial", "Parceiro", "Outro"];
 
   const estados = [
-    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG",
-    "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MT",
+    "MS",
+    "MG",
+    "PA",
+    "PB",
+    "PR",
+    "PE",
+    "PI",
+    "RJ",
+    "RN",
+    "RS",
+    "RO",
+    "RR",
+    "SC",
+    "SP",
+    "SE",
+    "TO",
   ];
 
   const openModalNew = () => {
     setEditingId(null);
     setFormData({
-      nomeUnidade: "",
+      nome_unidade: "",
       cnpj: "",
       telefone: "",
       responsavel: "",
-      telefoneResponsavel: "",
-      emailResponsavel: "",
-      roleResponsavel: "",
+      telefone_responsavel: "",
+      email_responsavel: "",
+      role_responsavel: "",
       cep: "",
       endereco: "",
       numero: "",
@@ -119,13 +139,13 @@ export default function Unidades() {
   const handleEditUnity = (item: any) => {
     setEditingId(item.id_unidade || item.id); // Ajuste conforme seu banco de dados
     setFormData({
-      nomeUnidade: item.nomeUnidade || item.nome || "",
+      nome_unidade: item.nome_unidade || item.nome || "",
       cnpj: item.cnpj || item.cpf || "", // Fallback caso venha como cpf do banco
       telefone: item.telefone || "",
       responsavel: item.responsavel || "",
-      telefoneResponsavel: item.telefoneResponsavel || "",
-      emailResponsavel: item.emailResponsavel || item.email || "",
-      roleResponsavel: item.roleResponsavel || "",
+      telefone_responsavel: item.telefone_responsavel || "",
+      email_responsavel: item.email_responsavel || item.email || "",
+      role_responsavel: item.role_responsavel || "",
       cep: item.cep || "",
       endereco: item.endereco || "",
       numero: item.numero || "",
@@ -150,6 +170,8 @@ export default function Unidades() {
       const response = await api.get(
         `/unidade?page=${paginaParaBuscar}&limit=10`
       );
+      console.log("Dados da API:", response.data); // Verifique isso no F12
+      setUnidades(response.data.data);
 
       setUnidades(response.data.data);
       setTotalPages(response.data.meta.totalPages);
@@ -266,7 +288,7 @@ export default function Unidades() {
         <div className="flex-1 overflow-auto">
           {/* Certifique-se que o componente TabelaUnidades espera a prop 'unidades' e não 'clientes' se você mudou lá */}
           <TabelaUnidades
-            unidades={unidades} 
+            unidades={unidades}
             loading={loading}
             error={error}
             onEdit={handleEditUnity}
@@ -313,8 +335,8 @@ export default function Unidades() {
                 Nome da Unidade
               </label>
               <input
-                name="nomeUnidade"
-                value={formData.nomeUnidade}
+                name="nome_unidade"
+                value={formData.nome_unidade}
                 onChange={handleChange}
                 type="text"
                 placeholder="Nome da Unidade"
@@ -323,7 +345,9 @@ export default function Unidades() {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">CNPJ</label>
+              <label className="text-sm font-semibold text-gray-600">
+                CNPJ
+              </label>
               <input
                 name="cnpj"
                 value={formData.cnpj}
@@ -346,7 +370,7 @@ export default function Unidades() {
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
-            
+
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
                 Responsável
@@ -366,8 +390,8 @@ export default function Unidades() {
                 Telefone do Responsável
               </label>
               <input
-                name="telefoneResponsavel"
-                value={formData.telefoneResponsavel}
+                name="telefone_responsavel"
+                value={formData.telefone_responsavel}
                 onChange={handleChange}
                 type="text"
                 className="p-2 w-full rounded border border-gray-300"
@@ -379,8 +403,8 @@ export default function Unidades() {
                 Email do Responsável
               </label>
               <input
-                name="emailResponsavel"
-                value={formData.emailResponsavel}
+                name="email_responsavel"
+                value={formData.email_responsavel}
                 onChange={handleChange}
                 type="text"
                 className="p-2 w-full rounded border border-gray-300"
@@ -393,8 +417,8 @@ export default function Unidades() {
                 Tipo / Função
               </label>
               <select
-                name="role"
-                value={formData.roleResponsavel}
+                name="role_responsavel"
+                value={formData.role_responsavel}
                 onChange={handleChange}
                 className="p-2 w-full rounded border border-gray-300 cursor-pointer"
               >
@@ -451,7 +475,7 @@ export default function Unidades() {
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
-            
+
             {/* Linha 6 */}
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
@@ -506,7 +530,6 @@ export default function Unidades() {
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
-
           </div>
 
           <div className="flex justify-end gap-4 m-4 pt-4 border-t">

@@ -50,9 +50,9 @@ export interface Cliente {
 }
 export interface Unidade {
   id_unidade: number;
-  nomeUnidade: string;
+  nome_unidade: string;
   responsavel: string;
-  emailResponsavel: string;
+  email_responsavel: string;
   telefone: string;
   cnpj: string;
   endereco?: string;
@@ -61,9 +61,9 @@ export interface Unidade {
   estado?: string;
   complemento?: string;
   numero?: string;
-  telefoneResponsavel?: string;
+  telefone_responsavel?: string;
   cep?: string;
-  roleResponsavel?: string;
+  role_responsavel?: string;
  chk_ativo?: boolean;
 }
 

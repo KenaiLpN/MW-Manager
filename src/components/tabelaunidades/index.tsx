@@ -1,8 +1,7 @@
 // src/components/TabelaClientes.tsx
 
 import React from "react";
-import {  Unidade } from "@/types";
-
+import { Unidade } from "@/types";
 
 interface TabelaUnidadesProps {
   unidades: Unidade[];
@@ -74,6 +73,9 @@ const TabelaUnidades: React.FC<TabelaUnidadesProps> = ({
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
               Estado
             </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
+              Status
+            </th>
 
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tr-lg">
               Ações
@@ -87,33 +89,40 @@ const TabelaUnidades: React.FC<TabelaUnidadesProps> = ({
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 {unidade.id_unidade}
               </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {unidade.nome_unidade}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {unidade.endereco}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {unidade.numero}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {unidade.bairro}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {unidade.cidade}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {unidade.estado}
+              </td>
 
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.nomeUnidade}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.responsavel}
-              </td>
-
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                CNPJ
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.emailResponsavel}
-              </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {unidade.chk_ativo ? "Ativo" : "Inativo"}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 {/* Botões de Ação (ex: Editar, Excluir) */}
-                <button 
-                onClick={() => onEdit(unidade)}
-                className="text-indigo-600 hover:text-indigo-900 mr-4">
+                <button
+                  onClick={() => onEdit(unidade)}
+                  className="text-indigo-600 hover:text-indigo-900 mr-4"
+                >
                   Editar
                 </button>
-                <button 
-                onClick={() => onDelete(unidade.id_unidade)}
-                className="text-red-600 hover:text-red-900">
+                <button
+                  onClick={() => onDelete(unidade.id_unidade)}
+                  className="text-red-600 hover:text-red-900"
+                >
                   Excluir
                 </button>
               </td>
