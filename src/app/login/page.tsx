@@ -1,26 +1,33 @@
 "use client";
 import { useState } from "react";
 import api from "@/services/api";
-
+import { useRouter } from "next/navigation";
 import UserDropDown from "@/components/userdropdown";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    setLoading(true);
+
     try {
       const response = await api.post("/login", { email, senha });
-
       const dadosDoUsuario = response.data.user;
 
+      // Guarda dados visuais (nome, email) - OK
       localStorage.setItem("projov_user", JSON.stringify(dadosDoUsuario));
 
+      // Pequeno hack: Forçar o reload ou usar router.push
+      // window.location.href é bom aqui porque força o PrivateLayout a reler os cookies do zero
       window.location.href = "/home";
     } catch (error) {
       console.error(error);
       alert("Erro ao fazer login. Verifique seus dados.");
+      setLoading(false);
     }
   }
 
@@ -66,9 +73,15 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          className="w-full bg-gradient-to-t from-[#345ce2] to-[#6a8dff] text-white p-3 rounded hover:gradient-to-b hover:from-[#6a8dff] hover:to-[#345ce2] cursor-pointer mt-6"
+          disabled={loading} // Desabilita o botão enquanto carrega
+          className={`w-full text-white p-3 rounded cursor-pointer mt-6 transition-all
+    ${
+      loading
+        ? "bg-gray-400 cursor-not-allowed" // Estilo quando carregando
+        : "bg-gradient-to-t from-[#345ce2] to-[#6a8dff] hover:gradient-to-b hover:from-[#6a8dff] hover:to-[#345ce2]" // Estilo normal
+    }`}
         >
-          Entrar
+          {loading ? "Entrando..." : "Entrar"} {/* Muda o texto */}
         </button>
         <button
           type="button"
