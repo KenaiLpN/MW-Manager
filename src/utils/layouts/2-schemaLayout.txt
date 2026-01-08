@@ -1,0 +1,73 @@
+import { z } from "zod";
+
+
+
+export const createUnityBodySchema = z.object({                                         
+  nome_unidade: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
+  email_responsavel: z.string().email("Formato de e-mail inválido."),
+  cnpj: z.string(),
+  endereco: z.string().optional().nullable(),
+  estado: z.string().optional().nullable(),
+  cidade: z.string().optional().nullable(),
+  bairro: z.string().optional().nullable(),                                  
+  cep: z.string().optional().nullable(),
+  telefone: z.string().optional().nullable(),
+  telefone_responsavel: z.string().optional().nullable(),
+  role_responsavel: z.string().optional().nullable(),
+  responsavel: z.string().optional().nullable(),
+  complemento: z.string().optional().nullable(),
+  numero: z.string().optional().nullable(),
+});
+
+export type CreateUnityBody = z.infer<typeof createUnityBodySchema>;
+
+export const unityResponseSchema = z.object({
+  id_unidade: z.number().int().positive(),
+  nome_unidade: z.string(),
+  role_responsavel: z.string().nullable().optional(),
+  email_responsavel: z.string(),
+  cnpj: z.string(),
+  endereco: z.string().nullable().optional(),
+  estado: z.string().nullable().optional(),
+  cidade: z.string().nullable().optional(),
+  bairro: z.string().nullable().optional(),
+  cep: z.string().nullable().optional(),
+  telefone: z.string().nullable().optional(),
+  telefone_responsavel: z.string().nullable().optional(),
+  responsavel: z.string().nullable().optional(),
+  complemento: z.string().nullable().optional(),
+  numero: z.string().nullable().optional(),
+  chk_ativo: z.boolean().nullable().optional(),
+});
+
+export const listUnityQuerySchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(10),
+});
+
+export type ListUnityQuery = z.infer<typeof listUnityQuerySchema>;
+
+export const listUnityResponseSchema = z.object({
+  data: z.array(unityResponseSchema),
+  meta: z.object({
+    page: z.number(),
+    limit: z.number(),
+    total: z.number(),
+    totalPages: z.number(),
+  }),
+});
+
+export const updateUnityParamsSchema = z.object({
+  id: z.string(),
+});
+
+export const updateUnityBodySchema = createUnityBodySchema.partial();
+export type UpdateUnityParams = z.infer<typeof updateUnityParamsSchema>;
+export type UpdateUnityBody = z.infer<typeof updateUnityBodySchema>;
+
+// Schema para validar o ID no DELETE (igual aos outros)
+export const deleteUnityParamsSchema = z.object({
+  id: z.string(),
+});
+
+export type DeleteUnityParams = z.infer<typeof deleteUnityParamsSchema>;

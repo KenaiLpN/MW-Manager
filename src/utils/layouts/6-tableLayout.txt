@@ -1,19 +1,18 @@
 // src/components/TabelaClientes.tsx
 
 import React from "react";
+import { Unidade } from "@/types";
 
-import { Usuario } from "@/types";
-
-interface TabelaUsuariosProps {
-  usuarios: Usuario[];
+interface TabelaUnidadesProps {
+  unidades: Unidade[];
   loading: boolean;
   error: string | null;
-  onEdit: (usuario: Usuario) => void;
+  onEdit: (unidade: Unidade) => void;
   onDelete: (id: number) => void;
 }
 
-const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
-  usuarios,
+const TabelaUnidades: React.FC<TabelaUnidadesProps> = ({
+  unidades,
   loading,
   error,
   onEdit,
@@ -22,7 +21,7 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
   if (loading) {
     return (
       <div className="text-center p-8 text-[#133c86]">
-        Carregando clientes...
+        Carregando unidades...
       </div>
     );
   }
@@ -35,10 +34,10 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
     );
   }
 
-  if (usuarios.length === 0) {
+  if (!unidades || unidades.length === 0) {
     return (
       <div className="text-center p-8 text-gray-500">
-        Nenhum usuário cadastrado.
+        Nenhuma unidade cadastrada.
       </div>
     );
   }
@@ -57,16 +56,22 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
               ID
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Nome
+              Campus
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Função
+              Endereço
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              CPF
+              Número
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Email
+              Bairro
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
+              Cidade
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
+              Estado
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
               Status
@@ -78,47 +83,44 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {usuarios.map((usuario) => (
-            // Usando id_usuario como chave
-            <tr key={usuario.id_usuario} className="hover:bg-gray-50">
+          {unidades.map((unidade) => (
+            // Usando id_unidade como chave
+            <tr key={unidade.id_unidade} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {usuario.id_usuario}
+                {unidade.id_unidade}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {unidade.nome_unidade}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {unidade.endereco}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {unidade.numero}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {unidade.bairro}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {unidade.cidade}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {unidade.estado}
               </td>
 
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {usuario.nome}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {usuario.role}
-              </td>
-
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {formatCPF(usuario.cpf)}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {usuario.email}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm">
-                <span
-                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    usuario.chk_ativo
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {usuario.chk_ativo ? "Ativo" : "Inativo"}
-                </span>
+                {unidade.chk_ativo ? "Ativo" : "Inativo"}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 {/* Botões de Ação (ex: Editar, Excluir) */}
                 <button
-                  onClick={() => onEdit(usuario)}
+                  onClick={() => onEdit(unidade)}
                   className="text-indigo-600 hover:text-indigo-900 mr-4"
                 >
                   Editar
                 </button>
                 <button
-                  onClick={() => onDelete(usuario.id_usuario)}
+                  onClick={() => onDelete(unidade.id_unidade)}
                   className="text-red-600 hover:text-red-900"
                 >
                   Excluir
@@ -132,4 +134,4 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
   );
 };
 
-export default TabelaUsuarios;
+export default TabelaUnidades;

@@ -1,0 +1,190 @@
+import { query } from "./db";
+import { CreateUnityBody } from "@/schemas/unitySchema";
+
+export interface Unidade {
+  id_unidade: number;
+  nome_unidade: string;
+  email_responsavel: string;
+  cnpj: string;
+  chk_ativo: boolean;
+  endereco?: string | null;
+  estado?: string | null;
+  cidade?: string | null;
+  bairro?: string | null;
+  cep?: string | null;
+  telefone?: string | null;
+  telefone_responsavel?: string | null;
+  role_responsavel?: string | null;
+  responsavel?: string | null;
+  complemento?: string | null;
+  numero?: string | null;
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export class UnityService {
+  async getUnityById(id: string) {
+    const selectUnityById = `
+      SELECT id_unidade, nome_unidade, email_responsavel, cnpj, chk_ativo,
+        endereco, estado, cidade, bairro, cep, telefone_responsavel,
+        role_responsavel, responsavel, complemento, numero
+      FROM "unidade" 
+      WHERE id_unidade = $1
+    `;
+
+    const result = await query(selectUnityById, [Number(id)]);
+    if (result.rows.length === 0) {
+      throw new Error("Unidade não encontrada.");
+    }
+
+    return result.rows[0];
+  }
+
+  async getUnityByEmail(email: string): Promise<Unidade | null> {
+    const sql = `SELECT * FROM "unidade" WHERE "emailResponsavel" = $1`;
+    try {
+      const result = await query(sql, [email]);
+      if (result.rows.length === 0) return null;
+      return result.rows[0];
+    } catch (error) {
+      console.error("Erro ao buscar unidade por email:", error);
+      throw new Error("Falha na consulta.");
+    }
+  }
+
+  async createUnity(data: CreateUnityBody): Promise<Unidade> {
+    const {
+      nome_unidade, email_responsavel, cnpj, endereco, estado, cidade,
+      bairro, cep, telefone, role_responsavel, telefone_responsavel,
+      responsavel, complemento, numero,
+    } = data;
+
+    const cleanCnpj = cnpj.replace(/\D/g, ""); 
+    const cleanPhone = telefone ? telefone.replace(/\D/g, "") : null;
+
+    const sql = `
+     INSERT INTO "unidade" (
+    nome_unidade, email_responsavel, cnpj, endereco, estado, cidade, 
+    bairro, cep, telefone, telefone_responsavel, role_responsavel, 
+    responsavel, complemento, numero, chk_ativo
+  )
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, true)
+  RETURNING *;
+    `;
+    
+    const params = [
+      nome_unidade, email_responsavel, cleanCnpj, endereco, estado, cidade,
+      bairro, cep, cleanPhone, telefone_responsavel, role_responsavel,
+      responsavel, complemento, numero
+    ];
+
+    try {
+      const result = await query(sql, params);
+      return result.rows[0]; // O Postgres retornará as chaves com as maiúsculas corretas
+    } catch (error) {
+      console.error("Erro ao inserir unidade no DB:", error);
+      throw error;
+    }
+  }
+
+  async getAllUnities(page: number, limit: number): Promise<PaginatedResult<Unidade>> {
+    const offset = (page - 1) * limit;
+
+    const sqlData = `
+     SELECT 
+    id_unidade, nome_unidade, email_responsavel, cnpj, 
+    role_responsavel, chk_ativo, endereco, estado, cidade, 
+    bairro, cep, telefone_responsavel, numero
+  FROM "unidade"
+  ORDER BY id_unidade DESC
+  LIMIT $1 OFFSET $2;
+    `;
+
+    const sqlCount = `SELECT COUNT(*) as total FROM "unidade";`;
+    
+    try {
+      const resultData = await query(sqlData, [limit, offset]);
+      const resultCount = await query(sqlCount);
+
+      const total = Number(resultCount.rows[0].total);
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        data: resultData.rows,
+        meta: { page, limit, total, totalPages },
+      };
+    } catch (error) {
+      console.error("Erro ao buscar unidades no DB:", error);
+      throw error;
+    }
+  }
+
+  async updateUnity(id: string, data: Partial<CreateUnityBody>) {
+    const idUnidade = Number(id);
+
+    const checkUnity = await query('SELECT id_unidade FROM "unidade" WHERE id_unidade = $1', [idUnidade]);
+    if (checkUnity.rows.length === 0) return null;
+
+    const dadosParaAtualizar: any = { ...data };
+
+    if (dadosParaAtualizar.cnpj) {
+        dadosParaAtualizar.cnpj = dadosParaAtualizar.cnpj.replace(/\D/g, "");
+    }
+
+    if (dadosParaAtualizar.telefone) {
+        dadosParaAtualizar.telefone = dadosParaAtualizar.telefone.replace(/\D/g, "");
+    }
+
+    const fields: string[] = [];
+    const values: any[] = [];
+    let index = 1;
+
+    for (const key in dadosParaAtualizar) {
+      if (dadosParaAtualizar.hasOwnProperty(key) && dadosParaAtualizar[key] !== undefined) {
+          // Aqui garantimos que cada campo da query tenha aspas duplas
+          fields.push(`${key} = $${index}`);
+          values.push(dadosParaAtualizar[key]);
+          index++;
+      }
+    }
+
+    if (fields.length === 0) return checkUnity.rows[0];
+
+    values.push(idUnidade);
+
+    const sql = `
+      UPDATE "unidade"
+      SET ${fields.join(", ")}
+      WHERE id_unidade = $${index}
+      RETURNING *;
+    `;
+
+    try {
+      const result = await query(sql, values);
+      return result.rows[0];
+    } catch (error) {
+      console.error("Erro ao atualizar unidade no DB:", error);
+      throw error;
+    }
+  }
+
+  async deleteUnity(id: string) {
+    const idUnidade = Number(id);
+    const sql = `DELETE FROM "unidade" WHERE id_unidade = $1`;
+    try {
+      const result = await query(sql, [idUnidade]);
+      return result.rowCount && result.rowCount > 0 ? true : null;
+    } catch (error) {
+      console.error("Erro ao deletar unidade:", error);
+      throw error;
+    }
+  }
+}

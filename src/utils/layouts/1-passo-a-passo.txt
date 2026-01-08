@@ -1,0 +1,107 @@
+Nova tabela no banco
+campos padronizados snake_case (baseados no menu de cadastro do site original)
+
+-- Template para novas tabelas no ProJov Gamma
+
+
+CREATE TABLE IF NOT EXISTS "nome_da_tabela" (
+    -- 1. CHAVE PRIMÁRIA (Auto-incremento)
+    id_nome_da_tabela SERIAL PRIMARY KEY,
+
+    -- 2. CAMPOS DE DADOS (Exemplos comuns - altere conforme a necessidade)
+    -- VARCHAR(255) para textos curtos, TEXT para descrições longas
+    exemplo_texto     VARCHAR(255) NOT NULL,
+    exemplo_unico     VARCHAR(100) UNIQUE, -- Para campos que não podem repetir (Ex: CNPJ)
+    exemplo_numero    INT,
+    exemplo_decimal   DECIMAL(10, 2),      -- Para valores monetários ou pesos
+    
+    -- 3. RELACIONAMENTOS (Chaves Estrangeiras - se precisar vincular tabelas)
+    -- id_unidade INT REFERENCES unidade(id_unidade) ON DELETE CASCADE,
+
+    -- 4. CAMPOS DE CONTROLE (Padronize estes em todas as tabelas)
+    chk_ativo         BOOLEAN DEFAULT true,
+    created_at        TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at        TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Gatilho opcional: Atualiza o campo 'updated_at' automaticamente ao editar um registro
+-- (Requer que você tenha a função 'update_timestamp_column' criada uma única vez no banco)
+/*
+CREATE TRIGGER set_timestamp
+BEFORE UPDATE ON "nome_da_tabela"
+FOR EACH ROW
+EXECUTE PROCEDURE update_timestamp_column();
+*/
+
+
+CREATE TABLE IF NOT EXISTS "instituicao_ensino" (
+    -- 1. Identificação e Segurança
+    id_instituicao      SERIAL PRIMARY KEY,
+    nome_instituicao    VARCHAR(255) NOT NULL,
+    cnpj                VARCHAR(14) UNIQUE,
+    email               VARCHAR(255) UNIQUE NOT NULL, -- E-mail principal da instituição
+    senha_hash          TEXT NOT NULL,                -- Para acesso ao portal da instituição
+    
+    -- 2. Contato e Localização
+    telefone            VARCHAR(20),
+    cep                 VARCHAR(10),
+    endereco            TEXT,
+    numero              VARCHAR(20),
+    bairro              VARCHAR(100),
+    cidade              VARCHAR(100),
+    estado              CHAR(2),
+    complemento         VARCHAR(100),
+    
+    -- 3. Informações do Responsável
+    responsavel          VARCHAR(255),
+    telefone_responsavel VARCHAR(20),
+    email_responsavel    VARCHAR(255),
+
+    -- 4. Controle de Sistema
+    chk_ativo           BOOLEAN DEFAULT true,
+    created_at          TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+id_instituicao
+nome instituicao
+telefone
+cep
+endereço
+numero
+bairro
+cidade
+estado
+complemento
+responsavel
+telefone responsável
+email_responsavel
+senha
+chk_ativo
+
+
+
+
+
+
+
+Na API
+
+Criação do Schema (layout no código front-end src/utils/layouts/schemaLayout)
+
+Criação do Serviço (layout no código front-end src/utils/layouts/serviceLayout)
+
+Criação das rodas (layout no código front-end src/utils/layouts/routesLayout)
+
+Importação e Registro da rota no server.ts
+
+
+
+No Front-end
+
+Criação da página (layout no código front-end src/utils/layouts/pageLayout)
+
+Criação da tabela (layout no código front-end src/utils/layouts/tableLayout)
+
+
+
