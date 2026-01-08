@@ -16,14 +16,21 @@ export default function LoginPage() {
 
     try {
       const response = await api.post("/login", { email, senha });
-      const dadosDoUsuario = response.data.user;
+      
+      // 1. Pegamos o token que veio no JSON
+      const { token, user } = response.data; // Ajuste se vier response.data.user e response.data.token
 
-      // Guarda dados visuais (nome, email) - OK
-      localStorage.setItem("projov_user", JSON.stringify(dadosDoUsuario));
+      // 2. Salvamos os dados do usuário (como você já fazia)
+      localStorage.setItem("projov_user", JSON.stringify(user));
 
-      // Pequeno hack: Forçar o reload ou usar router.push
-      // window.location.href é bom aqui porque força o PrivateLayout a reler os cookies do zero
+      // 3. --- O PULO DO GATO ---
+      // Criamos um cookie DO FRONTEND com o mesmo valor do token.
+      // Isso permite que o PrivateLayout leia o token via document.cookie.
+      document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax; Secure`;
+
+      // 4. Redirecionamento (O window.location garante que o layout leia o cookie novo)
       window.location.href = "/home";
+      
     } catch (error) {
       console.error(error);
       alert("Erro ao fazer login. Verifique seus dados.");
