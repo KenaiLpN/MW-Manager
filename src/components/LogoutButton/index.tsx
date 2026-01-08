@@ -1,26 +1,22 @@
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import api from "@/services/api";
 
 export function BotaoSair() {
   const router = useRouter();
 
   async function handleLogout(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-    try {
-      await fetch("http://localhost:3333/logout", {
-        method: "POST", // Importante: Sua rota no backend é POST
-        credentials: "include", // <--- O PULO DO GATO: Sem isso, o cookie não vai!
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({})
-      });
 
-      // Independente da resposta do backend ser 200 ou erro,
-      // para o usuário, ele saiu.
-      window.location.href = "/login";
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+
+    localStorage.removeItem("projov_user");
+
+    try {
+      await api.post("/logout");
     } catch (error) {
-      console.error("Erro ao sair", error);
+      console.error("Erro silencioso ao sair da API", error);
+    } finally {
       window.location.href = "/login";
     }
   }
@@ -29,7 +25,8 @@ export function BotaoSair() {
     <button
       type="button"
       onClick={handleLogout}
-      className="text-red-600 mr-3 rounded-xl items-center justify-center"
+      className="text-red-600 mr-3 rounded-xl items-center justify-center hover:bg-red-50 p-2 transition-colors"
+      title="Sair do sistema"
     >
       <LogOut />
     </button>
