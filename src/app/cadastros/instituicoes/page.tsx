@@ -2,44 +2,78 @@
 
 import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
-import Modal from "../../../components/modal";
-import TabelaUsuarios from "@/components/tabelausuarios";
+import Modal from "../../../components/modal"; 
 import api from "@/services/api";
-import { Usuario } from "@/types";
+import TabelaInstituicoes, { Instituicao } from "@/components/tabelainstituicoes";
 
-export default function CadCliPage() {
+// Interface do Form
+interface InstituicaoFormData {
+  nome_instituicao: string;
+  email: string;
+  senha?: string; // Campo extra para criação
+  cnpj: string;
+  telefone: string;
+  responsavel: string;
+  telefone_responsavel: string;
+  email_responsavel: string;
+  role_responsavel: string;
+  cep: string;
+  endereco: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  chk_ativo: boolean;
+}
+
+export default function Instituicoes() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [instituicoes, setInstituicoes] = useState<Instituicao[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
 
-  const [formData, setFormData] = useState({
-    nome: "",
+  // Estado inicial do formulário
+  const initialFormState: InstituicaoFormData = {
+    nome_instituicao: "",
     email: "",
-    cpf: "",
+    senha: "",
+    cnpj: "",
+    telefone: "",
+    responsavel: "",
+    telefone_responsavel: "",
+    email_responsavel: "",
+    role_responsavel: "",
+    cep: "",
     endereco: "",
+    numero: "",
+    complemento: "",
     bairro: "",
     cidade: "",
     estado: "",
-    cep: "",
-    telefone: "",
-    role_responsavel: "",
-    senha_hash: "",
-    senha2: "",
     chk_ativo: true,
-  });
+  };
+
+  const [formData, setFormData] = useState<InstituicaoFormData>(initialFormState);
+  const [saving, setSaving] = useState<boolean>(false);
+
+  const roles = ["Diretor", "Coordenador", "Secretaria", "TI", "Outro"];
+  
+  const estados = [
+    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", 
+    "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", 
+    "SP", "SE", "TO"
+  ];
 
   const buscaCEP = async (cep: string) => {
     const cepLimpo = cep.replace(/\D/g, "");
     if (cepLimpo.length === 8) {
       try {
-        const response = await fetch(
-          `https://viacep.com.br/ws/${cepLimpo}/json/`
-        );
+        const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
         const data = await response.json();
         if (!data.erro) {
           setFormData((prev) => ({
@@ -56,82 +90,32 @@ export default function CadCliPage() {
     }
   };
 
-  const [saving, setSaving] = useState<boolean>(false);
-
-  const roles = [
-    "Usuário interno",
-    "Aprendiz",
-    "Educador/Tutor",
-    "Funcionário",
-    "Parceiro",
-  ];
-
-  const estados = [
-    "AC",
-    "AL",
-    "AP",
-    "AM",
-    "BA",
-    "CE",
-    "DF",
-    "ES",
-    "GO",
-    "MA",
-    "MT",
-    "MS",
-    "MG",
-    "PA",
-    "PB",
-    "PR",
-    "PE",
-    "PI",
-    "RJ",
-    "RN",
-    "RS",
-    "RO",
-    "RR",
-    "SC",
-    "SP",
-    "SE",
-    "TO",
-  ];
-
   const openModalNew = () => {
     setEditingId(null);
-    setFormData({
-      nome: "",
-      cpf: "",
-      email: "",
-      endereco: "",
-      bairro: "",
-      cidade: "",
-      estado: "",
-      cep: "",
-      telefone: "",
-      role_responsavel: "",
-      senha_hash: "",
-      senha2: "",
-      chk_ativo: true,
-    });
+    setFormData(initialFormState);
     setIsModalOpen(true);
   };
 
-  const handleEditUser = (usuario: Usuario) => {
-    setEditingId(usuario.id_usuario);
+  const handleEdit = (item: Instituicao) => {
+    setEditingId(item.id_instituicao);
     setFormData({
-      nome: usuario.nome,
-      email: usuario.email,
-      cpf: usuario.cpf,
-      endereco: usuario.endereco || "",
-      bairro: usuario.bairro || "",
-      cidade: usuario.cidade || "",
-      estado: usuario.estado || "",
-      cep: usuario.cep || "",
-      telefone: usuario.telefone || "",
-      role_responsavel: usuario.role_responsavel || "",
-      senha_hash: "",
-      senha2: "",
-      chk_ativo: usuario.chk_ativo ?? false,
+      nome_instituicao: item.nome_instituicao,
+      email: item.email,
+      senha: "", // Senha não vem do back e não editamos aqui
+      cnpj: item.cnpj || "",
+      telefone: item.telefone || "",
+      responsavel: item.responsavel || "",
+      telefone_responsavel: item.telefone_responsavel || "",
+      email_responsavel: item.email_responsavel || "",
+      role_responsavel: item.role_responsavel || "",
+      cep: item.cep || "",
+      endereco: item.endereco || "",
+      numero: item.numero || "",
+      complemento: item.complemento || "",
+      bairro: item.bairro || "",
+      cidade: item.cidade || "",
+      estado: item.estado || "",
+      chk_ativo: item.chk_ativo ?? true,
     });
     setIsModalOpen(true);
   };
@@ -141,14 +125,11 @@ export default function CadCliPage() {
     setEditingId(null);
   };
 
-  async function fetchUsuarios(paginaParaBuscar: number) {
+  async function fetchInstituicoes(paginaParaBuscar: number) {
     setLoading(true);
     try {
-      const response = await api.get(
-        `/users?page=${paginaParaBuscar}&limit=10`
-      );
-
-      setUsuarios(response.data.data);
+      const response = await api.get(`/instituicao?page=${paginaParaBuscar}&limit=10`);
+      setInstituicoes(response.data.data);
       setTotalPages(response.data.meta.totalPages);
     } catch (err) {
       console.error(err);
@@ -159,7 +140,7 @@ export default function CadCliPage() {
   }
 
   useEffect(() => {
-    fetchUsuarios(page);
+    fetchInstituicoes(page);
   }, [page]);
 
   const handlePreviousPage = () => {
@@ -180,88 +161,65 @@ export default function CadCliPage() {
     }));
   };
 
-  // --- NOVA FUNÇÃO DE DELETE ---
-  const handleDeleteUser = async (id: number) => {
-    // 1. Confirmação visual nativa do browser
+  const handleDelete = async (id: number) => {
     const confirmacao = window.confirm(
-      "Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita."
+      "Tem certeza que deseja excluir esta instituição? Ação irreversível."
     );
 
     if (!confirmacao) return;
 
     try {
-      await api.delete(`/users/${id}`);
-      alert("Usuário excluído com sucesso!");
-
-      // Atualiza a lista na página atual
-      fetchUsuarios(page);
+      await api.delete(`/instituicao/${id}`);
+      alert("Instituição excluída com sucesso!");
+      fetchInstituicoes(page);
     } catch (err: any) {
       console.error("Erro ao excluir:", err);
-      // Mensagem amigável caso o backend devolva erro (ex: usuário tem vínculos)
-      const msg = err.response?.data?.message || "Erro ao excluir usuário.";
+      const msg = err.response?.data?.message || "Erro ao excluir.";
       alert(msg);
     }
   };
 
-  // --- FUNÇÃO CORRIGIDA ---
   const handleSalvar = async () => {
-    // 1. Validações Iniciais
-    if (formData.senha_hash !== formData.senha2) {
-      alert("As senhas não coincidem. Por favor, verifique.");
-      return;
-    }
-
-    if (!editingId && formData.senha_hash.length < 8) {
-      alert("Para novos usuários, a senha deve ter pelo menos 8 caracteres.");
-      return;
-    }
-
     setSaving(true);
 
     try {
-      // 2. Preparação dos dados (Sanitização)
-      const { senha2, ...dataToSend } = formData;
-      const payload: any = {};
+      // Clona o formData para manipular o payload
+      const payload: any = { ...formData };
 
-      // Limpeza de campos vazios para não quebrar o Zod
-      Object.keys(dataToSend).forEach((key) => {
-        const value = dataToSend[key as keyof typeof dataToSend];
+      // Se for edição, removemos a senha (o endpoint de update não aceita)
+      if (editingId) {
+        delete payload.senha;
+      }
 
-        // Se for a senha e estiver vazia, ignora (para não mandar senha vazia na edição)
-        if (key === "senha_hash" && (!value || value === "")) return;
-
-        // Se for string vazia em geral, não envia
-        if (typeof value === "string" && value.trim() === "") return;
-
-        payload[key] = value;
+      // Limpeza de strings vazias (exceto booleanos)
+      Object.keys(payload).forEach((key) => {
+        const value = payload[key];
+        if (typeof value === "string" && value.trim() === "") {
+             // Opcional: ou remove a chave ou manda null, dependendo do back
+             // No seu caso o back aceita string vazia ou trata. 
+             // Vamos manter a string se não for nula, mas se quiser limpar:
+             // delete payload[key];
+        }
       });
 
-      // 3. Envio para API
       if (editingId) {
-        // --- MODO EDIÇÃO (PUT) ---
-        await api.put(`/users/${editingId}`, payload);
-        alert("Usuário atualizado com sucesso!");
+        // --- PUT ---
+        await api.put(`/instituicao/${editingId}`, payload);
+        alert("Instituição atualizada com sucesso!");
       } else {
-        // --- MODO CRIAÇÃO (POST) ---
-        // Garante que a senha vá na criação se não foi filtrada pela lógica acima
-        if (!payload.senha_hash && formData.senha_hash) {
-          payload.senha_hash = formData.senha_hash;
-        }
-        await api.post("/users", payload);
-        alert("Usuário cadastrado com sucesso!");
+        // --- POST ---
+        await api.post("/instituicao", payload);
+        alert("Instituição cadastrada com sucesso!");
       }
 
       closeModal();
-      fetchUsuarios(page); // Atualiza a tabela
+      fetchInstituicoes(page);
     } catch (err: any) {
-      // 4. Tratamento de Erro
       console.error("Erro completo:", err);
-
       if (err.response?.data) {
-        console.log("Detalhes do erro Zod:", err.response.data);
-        alert(`Erro de validação: ${JSON.stringify(err.response.data)}`);
+        alert(`Erro: ${JSON.stringify(err.response.data)}`);
       } else {
-        alert("Erro ao salvar usuário.");
+        alert("Erro ao salvar instituição.");
       }
     } finally {
       setSaving(false);
@@ -274,29 +232,28 @@ export default function CadCliPage() {
         <CadSidebar />
       </aside>
 
-      <div className="flex flex-col w-full h-full ">
+      <div className="flex flex-col w-full h-full">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
           <input
             type="text"
-            placeholder="Buscar usuários..."
+            placeholder="Buscar instituições..."
             className="p-2 w-60 rounded bg-white ml-4"
           />
-          <div className="flex space-x-2"></div>
           <button
             onClick={openModalNew}
             className="px-6 py-3 bg-[#34495E] text-white font-semibold rounded-lg shadow-md hover:bg-[#253341a4] mr-4 cursor-pointer"
           >
-            Novo
+            Nova Instituição
           </button>
         </div>
 
         <div className="flex-1 overflow-auto">
-          <TabelaUsuarios
-            usuarios={usuarios}
+          <TabelaInstituicoes
+            instituicoes={instituicoes}
             loading={loading}
             error={error}
-            onEdit={handleEditUser}
-            onDelete={handleDeleteUser}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
 
           <div className="p-4">
@@ -329,37 +286,41 @@ export default function CadCliPage() {
 
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h2 className="text-2xl font-bold m-4 text-gray-800">
-            {editingId ? "Editar Usuário" : "Cadastro de Usuários"}
+            {editingId ? "Editar Instituição" : "Nova Instituição"}
           </h2>
 
           <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Linha 1: Nome e CNPJ */}
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Nome
+                Nome da Instituição <span className="text-red-500">*</span>
               </label>
               <input
-                name="nome"
-                value={formData.nome}
+                name="nome_instituicao"
+                value={formData.nome_instituicao}
                 onChange={handleChange}
                 type="text"
-                placeholder="Nome Completo"
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">CPF</label>
+              <label className="text-sm font-semibold text-gray-600">
+                CNPJ
+              </label>
               <input
-                name="cpf"
-                value={formData.cpf}
+                name="cnpj"
+                value={formData.cnpj}
                 onChange={handleChange}
                 type="text"
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
+
+            {/* Linha 2: Email e Senha */}
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Email
+                Email (Login) <span className="text-red-500">*</span>
               </label>
               <input
                 name="email"
@@ -369,9 +330,28 @@ export default function CadCliPage() {
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
+
+            {/* Senha só aparece se NÃO estiver editando */}
+            {!editingId && (
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-gray-600">
+                  Senha <span className="text-red-500">*</span>
+                </label>
+                <input
+                  name="senha"
+                  value={formData.senha}
+                  onChange={handleChange}
+                  type="password"
+                  placeholder="Mínimo 6 caracteres"
+                  className="p-2 w-full rounded border border-gray-300"
+                />
+              </div>
+            )}
+
+            {/* Linha 3: Telefone e Responsável */}
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Telefone
+                Telefone da Instituição
               </label>
               <input
                 name="telefone"
@@ -381,9 +361,51 @@ export default function CadCliPage() {
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
+
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Função
+                Nome do Responsável
+              </label>
+              <input
+                name="responsavel"
+                value={formData.responsavel}
+                onChange={handleChange}
+                type="text"
+                className="p-2 w-full rounded border border-gray-300"
+              />
+            </div>
+
+            {/* Linha 4: Dados Responsável */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-gray-600">
+                Telefone Responsável
+              </label>
+              <input
+                name="telefone_responsavel"
+                value={formData.telefone_responsavel}
+                onChange={handleChange}
+                type="text"
+                className="p-2 w-full rounded border border-gray-300"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-gray-600">
+                Email Responsável
+              </label>
+              <input
+                name="email_responsavel"
+                value={formData.email_responsavel}
+                onChange={handleChange}
+                type="text"
+                className="p-2 w-full rounded border border-gray-300"
+              />
+            </div>
+
+            {/* Linha 5: Cargo e CEP */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-gray-600">
+                Cargo do Responsável
               </label>
               <select
                 name="role_responsavel"
@@ -391,14 +413,13 @@ export default function CadCliPage() {
                 onChange={handleChange}
                 className="p-2 w-full rounded border border-gray-300 cursor-pointer"
               >
-                <option value="">Selecione a função</option>
+                <option value="">Selecione...</option>
                 {roles.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
+                  <option key={role} value={role}>{role}</option>
                 ))}
               </select>
             </div>
+
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">CEP</label>
               <input
@@ -410,28 +431,10 @@ export default function CadCliPage() {
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
+
+            {/* Linha 6: Endereço */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Estado
-              </label>
-              <select
-                name="estado"
-                value={formData.estado}
-                onChange={handleChange}
-                className="p-2 w-full rounded border border-gray-300 cursor-pointer"
-              >
-                <option value="">UF</option>
-                {estados.map((uf) => (
-                  <option key={uf} value={uf}>
-                    {uf}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Endereço
-              </label>
+              <label className="text-sm font-semibold text-gray-600">Endereço</label>
               <input
                 name="endereco"
                 value={formData.endereco}
@@ -440,10 +443,21 @@ export default function CadCliPage() {
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
+
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Bairro
-              </label>
+              <label className="text-sm font-semibold text-gray-600">Número</label>
+              <input
+                name="numero"
+                value={formData.numero}
+                onChange={handleChange}
+                type="text"
+                className="p-2 w-full rounded border border-gray-300"
+              />
+            </div>
+
+            {/* Linha 7: Bairro e Cidade */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-gray-600">Bairro</label>
               <input
                 name="bairro"
                 value={formData.bairro}
@@ -452,10 +466,9 @@ export default function CadCliPage() {
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
+
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Cidade
-              </label>
+              <label className="text-sm font-semibold text-gray-600">Cidade</label>
               <input
                 name="cidade"
                 value={formData.cidade}
@@ -465,34 +478,29 @@ export default function CadCliPage() {
               />
             </div>
 
+            {/* Linha 8: Estado e Complemento */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Senha{" "}
-                {editingId && (
-                  <span className="text-xs font-normal text-gray-500">
-                    (Deixe em branco para manter)
-                  </span>
-                )}
-              </label>
-              <input
-                name="senha_hash"
-                value={formData.senha_hash}
+              <label className="text-sm font-semibold text-gray-600">Estado</label>
+              <select
+                name="estado"
+                value={formData.estado}
                 onChange={handleChange}
-                type="password"
-                placeholder={editingId ? "Nova senha (opcional)" : "Senha"}
-                className="p-2 w-full rounded border border-gray-300"
-              />
+                className="p-2 w-full rounded border border-gray-300 cursor-pointer"
+              >
+                <option value="">UF</option>
+                {estados.map((uf) => (
+                  <option key={uf} value={uf}>{uf}</option>
+                ))}
+              </select>
             </div>
+
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Confirme sua Senha
-              </label>
+              <label className="text-sm font-semibold text-gray-600">Complemento</label>
               <input
-                name="senha2"
-                value={formData.senha2}
+                name="complemento"
+                value={formData.complemento}
                 onChange={handleChange}
-                type="password"
-                placeholder="Confirme sua Senha"
+                type="text"
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>

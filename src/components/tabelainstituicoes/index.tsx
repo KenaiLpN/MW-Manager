@@ -1,18 +1,37 @@
-// src/components/TabelaClientes.tsx
-
 import React from "react";
-import { Unidade } from "@/types";
 
-interface TabelaUnidadesProps {
-  unidades: Unidade[];
+// Defina a interface aqui ou importe de @/types se preferir centralizar
+export interface Instituicao {
+  id_instituicao: number;
+  nome_instituicao: string;
+  email: string;
+  cnpj?: string;
+  endereco?: string;
+  numero?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+  chk_ativo?: boolean;
+  // Outros campos opcionais para edição...
+  telefone?: string;
+  cep?: string;
+  complemento?: string;
+  responsavel?: string;
+  role_responsavel?: string;
+  telefone_responsavel?: string;
+  email_responsavel?: string;
+}
+
+interface TabelaInstituicoesProps {
+  instituicoes: Instituicao[];
   loading: boolean;
   error: string | null;
-  onEdit: (unidade: Unidade) => void;
+  onEdit: (instituicao: Instituicao) => void;
   onDelete: (id: number) => void;
 }
 
-const TabelaUnidades: React.FC<TabelaUnidadesProps> = ({
-  unidades,
+const TabelaInstituicoes: React.FC<TabelaInstituicoesProps> = ({
+  instituicoes,
   loading,
   error,
   onEdit,
@@ -21,7 +40,7 @@ const TabelaUnidades: React.FC<TabelaUnidadesProps> = ({
   if (loading) {
     return (
       <div className="text-center p-8 text-[#133c86]">
-        Carregando unidades...
+        Carregando instituições...
       </div>
     );
   }
@@ -34,102 +53,82 @@ const TabelaUnidades: React.FC<TabelaUnidadesProps> = ({
     );
   }
 
-  if (!unidades || unidades.length === 0) {
+  if (!instituicoes || instituicoes.length === 0) {
     return (
       <div className="text-center p-8 text-gray-500">
-        Nenhuma unidade cadastrada.
+        Nenhuma instituição cadastrada.
       </div>
     );
   }
 
-  function formatCPF(cpf: string) {
-    return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
-  }
-
   return (
-    <div className="p-4 overflow-x-auto ">
+    <div className="p-4 overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-[#bacce6]">
           <tr>
-            {/* Colunas ajustadas para refletir o JSON */}
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tl-lg">
               ID
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Campus
+              Instituição
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Endereço
+              CNPJ
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Número
+              Email
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Bairro
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Cidade
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Estado
+              Cidade/UF
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
               Status
             </th>
-
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tr-lg">
               Ações
             </th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {unidades.map((unidade) => (
-            // Usando id_unidade como chave
-            <tr key={unidade.id_unidade} className="hover:bg-gray-50">
+          {instituicoes.map((inst) => (
+            <tr key={inst.id_instituicao} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {unidade.id_unidade}
+                {inst.id_instituicao}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.nome_unidade}
+                {inst.nome_instituicao}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.endereco}
+                {inst.cnpj || "-"}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.numero}
+                {inst.email}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.bairro}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.cidade}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.estado}
+                {inst.cidade} / {inst.estado}
               </td>
 
-               <td className="px-6 py-4 whitespace-nowrap text-sm">
+              <td className="px-6 py-4 whitespace-nowrap text-sm">
                 <span
                   className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    unidade.chk_ativo
+                    inst.chk_ativo
                       ? "bg-green-100 text-green-800"
                       : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {unidade.chk_ativo ? "Ativo" : "Inativo"}
+                  {inst.chk_ativo ? "Ativo" : "Inativo"}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                {/* Botões de Ação (ex: Editar, Excluir) */}
                 <button
-                  onClick={() => onEdit(unidade)}
-                  className="text-indigo-600 hover:text-indigo-900 mr-4"
+                  onClick={() => onEdit(inst)}
+                  className="text-indigo-600 hover:text-indigo-900 mr-4 cursor-pointer"
                 >
                   Editar
                 </button>
                 <button
-                  onClick={() => onDelete(unidade.id_unidade)}
-                  className="text-red-600 hover:text-red-900"
+                  onClick={() => onDelete(inst.id_instituicao)}
+                  className="text-red-600 hover:text-red-900 cursor-pointer"
                 >
                   Excluir
                 </button>
@@ -142,4 +141,4 @@ const TabelaUnidades: React.FC<TabelaUnidadesProps> = ({
   );
 };
 
-export default TabelaUnidades;
+export default TabelaInstituicoes;

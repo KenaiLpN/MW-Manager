@@ -11,7 +11,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { name: "Usuários", href: "/cadastros/usuarios" },
   { name: "Unidades", href: "/cadastros/unidades" },
-  { name: "Instituições de Ensino", href: "/cadastros/instensino" },
+  { name: "Instituições de Ensino", href: "/cadastros/instituicoes" },
   { name: "Situações do Participante", href: "/cadastros/sitparticipantes" },
   { name: "Ocorrências", href: "/cadastros/ocorrencias" },
   { name: "Profissões", href: "/cadastros/profissoes" },

@@ -89,7 +89,7 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
                 {usuario.nome}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {usuario.role}
+                {usuario.role_responsavel}
               </td>
 
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -113,13 +113,13 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
                 {/* Botões de Ação (ex: Editar, Excluir) */}
                 <button
                   onClick={() => onEdit(usuario)}
-                  className="text-indigo-600 hover:text-indigo-900 mr-4"
+                  className="text-indigo-600 hover:text-indigo-900 mr-4 cursor-pointer"
                 >
                   Editar
                 </button>
                 <button
                   onClick={() => onDelete(usuario.id_usuario)}
-                  className="text-red-600 hover:text-red-900"
+                  className="text-red-600 hover:text-red-900 cursor-pointer"
                 >
                   Excluir
                 </button>

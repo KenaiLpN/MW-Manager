@@ -23,7 +23,7 @@ export interface Usuario {
   cidade?: string;
   bairro?: string;
   endereco?: string;
-  role?: string;
+  role_responsavel?: string;
 }
 export interface Unidade {
   id_unidade: number;

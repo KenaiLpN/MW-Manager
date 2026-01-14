@@ -39,8 +39,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center h-screen bg-[#d9f1fc]">
-      <img src="" alt="" />
+    <div className="flex items-center justify-center h-screen bg-[#2b3c4d]">
       <form
         onSubmit={handleLogin}
         className="flex flex-col p-8 bg-[#34495E] shadow-2xl w-110 rounded-2xl gap-8 shadow-grey-900"
@@ -64,7 +63,7 @@ export default function LoginPage() {
             placeholder="E-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 rounded bg-[#F3F4F6]  outline-blue-500"
+            className="w-full p-3 rounded-xl bg-[#F3F4F6] border-4 border-[#34495E] focus:border-blue-500 outline-none"
           />
         </div>
 
@@ -74,17 +73,17 @@ export default function LoginPage() {
             placeholder="Senha"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
-            className="w-full p-2 rounded bg-[#F3F4F6] outline-blue-500"
+            className="w-full p-3 rounded-xl bg-[#F3F4F6] border-4 border-[#34495E] focus:border-blue-500 outline-none"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading} // Desabilita o botão enquanto carrega
-          className={`w-full text-white p-3 rounded cursor-pointer mt-6 transition-all
+          className={`w-full text-white p-3 rounded cursor-pointer transition-all
     ${
       loading
-        ? "bg-gray-400 cursor-not-allowed" // Estilo quando carregando
+        ? "bg-blue-400 cursor-not-allowed" // Estilo quando carregando
         : "bg-gradient-to-t from-[#345ce2] to-[#6a8dff] hover:gradient-to-b hover:from-[#6a8dff] hover:to-[#345ce2]" // Estilo normal
     }`}
         >

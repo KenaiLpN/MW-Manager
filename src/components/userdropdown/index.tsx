@@ -12,7 +12,7 @@ export default function UserDropDown() {
     ];
 
     return (
-        <button className="flex items-center justify-center w-full bg-[#F3F4F6] rounded">
+        <button className="flex items-center justify-center w-full bg-[#F3F4F6] rounded-xl py-1 px-2 border-4 border-[#34495E] focus:border-blue-500 outline-none">
             <Dropdown 
             value={selectedUser}
              onChange={(e) => setSelectedUser(e.value)} 
@@ -20,7 +20,7 @@ export default function UserDropDown() {
              optionLabel="name"
             className="text-gray-500 p-2 w-full"  
             placeholder="Selecione o perfil"
-            panelClassName="bg-white border border-gray-300 shadow-lg rounded-md p-2"
+            panelClassName="bg-white border border-gray-300 shadow-lg rounded-b-md p-2"
             />
         </button>
     )
