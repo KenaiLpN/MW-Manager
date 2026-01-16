@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal"; 
 import api from "@/services/api";
-import TabelaSituacoes, { SituacaoParticipante } from "@/components/tabelasituacoes";
+import TabelaSituacoes, { SituacaoParticipante } from "@/components/tabelas/tabelasituacoes";
 
 interface SituacaoFormData {
   abreviacao: string;

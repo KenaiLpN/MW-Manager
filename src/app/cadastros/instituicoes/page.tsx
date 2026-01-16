@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal"; 
 import api from "@/services/api";
-import TabelaInstituicoes, { Instituicao } from "@/components/tabelainstituicoes";
+import TabelaInstituicoes, { Instituicao } from "@/components/tabelas/tabelainstituicoes";
 
 // Interface do Form
 interface InstituicaoFormData {

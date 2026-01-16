@@ -6,7 +6,7 @@ import Modal from "../../../components/modal"; // Ajuste o caminho conforme sua 
 
 import api from "@/services/api";
 // import { Cliente } from "@/types"; // Se tiver um tipo específico para Unidade, use-o aqui
-import TabelaUnidades from "@/components/tabelaunidades";
+import TabelaUnidades from "@/components/tabelas/tabelaunidades";
 
 // Definição da interface do Form para garantir tipagem
 interface UnidadeFormData {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal";
-import TabelaUsuarios from "@/components/tabelausuarios";
+import TabelaUsuarios from "@/components/tabelas/tabelausuarios";
 import api from "@/services/api";
 import { Usuario } from "@/types";
 
