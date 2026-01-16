@@ -4,51 +4,34 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal"; 
 import api from "@/services/api";
-import TabelaFeriados, { Feriado } from "@/components/tabelas/tabelaferiados";
+import TabelaGrauParentesco, { GrauParentesco } from "@/components/tabelas/tabelagrauparentesco";
 
-interface FeriadoFormData {
-  descricao: string;
-  data_feriado: string; // YYYY-MM-DD para input date
-  unidade: string;
-  chk_ativo: boolean;
-}
-
-export default function FeriadosPage() {
+export default function GrausParentescoPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const [lista, setLista] = useState<Feriado[]>([]);
+  const [lista, setLista] = useState<GrauParentesco[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
 
-  const [formData, setFormData] = useState<FeriadoFormData>({
+  const [formData, setFormData] = useState({
     descricao: "",
-    data_feriado: "",
-    unidade: "",
     chk_ativo: true,
   });
 
   const openModalNew = () => {
     setEditingId(null);
-    setFormData({ descricao: "", data_feriado: "", unidade: "", chk_ativo: true });
+    setFormData({ descricao: "", chk_ativo: true });
     setIsModalOpen(true);
   };
 
-  const handleEdit = (item: Feriado) => {
-    setEditingId(item.id_feriado);
-    
-    // Convertendo ISO para YYYY-MM-DD para preencher o input type="date"
-    const dataFormatada = item.data_feriado 
-      ? new Date(item.data_feriado).toISOString().split('T')[0] 
-      : "";
-
+  const handleEdit = (item: GrauParentesco) => {
+    setEditingId(item.id_grau_parentesco);
     setFormData({
       descricao: item.descricao,
-      data_feriado: dataFormatada,
-      unidade: item.unidade,
       chk_ativo: item.chk_ativo,
     });
     setIsModalOpen(true);
@@ -62,7 +45,7 @@ export default function FeriadosPage() {
   async function fetchData(pagina: number) {
     setLoading(true);
     try {
-      const response = await api.get(`/feriado?page=${pagina}&limit=10`);
+      const response = await api.get(`/grau-parentesco?page=${pagina}&limit=10`);
       setLista(response.data.data);
       setTotalPages(response.data.meta.totalPages);
     } catch (err) {
@@ -86,15 +69,14 @@ export default function FeriadosPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Deseja excluir este feriado?")) return;
+    if (!window.confirm("Deseja excluir este registro?")) return;
 
     try {
-      await api.delete(`/feriado/${id}`);
+      await api.delete(`/grau-parentesco/${id}`);
       alert("Excluído com sucesso!");
       fetchData(page);
     } catch (err: any) {
@@ -105,24 +87,22 @@ export default function FeriadosPage() {
   const handleSalvar = async () => {
     setSaving(true);
     try {
-      // Validação simples
-      if (!formData.descricao || !formData.data_feriado || !formData.unidade) {
-        alert("Preencha todos os campos obrigatórios.");
+      if (!formData.descricao.trim()) {
+        alert("A descrição é obrigatória.");
         setSaving(false);
         return;
       }
 
       if (editingId) {
-        await api.put(`/feriado/${editingId}`, formData);
+        await api.put(`/grau-parentesco/${editingId}`, formData);
         alert("Atualizado com sucesso!");
       } else {
-        await api.post("/feriado", formData);
+        await api.post("/grau-parentesco", formData);
         alert("Cadastrado com sucesso!");
       }
       closeModal();
       fetchData(page);
     } catch (err: any) {
-      console.error(err);
       alert("Erro ao salvar.");
     } finally {
       setSaving(false);
@@ -138,18 +118,18 @@ export default function FeriadosPage() {
       <div className="flex flex-col w-full h-full">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
           <h1 className="text-xl font-bold text-[#133c86] ml-4">
-            Gestão de Feriados
+            Graus de Parentesco
           </h1>
           <button
             onClick={openModalNew}
             className="px-6 py-3 bg-[#34495E] text-white font-semibold rounded-lg shadow-md hover:bg-[#253341a4] mr-4 cursor-pointer"
           >
-            Novo Feriado
+            Novo Cadastro
           </button>
         </div>
 
         <div className="flex-1 overflow-auto">
-          <TabelaFeriados
+          <TabelaGrauParentesco
             dados={lista}
             loading={loading}
             error={error}
@@ -186,56 +166,24 @@ export default function FeriadosPage() {
 
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h2 className="text-2xl font-bold m-4 text-gray-800">
-            {editingId ? "Editar Feriado" : "Novo Feriado"}
+            {editingId ? "Editar Grau de Parentesco" : "Novo Grau de Parentesco"}
           </h2>
 
-          <div className="p-4 grid grid-cols-1 gap-4">
-            
+          <div className="p-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Descrição do Feriado
+                Descrição
               </label>
               <input
                 name="descricao"
                 value={formData.descricao}
                 onChange={handleChange}
                 type="text"
-                maxLength={255}
-                placeholder="Ex: Confraternização Universal"
+                maxLength={100}
+                placeholder="Ex: Pai, Mãe, Avô..."
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600">
-                  Data
-                </label>
-                <input
-                  name="data_feriado"
-                  value={formData.data_feriado}
-                  onChange={handleChange}
-                  type="date"
-                  className="p-2 w-full rounded border border-gray-300"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600">
-                  Unidade
-                </label>
-                <input
-                  name="unidade"
-                  value={formData.unidade}
-                  onChange={handleChange}
-                  type="text"
-                  maxLength={100}
-                  placeholder="Ex: Matriz"
-                  className="p-2 w-full rounded border border-gray-300"
-                />
-              </div>
-            </div>
-
           </div>
 
           <div className="flex justify-end gap-4 m-4 pt-4 border-t">
