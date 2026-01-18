@@ -30,12 +30,14 @@ document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
   }
 
   return (
+    <div className="flex items-center justify-center py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-800 cursor-pointer">
     <button
       type="button"
       onClick={handleLogout}
-      className="text-red-600 mr-3 rounded-xl items-center justify-center"
+      className="text-red-600 mr-3 rounded-xl items-center justify-center cursor-pointer flex"
     >
-      <LogOut />
+      <LogOut /> Sair
     </button>
+    </div>
   );
 }

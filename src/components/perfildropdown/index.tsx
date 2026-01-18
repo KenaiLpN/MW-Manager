@@ -86,10 +86,10 @@ export function UserMenu({ nome, role }: UserMenuProps) {
               Configurações
             </Link>
           </div>
-          <div className="flex items-center justify-center py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-800 cursor-pointer">
+          
             <BotaoSair />
-            Sair
-          </div>
+           
+          
           <div className="border-t border-gray-100 py-1"></div>
         </div>
       )}
