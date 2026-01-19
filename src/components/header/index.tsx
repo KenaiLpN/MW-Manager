@@ -17,7 +17,7 @@ const navItems: NavItem[] = [
   { name: "Cadastros", href: "/cadastros/usuarios" },
   { name: "Empresa", href: "/empresa/cadramosatividade" },
   { name: "Acessos", href: "/acessos" },
-  { name: "Vagas", href: "/orcamentos" },
+  { name: "Vagas", href: "/vagas" },
   { name: "Aprendiz", href: "/aprendiz" },
   { name: "Pedagógico", href: "/pedagogico"},
   { name: "Estatísticas", href: "/estatisticas"},
@@ -58,7 +58,7 @@ export function Header() {
   return (
     <header className="flex bg-[#34495E] border-b border-[#e4e9f0] justify-between items-center">
       <div className="ml-5">
-        <h1 className="text-[#F6F6F6] text-2xl font-bold">PROJOV</h1>
+        <h1 className="text-[#F6F6F6] text-2xl font-bold">PROSIS</h1>
         <p className="text-[#F6F6F6] text-xs">
           Rua Pará, nº 159 - BARUERI - SP. Tel.: (11) 4166-2630
         </p>

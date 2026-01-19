@@ -5,7 +5,7 @@ import PrivateLayout from "@/components/PrivateLayout";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Projov ",
+  title: "ProSis ",
   description: "Sistema de Gestão",
 };
 

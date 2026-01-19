@@ -8,32 +8,26 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [loginError, setLoginError] = useState(false);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setLoginError(false);
 
     try {
       const response = await api.post("/login", { email, senha });
-      
-      // 1. Pegamos o token que veio no JSON
-      const { token, user } = response.data; // Ajuste se vier response.data.user e response.data.token
 
-      // 2. Salvamos os dados do usuário (como você já fazia)
+      const { token, user } = response.data;
+
       localStorage.setItem("projov_user", JSON.stringify(user));
 
-      // 3. --- O PULO DO GATO ---
-      // Criamos um cookie DO FRONTEND com o mesmo valor do token.
-      // Isso permite que o PrivateLayout leia o token via document.cookie.
       document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax; Secure`;
 
-      // 4. Redirecionamento (O window.location garante que o layout leia o cookie novo)
       window.location.href = "/home";
-      
     } catch (error) {
       console.error(error);
-      alert("Erro ao fazer login. Verifique seus dados.");
+      setLoginError(true);
       setLoading(false);
     }
   }
@@ -62,8 +56,15 @@ export default function LoginPage() {
             type="email"
             placeholder="E-mail"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 rounded-xl bg-[#F3F4F6] border-4 border-[#34495E] focus:border-blue-500 outline-none"
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setLoginError(false);
+            }}
+            className={`w-full p-3 rounded-xl bg-[#F3F4F6] border-2 outline-none ${
+              loginError
+                ? "border-red-500 focus:border-red-500"
+                : "border-[#34495E] focus:border-blue-500"
+            }`}
           />
         </div>
 
@@ -72,19 +73,32 @@ export default function LoginPage() {
             type="password"
             placeholder="Senha"
             value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            className="w-full p-3 rounded-xl bg-[#F3F4F6] border-4 border-[#34495E] focus:border-blue-500 outline-none"
+            onChange={(e) => {
+              setSenha(e.target.value);
+              setLoginError(false);
+            }}
+            className={`w-full p-3 rounded-xl bg-[#F3F4F6] border-2 outline-none ${
+              loginError
+                ? "border-red-500 focus:border-red-500"
+                : "border-[#34495E] focus:border-blue-500"
+            }`}
           />
         </div>
+
+        {loginError && (
+          <div className="text-red-500 text-sm text-center p-2 rounded">
+            Credenciais inválidas. Verifique seu e-mail e senha.
+          </div>
+        )}
 
         <button
           type="submit"
           disabled={loading} // Desabilita o botão enquanto carrega
-          className={`w-full text-white p-3 rounded cursor-pointer transition-all
+          className={`w-full text-white p-3 rounded cursor-pointer transition-[background-position] duration-500 ease-in-out
     ${
       loading
         ? "bg-blue-400 cursor-not-allowed" // Estilo quando carregando
-        : "bg-gradient-to-t from-[#345ce2] to-[#6a8dff] hover:gradient-to-b hover:from-[#6a8dff] hover:to-[#345ce2]" // Estilo normal
+        : "bg-gradient-to-t from-[#345ce2] via-[#6a8dff] to-[#345ce2] bg-[length:100%_200%] bg-bottom hover:bg-top" // Estilo normal com animação
     }`}
         >
           {loading ? "Entrando..." : "Entrar"} {/* Muda o texto */}
