@@ -86,7 +86,7 @@ export default function LoginPage() {
         </div>
 
         {loginError && (
-          <div className="text-red-500 text-sm text-center p-2 rounded">
+          <div className="text-red-500 text-sm text-center rounded">
             Credenciais inválidas. Verifique seu e-mail e senha.
           </div>
         )}
