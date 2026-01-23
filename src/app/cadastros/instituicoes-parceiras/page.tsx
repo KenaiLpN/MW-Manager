@@ -4,51 +4,89 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal"; 
 import api from "@/services/api";
-import TabelaCadastroRegiao, { CadastroRegiao } from "@/components/tabelas/tabelacadastroregiao";
+import TabelaInstituicoesParceiras, { InstituicaoParceira } from "@/components/tabelas/tabelainstituicoesparceiras";
 
-interface RegiaoFormData {
-  NomeRegiao: string;
-  SiglaRegiao: string;
-  ResponsavelRegional: string;
-  Ativo: boolean;
+interface ParceiroFormData {
+  NomeFantasia: string;
+  RazaoSocial: string;
+  cep: string; // Auxiliar para busca de CEP no formulário (não salva no banco pois não tem coluna)
+  Logradouro: string;
+  Numero: string;
+  Bairro: string;
+  Cidade: string;
+  Estado: string;
 }
 
-export default function RegioesPage() {
+export default function InstituicoesParceirasPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const [lista, setLista] = useState<CadastroRegiao[]>([]);
+  const [lista, setLista] = useState<InstituicaoParceira[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
 
-  const [formData, setFormData] = useState<RegiaoFormData>({
-    NomeRegiao: "",
-    SiglaRegiao: "",
-    ResponsavelRegional: "",
-    Ativo: true,
+  const [formData, setFormData] = useState<ParceiroFormData>({
+    NomeFantasia: "",
+    RazaoSocial: "",
+    cep: "",
+    Logradouro: "",
+    Numero: "",
+    Bairro: "",
+    Cidade: "",
+    Estado: "",
   });
+
+  // Função de busca de CEP para facilitar o cadastro
+  const buscaCEP = async (cep: string) => {
+    const cepLimpo = cep.replace(/\D/g, "");
+    if (cepLimpo.length === 8) {
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+        const data = await response.json();
+        if (!data.erro) {
+          setFormData((prev) => ({
+            ...prev,
+            Logradouro: data.logradouro,
+            Bairro: data.bairro,
+            Cidade: data.localidade,
+            Estado: data.uf,
+          }));
+        }
+      } catch (err) {
+        console.error("Erro ao buscar CEP");
+      }
+    }
+  };
 
   const openModalNew = () => {
     setEditingId(null);
     setFormData({
-      NomeRegiao: "",
-      SiglaRegiao: "",
-      ResponsavelRegional: "",
-      Ativo: true,
+      NomeFantasia: "",
+      RazaoSocial: "",
+      cep: "",
+      Logradouro: "",
+      Numero: "",
+      Bairro: "",
+      Cidade: "",
+      Estado: "",
     });
     setIsModalOpen(true);
   };
 
-  const handleEdit = (item: CadastroRegiao) => {
-    setEditingId(item.IdRegiao);
+  const handleEdit = (item: InstituicaoParceira) => {
+    setEditingId(item.IdParceiro);
     setFormData({
-      NomeRegiao: item.NomeRegiao,
-      SiglaRegiao: item.SiglaRegiao || "",
-      ResponsavelRegional: item.ResponsavelRegional || "",
-      Ativo: item.Ativo ?? true,
+      NomeFantasia: item.NomeFantasia || "",
+      RazaoSocial: item.RazaoSocial || "",
+      cep: "", // O CEP não vem do banco, inicia vazio
+      Logradouro: item.Logradouro || "",
+      Numero: item.Numero || "",
+      Bairro: item.Bairro || "",
+      Cidade: item.Cidade || "",
+      Estado: item.Estado || "",
     });
     setIsModalOpen(true);
   };
@@ -61,7 +99,7 @@ export default function RegioesPage() {
   async function fetchData(pagina: number) {
     setLoading(true);
     try {
-      const response = await api.get(`/regioes?page=${pagina}&limit=10`);
+      const response = await api.get(`/instituicoes-parceiras?page=${pagina}&limit=10`);
       setLista(response.data.data);
       setTotalPages(response.data.meta.totalPages);
     } catch (err) {
@@ -85,18 +123,15 @@ export default function RegioesPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Deseja excluir esta região?")) return;
+    if (!window.confirm("Deseja excluir esta instituição?")) return;
 
     try {
-      await api.delete(`/regioes/${id}`);
+      await api.delete(`/instituicoes-parceiras/${id}`);
       alert("Excluído com sucesso!");
       fetchData(page);
     } catch (err: any) {
@@ -107,17 +142,28 @@ export default function RegioesPage() {
   const handleSalvar = async () => {
     setSaving(true);
     try {
-      if (!formData.NomeRegiao) {
-        alert("O Nome da Região é obrigatório.");
+      if (!formData.NomeFantasia) {
+        alert("O Nome Fantasia é obrigatório.");
         setSaving(false);
         return;
       }
 
+      // Monta o payload removendo campos auxiliares como 'cep' que não existem no banco
+      const payload = {
+        NomeFantasia: formData.NomeFantasia,
+        RazaoSocial: formData.RazaoSocial,
+        Logradouro: formData.Logradouro,
+        Numero: formData.Numero,
+        Bairro: formData.Bairro,
+        Cidade: formData.Cidade,
+        Estado: formData.Estado,
+      };
+
       if (editingId) {
-        await api.put(`/regioes/${editingId}`, formData);
+        await api.put(`/instituicoes-parceiras/${editingId}`, payload);
         alert("Atualizado com sucesso!");
       } else {
-        await api.post("/regioes", formData);
+        await api.post("/instituicoes-parceiras", payload);
         alert("Cadastrado com sucesso!");
       }
       closeModal();
@@ -139,18 +185,18 @@ export default function RegioesPage() {
       <div className="flex flex-col w-full h-full">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
           <h1 className="text-xl font-bold text-[#133c86] ml-4">
-            Gestão de Regiões
+            Instituições Parceiras
           </h1>
           <button
             onClick={openModalNew}
             className="px-6 py-3 bg-[#34495E] text-white font-semibold rounded-lg shadow-md hover:bg-[#253341a4] mr-4 cursor-pointer"
           >
-            Nova Região
+            Novo Parceiro
           </button>
         </div>
 
         <div className="flex-1 overflow-auto">
-          <TabelaCadastroRegiao
+          <TabelaInstituicoesParceiras
             dados={lista}
             loading={loading}
             error={error}
@@ -187,67 +233,128 @@ export default function RegioesPage() {
 
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h2 className="text-2xl font-bold m-4 text-gray-800">
-            {editingId ? "Editar Região" : "Nova Região"}
+            {editingId ? "Editar Parceiro" : "Novo Parceiro"}
           </h2>
 
           <div className="p-4 grid grid-cols-1 gap-4">
             
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Nome da Região <span className="text-red-500">*</span>
+                Nome Fantasia <span className="text-red-500">*</span>
               </label>
               <input
-                name="NomeRegiao"
-                value={formData.NomeRegiao}
+                name="NomeFantasia"
+                value={formData.NomeFantasia}
                 onChange={handleChange}
                 type="text"
-                maxLength={100}
-                placeholder="Ex: Sudeste"
+                maxLength={150}
+                placeholder="Nome da Instituição"
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
 
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-gray-600">
+                Razão Social
+              </label>
+              <input
+                name="RazaoSocial"
+                value={formData.RazaoSocial}
+                onChange={handleChange}
+                type="text"
+                maxLength={250}
+                className="p-2 w-full rounded border border-gray-300"
+              />
+            </div>
+
+            <hr className="my-2" />
+            <p className="text-sm font-bold text-gray-500">Endereço</p>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600">
-                  Sigla
-                </label>
+                <label className="text-sm font-semibold text-gray-600">CEP</label>
                 <input
-                  name="SiglaRegiao"
-                  value={formData.SiglaRegiao}
+                  name="cep"
+                  value={formData.cep}
                   onChange={handleChange}
+                  onBlur={(e) => buscaCEP(e.target.value)}
                   type="text"
-                  maxLength={10}
-                  placeholder="Ex: SE"
+                  placeholder="00000-000"
                   className="p-2 w-full rounded border border-gray-300"
                 />
               </div>
 
-              <div className="flex flex-col gap-1">
+               <div className="flex flex-col gap-1">
                 <label className="text-sm font-semibold text-gray-600">
-                  Responsável Regional
+                  Estado (UF)
                 </label>
                 <input
-                  name="ResponsavelRegional"
-                  value={formData.ResponsavelRegional}
+                  name="Estado"
+                  value={formData.Estado}
                   onChange={handleChange}
                   type="text"
-                  maxLength={100}
-                  placeholder="Ex: João da Silva"
+                  maxLength={2}
                   className="p-2 w-full rounded border border-gray-300"
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-gray-600">
+                Cidade
+              </label>
               <input
-                type="checkbox"
-                name="Ativo"
-                checked={formData.Ativo}
+                name="Cidade"
+                value={formData.Cidade}
                 onChange={handleChange}
-                className="h-5 w-5 cursor-pointer"
+                type="text"
+                maxLength={100}
+                className="p-2 w-full rounded border border-gray-300"
               />
-              <label className="text-sm text-gray-700">Ativo?</label>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+               <div className="col-span-2 flex flex-col gap-1">
+                <label className="text-sm font-semibold text-gray-600">
+                  Logradouro
+                </label>
+                <input
+                  name="Logradouro"
+                  value={formData.Logradouro}
+                  onChange={handleChange}
+                  type="text"
+                  maxLength={200}
+                  className="p-2 w-full rounded border border-gray-300"
+                />
+              </div>
+
+               <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-gray-600">
+                  Número
+                </label>
+                <input
+                  name="Numero"
+                  value={formData.Numero}
+                  onChange={handleChange}
+                  type="text"
+                  maxLength={20}
+                  className="p-2 w-full rounded border border-gray-300"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-gray-600">
+                Bairro
+              </label>
+              <input
+                name="Bairro"
+                value={formData.Bairro}
+                onChange={handleChange}
+                type="text"
+                maxLength={100}
+                className="p-2 w-full rounded border border-gray-300"
+              />
             </div>
 
           </div>

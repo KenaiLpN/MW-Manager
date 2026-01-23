@@ -19,8 +19,8 @@ const navItems: NavItem[] = [
   { name: "Graus de Escolaridade", href: "/cadastros/graus-escolaridade" },
   { name: "Feriados", href: "/cadastros/feriados" },
   { name: "Motivos de Desligamento", href: "/cadastros/motivos-desligamento" },
-  { name: "Instituições Parceiras", href: "/cadastros/instparceiras" },
-  { name: "Status Encaminhamento", href: "/cadastros/statusencaminhamento" },
+  { name: "Instituições Parceiras", href: "/cadastros/instituicoes-parceiras" },
+  { name: "Status Encaminhamento", href: "/cadastros/status-encaminhamento" },
   { name: "Regiões", href: "/cadastros/regioes" },
 ];
 

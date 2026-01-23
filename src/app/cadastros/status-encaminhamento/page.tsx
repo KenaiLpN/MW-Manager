@@ -4,50 +4,54 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal"; 
 import api from "@/services/api";
-import TabelaCadastroRegiao, { CadastroRegiao } from "@/components/tabelas/tabelacadastroregiao";
+import TabelaStatusEncaminhamento, { StatusEncaminhamento } from "@/components/tabelas/tabelastatusencaminhamento";
 
-interface RegiaoFormData {
-  NomeRegiao: string;
-  SiglaRegiao: string;
-  ResponsavelRegional: string;
+interface StatusFormData {
+  Descricao: string;
+  CorLegenda: string;
+  FinalizaProcesso: boolean;
+  PermiteReencaminhamento: boolean;
   Ativo: boolean;
 }
 
-export default function RegioesPage() {
+export default function StatusEncaminhamentoPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const [lista, setLista] = useState<CadastroRegiao[]>([]);
+  const [lista, setLista] = useState<StatusEncaminhamento[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
 
-  const [formData, setFormData] = useState<RegiaoFormData>({
-    NomeRegiao: "",
-    SiglaRegiao: "",
-    ResponsavelRegional: "",
+  const [formData, setFormData] = useState<StatusFormData>({
+    Descricao: "",
+    CorLegenda: "#000000",
+    FinalizaProcesso: false,
+    PermiteReencaminhamento: true,
     Ativo: true,
   });
 
   const openModalNew = () => {
     setEditingId(null);
     setFormData({
-      NomeRegiao: "",
-      SiglaRegiao: "",
-      ResponsavelRegional: "",
+      Descricao: "",
+      CorLegenda: "#000000",
+      FinalizaProcesso: false,
+      PermiteReencaminhamento: true,
       Ativo: true,
     });
     setIsModalOpen(true);
   };
 
-  const handleEdit = (item: CadastroRegiao) => {
-    setEditingId(item.IdRegiao);
+  const handleEdit = (item: StatusEncaminhamento) => {
+    setEditingId(item.IdStatus);
     setFormData({
-      NomeRegiao: item.NomeRegiao,
-      SiglaRegiao: item.SiglaRegiao || "",
-      ResponsavelRegional: item.ResponsavelRegional || "",
+      Descricao: item.Descricao || "",
+      CorLegenda: item.CorLegenda || "#000000",
+      FinalizaProcesso: item.FinalizaProcesso ?? false,
+      PermiteReencaminhamento: item.PermiteReencaminhamento ?? true,
       Ativo: item.Ativo ?? true,
     });
     setIsModalOpen(true);
@@ -61,12 +65,12 @@ export default function RegioesPage() {
   async function fetchData(pagina: number) {
     setLoading(true);
     try {
-      const response = await api.get(`/regioes?page=${pagina}&limit=10`);
+      const response = await api.get(`/status-encaminhamento?page=${pagina}&limit=10`);
       setLista(response.data.data);
       setTotalPages(response.data.meta.totalPages);
     } catch (err) {
       console.error(err);
-      setError("Falha ao carregar dados.");
+      setError("Falha ao carregar dados. Verifique a API.");
     } finally {
       setLoading(false);
     }
@@ -93,10 +97,10 @@ export default function RegioesPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Deseja excluir esta região?")) return;
+    if (!window.confirm("Deseja excluir este status?")) return;
 
     try {
-      await api.delete(`/regioes/${id}`);
+      await api.delete(`/status-encaminhamento/${id}`);
       alert("Excluído com sucesso!");
       fetchData(page);
     } catch (err: any) {
@@ -107,17 +111,17 @@ export default function RegioesPage() {
   const handleSalvar = async () => {
     setSaving(true);
     try {
-      if (!formData.NomeRegiao) {
-        alert("O Nome da Região é obrigatório.");
+      if (!formData.Descricao) {
+        alert("A descrição é obrigatória.");
         setSaving(false);
         return;
       }
 
       if (editingId) {
-        await api.put(`/regioes/${editingId}`, formData);
+        await api.put(`/status-encaminhamento/${editingId}`, formData);
         alert("Atualizado com sucesso!");
       } else {
-        await api.post("/regioes", formData);
+        await api.post("/status-encaminhamento", formData);
         alert("Cadastrado com sucesso!");
       }
       closeModal();
@@ -139,18 +143,18 @@ export default function RegioesPage() {
       <div className="flex flex-col w-full h-full">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
           <h1 className="text-xl font-bold text-[#133c86] ml-4">
-            Gestão de Regiões
+            Status de Encaminhamento
           </h1>
           <button
             onClick={openModalNew}
             className="px-6 py-3 bg-[#34495E] text-white font-semibold rounded-lg shadow-md hover:bg-[#253341a4] mr-4 cursor-pointer"
           >
-            Nova Região
+            Novo Status
           </button>
         </div>
 
         <div className="flex-1 overflow-auto">
-          <TabelaCadastroRegiao
+          <TabelaStatusEncaminhamento
             dados={lista}
             loading={loading}
             error={error}
@@ -187,67 +191,75 @@ export default function RegioesPage() {
 
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h2 className="text-2xl font-bold m-4 text-gray-800">
-            {editingId ? "Editar Região" : "Nova Região"}
+            {editingId ? "Editar Status" : "Novo Status"}
           </h2>
 
           <div className="p-4 grid grid-cols-1 gap-4">
             
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Nome da Região <span className="text-red-500">*</span>
+                Descrição <span className="text-red-500">*</span>
               </label>
               <input
-                name="NomeRegiao"
-                value={formData.NomeRegiao}
+                name="Descricao"
+                value={formData.Descricao}
                 onChange={handleChange}
                 type="text"
                 maxLength={100}
-                placeholder="Ex: Sudeste"
+                placeholder="Ex: Em Análise"
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600">
-                  Sigla
-                </label>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-gray-600">
+                Cor da Legenda
+              </label>
+              <div className="flex gap-2 items-center">
                 <input
-                  name="SiglaRegiao"
-                  value={formData.SiglaRegiao}
+                  name="CorLegenda"
+                  value={formData.CorLegenda}
                   onChange={handleChange}
-                  type="text"
-                  maxLength={10}
-                  placeholder="Ex: SE"
-                  className="p-2 w-full rounded border border-gray-300"
+                  type="color"
+                  className="h-10 w-20 p-1 rounded border border-gray-300 cursor-pointer"
                 />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600">
-                  Responsável Regional
-                </label>
-                <input
-                  name="ResponsavelRegional"
-                  value={formData.ResponsavelRegional}
-                  onChange={handleChange}
-                  type="text"
-                  maxLength={100}
-                  placeholder="Ex: João da Silva"
-                  className="p-2 w-full rounded border border-gray-300"
-                />
+                <span className="text-gray-500 text-sm">{formData.CorLegenda}</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 mt-2">
-              <input
-                type="checkbox"
-                name="Ativo"
-                checked={formData.Ativo}
-                onChange={handleChange}
-                className="h-5 w-5 cursor-pointer"
-              />
-              <label className="text-sm text-gray-700">Ativo?</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="FinalizaProcesso"
+                  checked={formData.FinalizaProcesso}
+                  onChange={handleChange}
+                  className="h-5 w-5 cursor-pointer"
+                />
+                <label className="text-sm text-gray-700">Finaliza o Processo?</label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="PermiteReencaminhamento"
+                  checked={formData.PermiteReencaminhamento}
+                  onChange={handleChange}
+                  className="h-5 w-5 cursor-pointer"
+                />
+                <label className="text-sm text-gray-700">Permite Reencaminhamento?</label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="Ativo"
+                  checked={formData.Ativo}
+                  onChange={handleChange}
+                  className="h-5 w-5 cursor-pointer"
+                />
+                <label className="text-sm text-gray-700">Ativo?</label>
+              </div>
             </div>
 
           </div>
