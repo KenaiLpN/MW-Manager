@@ -16,6 +16,7 @@ export default function CadCliPage() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -38,7 +39,7 @@ export default function CadCliPage() {
     if (cepLimpo.length === 8) {
       try {
         const response = await fetch(
-          `https://viacep.com.br/ws/${cepLimpo}/json/`
+          `https://viacep.com.br/ws/${cepLimpo}/json/`,
         );
         const data = await response.json();
         if (!data.erro) {
@@ -141,11 +142,14 @@ export default function CadCliPage() {
     setEditingId(null);
   };
 
-  async function fetchUsuarios(paginaParaBuscar: number) {
+  async function fetchUsuarios(
+    paginaParaBuscar: number,
+    searchTerm: string = "",
+  ) {
     setLoading(true);
     try {
       const response = await api.get(
-        `/users?page=${paginaParaBuscar}&limit=10`
+        `/users?page=${paginaParaBuscar}&limit=10${searchTerm ? `&search=${searchTerm}` : ""}`,
       );
 
       setUsuarios(response.data.data);
@@ -159,8 +163,25 @@ export default function CadCliPage() {
   }
 
   useEffect(() => {
-    fetchUsuarios(page);
+    fetchUsuarios(page, search);
   }, [page]);
+
+  const handleSearch = () => {
+    setPage(1); // Volta para primeira página ao pesquisar
+    fetchUsuarios(1, search);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearch("");
+    setPage(1);
+    fetchUsuarios(1, "");
+  };
 
   const handlePreviousPage = () => {
     if (page > 1) setPage((prev) => prev - 1);
@@ -171,7 +192,7 @@ export default function CadCliPage() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -184,7 +205,7 @@ export default function CadCliPage() {
   const handleDeleteUser = async (id: number) => {
     // 1. Confirmação visual nativa do browser
     const confirmacao = window.confirm(
-      "Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita."
+      "Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.",
     );
 
     if (!confirmacao) return;
@@ -276,12 +297,46 @@ export default function CadCliPage() {
 
       <div className="flex flex-col w-full h-full ">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
-          <input
-            type="text"
-            placeholder="Buscar usuários..."
-            className="p-2 w-60 rounded bg-white ml-4"
-          />
-          <div className="flex space-x-2"></div>
+          <div className="flex items-center gap-2 ml-4">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Buscar por nome, email, cpf..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleKeyPress}
+                className="p-2 pr-10 w-72 rounded bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#133c86]"
+              />
+              {search && (
+                <button
+                  onClick={handleClearSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                  title="Limpar pesquisa"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+            <button
+              onClick={handleSearch}
+              className="px-4 py-2 bg-[#133c86] text-white font-semibold rounded hover:bg-[#0f2e6b] transition-colors cursor-pointer"
+            >
+              Pesquisar
+            </button>
+          </div>
           <button
             onClick={openModalNew}
             className="px-6 py-3 bg-[#34495E] text-white font-semibold rounded-lg shadow-md hover:bg-[#253341a4] mr-4 cursor-pointer"

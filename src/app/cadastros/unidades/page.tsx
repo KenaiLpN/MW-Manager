@@ -37,6 +37,7 @@ export default function Unidades() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
 
   // Estado inicializado com os campos corretos da Unidade
   const [formData, setFormData] = useState<UnidadeFormData>({
@@ -62,7 +63,7 @@ export default function Unidades() {
     if (cepLimpo.length === 8) {
       try {
         const response = await fetch(
-          `https://viacep.com.br/ws/${cepLimpo}/json/`
+          `https://viacep.com.br/ws/${cepLimpo}/json/`,
         );
         const data = await response.json();
         if (!data.erro) {
@@ -163,16 +164,15 @@ export default function Unidades() {
     setEditingId(null);
   };
 
-  async function fetchUnidades(paginaParaBuscar: number) {
+  async function fetchUnidades(
+    paginaParaBuscar: number,
+    searchTerm: string = search,
+  ) {
     setLoading(true);
     try {
-      // Ajuste a rota se necessário (ex: /unidades em vez de /users)
       const response = await api.get(
-        `/unidade?page=${paginaParaBuscar}&limit=10`
+        `/unidade?page=${paginaParaBuscar}&limit=10${searchTerm ? `&search=${searchTerm}` : ""}`,
       );
-      console.log("Dados da API:", response.data); // Verifique isso no F12
-      setUnidades(response.data.data);
-
       setUnidades(response.data.data);
       setTotalPages(response.data.meta.totalPages);
     } catch (err) {
@@ -182,6 +182,23 @@ export default function Unidades() {
       setLoading(false);
     }
   }
+
+  const handleSearch = () => {
+    setPage(1);
+    fetchUnidades(1, search);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearch("");
+    setPage(1);
+    fetchUnidades(1, "");
+  };
 
   useEffect(() => {
     fetchUnidades(page);
@@ -196,7 +213,7 @@ export default function Unidades() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -207,7 +224,7 @@ export default function Unidades() {
 
   const handleDeleteUnity = async (id: number) => {
     const confirmacao = window.confirm(
-      "Tem certeza que deseja excluir esta unidade? Esta ação não pode ser desfeita."
+      "Tem certeza que deseja excluir esta unidade? Esta ação não pode ser desfeita.",
     );
 
     if (!confirmacao) return;
@@ -271,11 +288,46 @@ export default function Unidades() {
 
       <div className="flex flex-col w-full h-full ">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
-          <input
-            type="text"
-            placeholder="Buscar unidades..."
-            className="p-2 w-60 rounded bg-white ml-4"
-          />
+          <div className="flex items-center gap-2 ml-4">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Buscar unidades..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleKeyPress}
+                className="p-2 pr-10 w-72 rounded bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#133c86]"
+              />
+              {search && (
+                <button
+                  onClick={handleClearSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                  title="Limpar pesquisa"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+            <button
+              onClick={handleSearch}
+              className="px-4 py-2 bg-[#133c86] text-white font-semibold rounded hover:bg-[#0f2e6b] transition-colors cursor-pointer"
+            >
+              Pesquisar
+            </button>
+          </div>
           <div className="flex space-x-2"></div>
           <button
             onClick={openModalNew}

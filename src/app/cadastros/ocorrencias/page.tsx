@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal";
 import api from "@/services/api";
-import TabelaOcorrencias, { Ocorrencia } from "@/components/tabelas/tabelaocorrencias";
+import TabelaOcorrencias, {
+  Ocorrencia,
+} from "@/components/tabelas/tabelaocorrencias";
 
 interface OcorrenciaFormData {
   descricao: string;
@@ -22,6 +24,7 @@ export default function OcorrenciasPage() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
 
   const initialFormState: OcorrenciaFormData = {
     descricao: "",
@@ -30,14 +33,17 @@ export default function OcorrenciasPage() {
     chk_ativo: true,
   };
 
-  const [formData, setFormData] = useState<OcorrenciaFormData>(initialFormState);
+  const [formData, setFormData] =
+    useState<OcorrenciaFormData>(initialFormState);
   const [saving, setSaving] = useState<boolean>(false);
 
   // Busca dados
-  async function fetchOcorrencias(pagina: number) {
+  async function fetchOcorrencias(pagina: number, searchTerm: string = search) {
     setLoading(true);
     try {
-      const response = await api.get(`/ocorrencia?page=${pagina}&limit=10`);
+      const response = await api.get(
+        `/ocorrencia?page=${pagina}&limit=10${searchTerm ? `&search=${searchTerm}` : ""}`,
+      );
       setOcorrencias(response.data.data);
       setTotalPages(response.data.meta.totalPages);
     } catch (err) {
@@ -47,6 +53,23 @@ export default function OcorrenciasPage() {
       setLoading(false);
     }
   }
+
+  const handleSearch = () => {
+    setPage(1);
+    fetchOcorrencias(1, search);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearch("");
+    setPage(1);
+    fetchOcorrencias(1, "");
+  };
 
   useEffect(() => {
     fetchOcorrencias(page);
@@ -60,9 +83,10 @@ export default function OcorrenciasPage() {
 
   const handleEdit = (item: Ocorrencia) => {
     setEditingId(item.id_ocorrencia);
-    
-   
-    const isoDate = item.data_ocorrencia ? item.data_ocorrencia.split("T")[0] : "";
+
+    const isoDate = item.data_ocorrencia
+      ? item.data_ocorrencia.split("T")[0]
+      : "";
 
     setFormData({
       descricao: item.descricao,
@@ -113,7 +137,7 @@ export default function OcorrenciasPage() {
         descricao: formData.descricao,
         data_ocorrencia: formData.data_ocorrencia, // O schema espera "YYYY-MM-DD" ou Date
         id_participante: Number(formData.id_participante),
-        chk_ativo: formData.chk_ativo
+        chk_ativo: formData.chk_ativo,
       };
 
       if (editingId) {
@@ -135,8 +159,12 @@ export default function OcorrenciasPage() {
   };
 
   // Paginação handlers
-  const handlePreviousPage = () => { if (page > 1) setPage(page - 1); };
-  const handleNextPage = () => { if (page < totalPages) setPage(page + 1); };
+  const handlePreviousPage = () => {
+    if (page > 1) setPage(page - 1);
+  };
+  const handleNextPage = () => {
+    if (page < totalPages) setPage(page + 1);
+  };
 
   return (
     <div className="flex flex-row h-full w-full">
@@ -146,9 +174,49 @@ export default function OcorrenciasPage() {
 
       <div className="flex flex-col w-full h-full">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
-          <h1 className="text-xl font-bold text-[#133c86] ml-4">
-            Ocorrências
-          </h1>
+          <div className="flex items-center gap-2 ml-4">
+            <h1 className="text-xl font-bold text-[#133c86] mr-4">
+              Ocorrencias
+            </h1>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Buscar por descrição..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleKeyPress}
+                className="p-2 pr-10 w-72 rounded bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#133c86]"
+              />
+              {search && (
+                <button
+                  onClick={handleClearSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                  title="Limpar pesquisa"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+            <button
+              onClick={handleSearch}
+              className="px-4 py-2 bg-[#133c86] text-white font-semibold rounded hover:bg-[#0f2e6b] transition-colors cursor-pointer"
+            >
+              Pesquisar
+            </button>
+          </div>
           <button
             onClick={openModalNew}
             className="px-6 py-3 bg-[#34495E] text-white font-semibold rounded-lg shadow-md hover:bg-[#253341a4] mr-4 cursor-pointer"
@@ -167,14 +235,27 @@ export default function OcorrenciasPage() {
           />
 
           <div className="p-4">
-             {!loading && !error && (
+            {!loading && !error && (
               <div className="flex justify-between items-center p-2 bg-[#bacce6] border-t border-gray-200 rounded">
                 <span className="text-sm text-gray-700">
-                  Página <span className="font-semibold">{page}</span> de <span className="font-semibold">{totalPages}</span>
+                  Página <span className="font-semibold">{page}</span> de{" "}
+                  <span className="font-semibold">{totalPages}</span>
                 </span>
                 <div className="space-x-2">
-                  <button onClick={handlePreviousPage} disabled={page === 1} className="m-1 px-4 py-1 border rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">Anterior</button>
-                  <button onClick={handleNextPage} disabled={page === totalPages} className="px-4 py-1 border rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">Próxima</button>
+                  <button
+                    onClick={handlePreviousPage}
+                    disabled={page === 1}
+                    className="m-1 px-4 py-1 border rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    Anterior
+                  </button>
+                  <button
+                    onClick={handleNextPage}
+                    disabled={page === totalPages}
+                    className="px-4 py-1 border rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    Próxima
+                  </button>
                 </div>
               </div>
             )}
@@ -187,7 +268,6 @@ export default function OcorrenciasPage() {
           </h2>
 
           <div className="p-4 grid grid-cols-1 gap-4">
-            
             {/* Descrição */}
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
@@ -230,27 +310,38 @@ export default function OcorrenciasPage() {
                 placeholder="ID do aluno/participante"
                 className="p-2 w-full rounded border border-gray-300"
               />
-        
             </div>
-            
+
             {/* Checkbox Ativo */}
             <div className="flex items-center gap-2 mt-2">
-                <input 
-                    type="checkbox"
-                    id="chk_ativo"
-                    checked={formData.chk_ativo}
-                    onChange={handleCheckboxChange}
-                    className="w-4 h-4 text-blue-600 rounded cursor-pointer"
-                />
-                <label htmlFor="chk_ativo" className="text-sm font-semibold text-gray-600 cursor-pointer">
-                    Registro Ativo?
-                </label>
+              <input
+                type="checkbox"
+                id="chk_ativo"
+                checked={formData.chk_ativo}
+                onChange={handleCheckboxChange}
+                className="w-4 h-4 text-blue-600 rounded cursor-pointer"
+              />
+              <label
+                htmlFor="chk_ativo"
+                className="text-sm font-semibold text-gray-600 cursor-pointer"
+              >
+                Registro Ativo?
+              </label>
             </div>
           </div>
 
           <div className="flex justify-end gap-4 m-4 pt-4 border-t">
-            <button onClick={closeModal} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 cursor-pointer">Cancelar</button>
-            <button onClick={handleSalvar} disabled={saving} className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 cursor-pointer">
+            <button
+              onClick={closeModal}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleSalvar}
+              disabled={saving}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 cursor-pointer"
+            >
               {saving ? "Salvando..." : "Salvar"}
             </button>
           </div>

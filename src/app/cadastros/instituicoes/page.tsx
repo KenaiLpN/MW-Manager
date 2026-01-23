@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
-import Modal from "../../../components/modal"; 
+import Modal from "../../../components/modal";
 import api from "@/services/api";
-import TabelaInstituicoes, { Instituicao } from "@/components/tabelas/tabelainstituicoes";
+import TabelaInstituicoes, {
+  Instituicao,
+} from "@/components/tabelas/tabelainstituicoes";
 
 // Interface do Form
 interface InstituicaoFormData {
@@ -36,6 +38,7 @@ export default function Instituicoes() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
 
   // Estado inicial do formulário
   const initialFormState: InstituicaoFormData = {
@@ -58,22 +61,49 @@ export default function Instituicoes() {
     chk_ativo: true,
   };
 
-  const [formData, setFormData] = useState<InstituicaoFormData>(initialFormState);
+  const [formData, setFormData] =
+    useState<InstituicaoFormData>(initialFormState);
   const [saving, setSaving] = useState<boolean>(false);
 
   const roles = ["Diretor", "Coordenador", "Secretaria", "TI", "Outro"];
-  
+
   const estados = [
-    "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", 
-    "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", 
-    "SP", "SE", "TO"
+    "AC",
+    "AL",
+    "AP",
+    "AM",
+    "BA",
+    "CE",
+    "DF",
+    "ES",
+    "GO",
+    "MA",
+    "MT",
+    "MS",
+    "MG",
+    "PA",
+    "PB",
+    "PR",
+    "PE",
+    "PI",
+    "RJ",
+    "RN",
+    "RS",
+    "RO",
+    "RR",
+    "SC",
+    "SP",
+    "SE",
+    "TO",
   ];
 
   const buscaCEP = async (cep: string) => {
     const cepLimpo = cep.replace(/\D/g, "");
     if (cepLimpo.length === 8) {
       try {
-        const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+        const response = await fetch(
+          `https://viacep.com.br/ws/${cepLimpo}/json/`,
+        );
         const data = await response.json();
         if (!data.erro) {
           setFormData((prev) => ({
@@ -125,10 +155,15 @@ export default function Instituicoes() {
     setEditingId(null);
   };
 
-  async function fetchInstituicoes(paginaParaBuscar: number) {
+  async function fetchInstituicoes(
+    paginaParaBuscar: number,
+    searchTerm: string = "",
+  ) {
     setLoading(true);
     try {
-      const response = await api.get(`/instituicao?page=${paginaParaBuscar}&limit=10`);
+      const response = await api.get(
+        `/instituicao?page=${paginaParaBuscar}&limit=10&search=${searchTerm}`,
+      );
       setInstituicoes(response.data.data);
       setTotalPages(response.data.meta.totalPages);
     } catch (err) {
@@ -140,8 +175,19 @@ export default function Instituicoes() {
   }
 
   useEffect(() => {
-    fetchInstituicoes(page);
+    fetchInstituicoes(page, search);
   }, [page]);
+
+  const handleSearch = () => {
+    setPage(1);
+    fetchInstituicoes(1, search);
+  };
+
+  const handleClearSearch = () => {
+    setSearch("");
+    setPage(1);
+    fetchInstituicoes(1, "");
+  };
 
   const handlePreviousPage = () => {
     if (page > 1) setPage((prev) => prev - 1);
@@ -152,7 +198,7 @@ export default function Instituicoes() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -163,7 +209,7 @@ export default function Instituicoes() {
 
   const handleDelete = async (id: number) => {
     const confirmacao = window.confirm(
-      "Tem certeza que deseja excluir esta instituição? Ação irreversível."
+      "Tem certeza que deseja excluir esta instituição? Ação irreversível.",
     );
 
     if (!confirmacao) return;
@@ -171,7 +217,7 @@ export default function Instituicoes() {
     try {
       await api.delete(`/instituicao/${id}`);
       alert("Instituição excluída com sucesso!");
-      fetchInstituicoes(page);
+      fetchInstituicoes(page, search);
     } catch (err: any) {
       console.error("Erro ao excluir:", err);
       const msg = err.response?.data?.message || "Erro ao excluir.";
@@ -195,10 +241,10 @@ export default function Instituicoes() {
       Object.keys(payload).forEach((key) => {
         const value = payload[key];
         if (typeof value === "string" && value.trim() === "") {
-             // Opcional: ou remove a chave ou manda null, dependendo do back
-             // No seu caso o back aceita string vazia ou trata. 
-             // Vamos manter a string se não for nula, mas se quiser limpar:
-             // delete payload[key];
+          // Opcional: ou remove a chave ou manda null, dependendo do back
+          // No seu caso o back aceita string vazia ou trata.
+          // Vamos manter a string se não for nula, mas se quiser limpar:
+          // delete payload[key];
         }
       });
 
@@ -213,7 +259,7 @@ export default function Instituicoes() {
       }
 
       closeModal();
-      fetchInstituicoes(page);
+      fetchInstituicoes(page, search);
     } catch (err: any) {
       console.error("Erro completo:", err);
       if (err.response?.data) {
@@ -234,11 +280,32 @@ export default function Instituicoes() {
 
       <div className="flex flex-col w-full h-full">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
-          <input
-            type="text"
-            placeholder="Buscar instituições..."
-            className="p-2 w-60 rounded bg-white ml-4"
-          />
+          <div className="flex items-center gap-2 ml-4">
+            <input
+              type="text"
+              placeholder="Buscar instituições..."
+              className="p-2 w-60 rounded bg-white"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
+            />
+            <button
+              onClick={handleSearch}
+              className="px-4 py-2 bg-[#34495E] text-white rounded hover:bg-[#253341a4] cursor-pointer"
+            >
+              Buscar
+            </button>
+            {search && (
+              <button
+                onClick={handleClearSearch}
+                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 cursor-pointer"
+              >
+                Limpar
+              </button>
+            )}
+          </div>
           <button
             onClick={openModalNew}
             className="px-6 py-3 bg-[#34495E] text-white font-semibold rounded-lg shadow-md hover:bg-[#253341a4] mr-4 cursor-pointer"
@@ -415,7 +482,9 @@ export default function Instituicoes() {
               >
                 <option value="">Selecione...</option>
                 {roles.map((role) => (
-                  <option key={role} value={role}>{role}</option>
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
                 ))}
               </select>
             </div>
@@ -434,7 +503,9 @@ export default function Instituicoes() {
 
             {/* Linha 6: Endereço */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Endereço</label>
+              <label className="text-sm font-semibold text-gray-600">
+                Endereço
+              </label>
               <input
                 name="endereco"
                 value={formData.endereco}
@@ -445,7 +516,9 @@ export default function Instituicoes() {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Número</label>
+              <label className="text-sm font-semibold text-gray-600">
+                Número
+              </label>
               <input
                 name="numero"
                 value={formData.numero}
@@ -457,7 +530,9 @@ export default function Instituicoes() {
 
             {/* Linha 7: Bairro e Cidade */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Bairro</label>
+              <label className="text-sm font-semibold text-gray-600">
+                Bairro
+              </label>
               <input
                 name="bairro"
                 value={formData.bairro}
@@ -468,7 +543,9 @@ export default function Instituicoes() {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Cidade</label>
+              <label className="text-sm font-semibold text-gray-600">
+                Cidade
+              </label>
               <input
                 name="cidade"
                 value={formData.cidade}
@@ -480,7 +557,9 @@ export default function Instituicoes() {
 
             {/* Linha 8: Estado e Complemento */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Estado</label>
+              <label className="text-sm font-semibold text-gray-600">
+                Estado
+              </label>
               <select
                 name="estado"
                 value={formData.estado}
@@ -489,13 +568,17 @@ export default function Instituicoes() {
               >
                 <option value="">UF</option>
                 {estados.map((uf) => (
-                  <option key={uf} value={uf}>{uf}</option>
+                  <option key={uf} value={uf}>
+                    {uf}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">Complemento</label>
+              <label className="text-sm font-semibold text-gray-600">
+                Complemento
+              </label>
               <input
                 name="complemento"
                 value={formData.complemento}
