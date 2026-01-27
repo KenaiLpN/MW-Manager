@@ -3,10 +3,10 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(__dirname),
-  
-  // output: 'export', 
+
+  // output: 'export',
   images: {
-    unoptimized: true, 
+    unoptimized: true,
   },
   eslint: {
     ignoreDuringBuilds: true,

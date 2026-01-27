@@ -8,18 +8,16 @@ export function BotaoSair() {
   async function handleLogout(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
 
-document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-
-
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
 
     try {
       await fetch("http://localhost:3333/logout", {
-        method: "POST", 
+        method: "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({}),
       });
 
       window.location.href = "/login";
@@ -31,13 +29,13 @@ document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
 
   return (
     <div className="flex items-center justify-center py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-800 cursor-pointer">
-    <button
-      type="button"
-      onClick={handleLogout}
-      className="text-red-600 mr-3 rounded-xl items-center justify-center cursor-pointer flex"
-    >
-      <LogOut /> Sair
-    </button>
+      <button
+        type="button"
+        onClick={handleLogout}
+        className="text-red-600 mr-3 rounded-xl items-center justify-center cursor-pointer flex"
+      >
+        <LogOut /> Sair
+      </button>
     </div>
   );
 }
