@@ -40,7 +40,7 @@ export default function LoginPage() {
       >
         <div>
           <h1 className="text-2xl font-bold text-center text-[#FFFF]">
-            Bem vindo ao PROJOV
+            Bem vindo ao PROSIS
           </h1>
           <p className="flex justify-center text-[#FFFF]">
             Gestão do Programa Jovem Aprendiz

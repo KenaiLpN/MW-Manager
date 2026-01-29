@@ -352,19 +352,42 @@ function CadastroForm() {
     "TO",
   ];
 
+  const buscaCEP = async (CEP: string) => {
+    const cepLimpo = CEP.replace(/\D/g, "");
+    if (cepLimpo.length === 8) {
+      try {
+        const response = await fetch(
+          `https://viacep.com.br/ws/${cepLimpo}/json/`,
+        );
+        const data = await response.json();
+        if (!data.erro) {
+          setFormData((prev) => ({
+            ...prev,
+            Logradouro: data.logradouro || "",
+            Bairro: data.bairro || "",
+            Municipio: data.localidade || "",
+            UF_Endereco: data.uf || "",
+          }));
+        }
+      } catch (err) {
+        console.error("Erro ao buscar CEP");
+      }
+    }
+  };
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#f8fafc]">
       <AprendizSidebar />
 
       <main className="flex-1 flex flex-col overflow-auto">
         <header className="bg-white border-b border-gray-200 px-8 py-6 sticky top-0 z-10 shadow-sm">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className=" mx-auto flex justify-between items-center">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.back()}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 cursor-pointer"
               >
-                <ArrowLeft size={24} />
+                <ArrowLeft size={36} />
               </button>
               <div>
                 <h1 className="text-2xl font-bold text-[#133c86]">
@@ -556,7 +579,6 @@ function CadastroForm() {
                     <option value="">Selecione...</option>
                     <option value="Sim">Sim</option>
                     <option value="Não">Não</option>
-                    
                   </select>
                 </div>
 
@@ -923,7 +945,7 @@ function CadastroForm() {
             </section>
 
             {/* 4. DOCUMENTAÇÃO */}
-            <section className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <section className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden w-[full]">
               <div className="bg-gray-50/80 px-6 py-4 border-b border-gray-100 flex items-center gap-2">
                 <FileText size={18} className="text-[#133c86]" />
                 <h2 className="font-bold text-gray-700 uppercase text-xs tracking-wider">
@@ -1091,8 +1113,9 @@ function CadastroForm() {
                     </label>
                     <input
                       name="CEP"
-                      value={formData.CEP || ""}
+                      value={formData.CEP}
                       onChange={handleChange}
+                      onBlur={(e) => buscaCEP(e.target.value)}
                       placeholder="00000-000"
                       className="p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 focus:bg-white outline-none transition-all"
                     />

@@ -11,14 +11,7 @@ export function BotaoSair() {
     document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
 
     try {
-      await fetch("http://localhost:3333/logout", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}),
-      });
+      await api.post("/logout");
 
       window.location.href = "/login";
     } catch (error) {
