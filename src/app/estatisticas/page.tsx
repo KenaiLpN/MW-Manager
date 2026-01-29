@@ -1,5 +1,5 @@
 export default function EstatisticasPag() {
     return(
-        <div>Estatísticas</div>
+        <div>Estatísticas do ale</div>
     )
 }
