@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import UserDropDown from "@/components/userdropdown";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [UsuCodigo, setUsuCodigo] = useState("");
   const [senha, setSenha] = useState("");
+  const [UsuTipo, setUsuTipo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState(false);
 
@@ -15,8 +16,14 @@ export default function LoginPage() {
     setLoading(true);
     setLoginError(false);
 
+    if (!UsuTipo) {
+      alert("Selecione o tipo de perfil.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await api.post("/login", { email, senha });
+      const response = await api.post("/login", { UsuCodigo, senha, UsuTipo });
 
       const { token, user } = response.data;
 
@@ -48,16 +55,16 @@ export default function LoginPage() {
         </div>
 
         <div>
-          <UserDropDown />
+          <UserDropDown selectedRole={UsuTipo} onRoleChange={setUsuTipo} />
         </div>
 
         <div>
           <input
-            type="email"
-            placeholder="E-mail"
-            value={email}
+            type="text"
+            placeholder="Código do Usuário"
+            value={UsuCodigo}
             onChange={(e) => {
-              setEmail(e.target.value);
+              setUsuCodigo(e.target.value);
               setLoginError(false);
             }}
             className={`w-full p-3 rounded-xl bg-[#F3F4F6] border-2 outline-none ${

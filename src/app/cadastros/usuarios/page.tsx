@@ -6,10 +6,11 @@ import Modal from "../../../components/modal";
 import TabelaUsuarios from "@/components/tabelas/tabelausuarios";
 import api from "@/services/api";
 import { Usuario } from "@/types";
+import { ROLE_OPTIONS } from "@/utils/roles";
 
 export default function CadCliPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -19,98 +20,27 @@ export default function CadCliPage() {
   const [search, setSearch] = useState<string>("");
 
   const [formData, setFormData] = useState({
-    nome: "",
-    email: "",
+    UsuCodigo: "",
+    UsuNome: "",
+    UsuEmail: "",
     cpf: "",
-    endereco: "",
-    bairro: "",
-    cidade: "",
-    estado: "",
-    cep: "",
-    telefone: "",
-    role_responsavel: "",
-    senha_hash: "",
+    UsuTipo: "",
+    UsuSenha: "",
     senha2: "",
     chk_ativo: true,
   });
 
-  const buscaCEP = async (cep: string) => {
-    const cepLimpo = cep.replace(/\D/g, "");
-    if (cepLimpo.length === 8) {
-      try {
-        const response = await fetch(
-          `https://viacep.com.br/ws/${cepLimpo}/json/`,
-        );
-        const data = await response.json();
-        if (!data.erro) {
-          setFormData((prev) => ({
-            ...prev,
-            endereco: data.logradouro,
-            bairro: data.bairro,
-            cidade: data.localidade,
-            estado: data.uf,
-          }));
-        }
-      } catch (err) {
-        console.error("Erro ao buscar CEP");
-      }
-    }
-  };
-
   const [saving, setSaving] = useState<boolean>(false);
-
-  const roles = [
-    "Usuário interno",
-    "Aprendiz",
-    "Educador/Tutor",
-    "Funcionário",
-    "Parceiro",
-  ];
-
-  const estados = [
-    "AC",
-    "AL",
-    "AP",
-    "AM",
-    "BA",
-    "CE",
-    "DF",
-    "ES",
-    "GO",
-    "MA",
-    "MT",
-    "MS",
-    "MG",
-    "PA",
-    "PB",
-    "PR",
-    "PE",
-    "PI",
-    "RJ",
-    "RN",
-    "RS",
-    "RO",
-    "RR",
-    "SC",
-    "SP",
-    "SE",
-    "TO",
-  ];
 
   const openModalNew = () => {
     setEditingId(null);
     setFormData({
-      nome: "",
+      UsuCodigo: "",
+      UsuNome: "",
       cpf: "",
-      email: "",
-      endereco: "",
-      bairro: "",
-      cidade: "",
-      estado: "",
-      cep: "",
-      telefone: "",
-      role_responsavel: "",
-      senha_hash: "",
+      UsuEmail: "",
+      UsuTipo: "",
+      UsuSenha: "",
       senha2: "",
       chk_ativo: true,
     });
@@ -118,19 +48,14 @@ export default function CadCliPage() {
   };
 
   const handleEditUser = (usuario: Usuario) => {
-    setEditingId(usuario.id_usuario);
+    setEditingId(usuario.UsuCodigo);
     setFormData({
-      nome: usuario.nome,
-      email: usuario.email,
-      cpf: usuario.cpf,
-      endereco: usuario.endereco || "",
-      bairro: usuario.bairro || "",
-      cidade: usuario.cidade || "",
-      estado: usuario.estado || "",
-      cep: usuario.cep || "",
-      telefone: usuario.telefone || "",
-      role_responsavel: usuario.role_responsavel || "",
-      senha_hash: "",
+      UsuCodigo: usuario.UsuCodigo,
+      UsuNome: usuario.UsuNome || "",
+      UsuEmail: usuario.UsuEmail || "",
+      cpf: usuario.cpf || "",
+      UsuTipo: usuario.UsuTipo || "",
+      UsuSenha: "",
       senha2: "",
       chk_ativo: usuario.chk_ativo ?? false,
     });
@@ -202,7 +127,7 @@ export default function CadCliPage() {
   };
 
   // --- NOVA FUNÇÃO DE DELETE ---
-  const handleDeleteUser = async (id: number) => {
+  const handleDeleteUser = async (id: string) => {
     // 1. Confirmação visual nativa do browser
     const confirmacao = window.confirm(
       "Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.",
@@ -227,13 +152,18 @@ export default function CadCliPage() {
   // --- FUNÇÃO CORRIGIDA ---
   const handleSalvar = async () => {
     // 1. Validações Iniciais
-    if (formData.senha_hash !== formData.senha2) {
+    if (formData.UsuSenha !== formData.senha2) {
       alert("As senhas não coincidem. Por favor, verifique.");
       return;
     }
 
-    if (!editingId && formData.senha_hash.length < 8) {
+    if (!editingId && formData.UsuSenha.length < 8) {
       alert("Para novos usuários, a senha deve ter pelo menos 8 caracteres.");
+      return;
+    }
+
+    if (!formData.UsuCodigo) {
+      alert("Preencha o Código do Usuário.");
       return;
     }
 
@@ -242,20 +172,20 @@ export default function CadCliPage() {
     try {
       // 2. Preparação dos dados (Sanitização)
       const { senha2, ...dataToSend } = formData;
-      const payload: any = {};
+      const payload: any = {
+        UsuCodigo: dataToSend.UsuCodigo,
+        UsuNome: dataToSend.UsuNome,
+        UsuEmail: dataToSend.UsuEmail,
+        UsuTipo: dataToSend.UsuTipo,
+        cpf: dataToSend.cpf,
+        chk_ativo: dataToSend.chk_ativo,
+      };
 
-      // Limpeza de campos vazios para não quebrar o Zod
-      Object.keys(dataToSend).forEach((key) => {
-        const value = dataToSend[key as keyof typeof dataToSend];
-
-        // Se for a senha e estiver vazia, ignora (para não mandar senha vazia na edição)
-        if (key === "senha_hash" && (!value || value === "")) return;
-
-        // Se for string vazia em geral, não envia
-        if (typeof value === "string" && value.trim() === "") return;
-
-        payload[key] = value;
-      });
+      // Se for a senha e estiver vazia, ignora (para não mandar senha vazia na edição)
+      if (formData.UsuSenha && formData.UsuSenha.trim() !== "") {
+        payload.UsuSenha = formData.UsuSenha;
+        payload.confirmacao_senha = formData.senha2;
+      }
 
       // 3. Envio para API
       if (editingId) {
@@ -264,10 +194,6 @@ export default function CadCliPage() {
         alert("Usuário atualizado com sucesso!");
       } else {
         // --- MODO CRIAÇÃO (POST) ---
-        // Garante que a senha vá na criação se não foi filtrada pela lógica acima
-        if (!payload.senha_hash && formData.senha_hash) {
-          payload.senha_hash = formData.senha_hash;
-        }
         await api.post("/users", payload);
         alert("Usuário cadastrado com sucesso!");
       }
@@ -301,7 +227,7 @@ export default function CadCliPage() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Buscar por nome, email, cpf..."
+                placeholder="Buscar por nome, email, código..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={handleKeyPress}
@@ -390,11 +316,26 @@ export default function CadCliPage() {
           <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
+                Código do Usuário
+              </label>
+              <input
+                name="UsuCodigo"
+                value={formData.UsuCodigo}
+                onChange={handleChange}
+                type="text"
+                disabled={!!editingId} // Não pode editar PK
+                placeholder="Código Único (ex: USR001)"
+                className="p-2 w-full rounded border border-gray-300 disabled:bg-gray-100"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-gray-600">
                 Nome
               </label>
               <input
-                name="nome"
-                value={formData.nome}
+                name="UsuNome"
+                value={formData.UsuNome}
                 onChange={handleChange}
                 type="text"
                 placeholder="Nome Completo"
@@ -417,107 +358,31 @@ export default function CadCliPage() {
                 Email
               </label>
               <input
-                name="email"
-                value={formData.email}
+                name="UsuEmail"
+                value={formData.UsuEmail}
                 onChange={handleChange}
                 type="email"
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Telefone
-              </label>
-              <input
-                name="telefone"
-                value={formData.telefone}
-                onChange={handleChange}
-                type="text"
-                className="p-2 w-full rounded border border-gray-300"
-              />
-            </div>
+
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
                 Função
               </label>
               <select
-                name="role_responsavel"
-                value={formData.role_responsavel}
+                name="UsuTipo"
+                value={formData.UsuTipo}
                 onChange={handleChange}
                 className="p-2 w-full rounded border border-gray-300 cursor-pointer"
               >
                 <option value="">Selecione a função</option>
-                {roles.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
+                {ROLE_OPTIONS.map((role) => (
+                  <option key={role.value} value={role.value}>
+                    {role.label}
                   </option>
                 ))}
               </select>
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">CEP</label>
-              <input
-                name="cep"
-                value={formData.cep}
-                onChange={handleChange}
-                onBlur={(e) => buscaCEP(e.target.value)}
-                type="text"
-                className="p-2 w-full rounded border border-gray-300"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Estado
-              </label>
-              <select
-                name="estado"
-                value={formData.estado}
-                onChange={handleChange}
-                className="p-2 w-full rounded border border-gray-300 cursor-pointer"
-              >
-                <option value="">UF</option>
-                {estados.map((uf) => (
-                  <option key={uf} value={uf}>
-                    {uf}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Endereço
-              </label>
-              <input
-                name="endereco"
-                value={formData.endereco}
-                onChange={handleChange}
-                type="text"
-                className="p-2 w-full rounded border border-gray-300"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Bairro
-              </label>
-              <input
-                name="bairro"
-                value={formData.bairro}
-                onChange={handleChange}
-                type="text"
-                className="p-2 w-full rounded border border-gray-300"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Cidade
-              </label>
-              <input
-                name="cidade"
-                value={formData.cidade}
-                onChange={handleChange}
-                type="text"
-                className="p-2 w-full rounded border border-gray-300"
-              />
             </div>
 
             <div className="flex flex-col gap-1">
@@ -530,8 +395,8 @@ export default function CadCliPage() {
                 )}
               </label>
               <input
-                name="senha_hash"
-                value={formData.senha_hash}
+                name="UsuSenha"
+                value={formData.UsuSenha}
                 onChange={handleChange}
                 type="password"
                 placeholder={editingId ? "Nova senha (opcional)" : "Senha"}

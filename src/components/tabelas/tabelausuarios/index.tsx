@@ -1,6 +1,7 @@
 // src/components/TabelaClientes.tsx
 
 import React from "react";
+import { getRoleLabel } from "@/utils/roles";
 
 import { Usuario } from "@/types";
 
@@ -9,7 +10,7 @@ interface TabelaUsuariosProps {
   loading: boolean;
   error: string | null;
   onEdit: (usuario: Usuario) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }
 
 const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
@@ -22,7 +23,7 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
   if (loading) {
     return (
       <div className="text-center p-8 text-[#133c86]">
-        Carregando clientes...
+        Carregando usuários...
       </div>
     );
   }
@@ -43,7 +44,8 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
     );
   }
 
-  function formatCPF(cpf: string) {
+  function formatCPF(cpf: string | null) {
+    if (!cpf) return "-";
     return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
   }
 
@@ -52,9 +54,8 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-[#bacce6]">
           <tr>
-            {/* Colunas ajustadas para refletir o JSON */}
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tl-lg">
-              ID
+              Código
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
               Nome
@@ -79,24 +80,23 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {usuarios.map((usuario) => (
-            // Usando id_usuario como chave
-            <tr key={usuario.id_usuario} className="hover:bg-gray-50">
+            <tr key={usuario.UsuCodigo} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {usuario.id_usuario}
+                {usuario.UsuCodigo}
               </td>
 
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {usuario.nome}
+                {usuario.UsuNome}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {usuario.role_responsavel}
+                {getRoleLabel(usuario.UsuTipo)}
               </td>
 
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {formatCPF(usuario.cpf)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {usuario.email}
+                {usuario.UsuEmail}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm">
                 <span
@@ -110,7 +110,6 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                {/* Botões de Ação (ex: Editar, Excluir) */}
                 <button
                   onClick={() => onEdit(usuario)}
                   className="text-indigo-600 hover:text-indigo-900 mr-4 cursor-pointer"
@@ -118,7 +117,7 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
                   Editar
                 </button>
                 <button
-                  onClick={() => onDelete(usuario.id_usuario)}
+                  onClick={() => onDelete(usuario.UsuCodigo)}
                   className="text-red-600 hover:text-red-900 cursor-pointer"
                 >
                   Excluir

@@ -4,13 +4,11 @@ import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import { UserMenu } from "../perfildropdown";
-
-
+import { getRoleLabel } from "@/utils/roles";
 
 interface NavItem {
   name: string;
   href: string;
- 
 }
 
 const navItems: NavItem[] = [
@@ -19,8 +17,8 @@ const navItems: NavItem[] = [
   { name: "Acessos", href: "/acessos" },
   { name: "Vagas", href: "/vagas" },
   { name: "Aprendiz", href: "/aprendizes" },
-  { name: "Pedagógico", href: "/pedagogico"},
-  { name: "Estatísticas", href: "/estatisticas"},
+  { name: "Pedagógico", href: "/pedagogico" },
+  { name: "Estatísticas", href: "/estatisticas" },
 ];
 
 export function Header() {
@@ -37,8 +35,8 @@ export function Header() {
     if (dadosSalvos) {
       const usuarioParseado = JSON.parse(dadosSalvos);
       setUser({
-        nome: usuarioParseado.nome,
-        role: usuarioParseado.role || "Sem cargo",
+        nome: usuarioParseado.UsuNome,
+        role: usuarioParseado.UsuTipo || "Sem cargo",
       });
     }
   }, []);
@@ -63,17 +61,14 @@ export function Header() {
           Rua Pará, nº 159 - BARUERI - SP. Tel.: (11) 4166-2630
         </p>
       </div>
-
       <div className="flex">
         {navItems.map((item) => {
-         
           return (
             <Link
               key={item.name}
               href={item.href}
               className={getLinkClasses(item.href)}
             >
-             
               <span>{item.name}</span>
             </Link>
           );
@@ -81,7 +76,7 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-4 pr-5">
-        <UserMenu nome={user.nome} role={user.role} />
+        <UserMenu nome={user.nome} role={getRoleLabel(user.role)} />
       </div>
     </header>
   );

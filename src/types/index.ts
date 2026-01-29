@@ -9,21 +9,15 @@ export interface LoginResponse {
 }
 
 export interface Usuario {
-  id_usuario: number;
-  nome: string;
-  email: string;
-  cpf: string;
+  UsuCodigo: string;
+  UsuNome: string | null;
+  UsuEmail: string | null;
+  UsuTipo: string | null;
+  cpf: string | null;
   chk_ativo: boolean;
-  perfil_acesso?: string;
-  criado_em?: string; // Nome exato que o Prisma trouxe
+  id_usuario?: number; // Mantendo caso venha, mas opcional
+  criado_em?: string;
   atualizado_em?: string;
-  telefone?: string;
-  cep?: string;
-  estado?: string;
-  cidade?: string;
-  bairro?: string;
-  endereco?: string;
-  role_responsavel?: string;
 }
 export interface Unidade {
   id_unidade: number;
