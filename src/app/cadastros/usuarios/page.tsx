@@ -23,7 +23,7 @@ export default function CadCliPage() {
     UsuCodigo: "",
     UsuNome: "",
     UsuEmail: "",
-    cpf: "",
+    
     UsuTipo: "",
     UsuSenha: "",
     senha2: "",
@@ -37,7 +37,7 @@ export default function CadCliPage() {
     setFormData({
       UsuCodigo: "",
       UsuNome: "",
-      cpf: "",
+     
       UsuEmail: "",
       UsuTipo: "",
       UsuSenha: "",
@@ -53,7 +53,7 @@ export default function CadCliPage() {
       UsuCodigo: usuario.UsuCodigo,
       UsuNome: usuario.UsuNome || "",
       UsuEmail: usuario.UsuEmail || "",
-      cpf: usuario.cpf || "",
+      
       UsuTipo: usuario.UsuTipo || "",
       UsuSenha: "",
       senha2: "",
@@ -177,7 +177,7 @@ export default function CadCliPage() {
         UsuNome: dataToSend.UsuNome,
         UsuEmail: dataToSend.UsuEmail,
         UsuTipo: dataToSend.UsuTipo,
-        cpf: dataToSend.cpf,
+        
         chk_ativo: dataToSend.chk_ativo,
       };
 
@@ -343,16 +343,7 @@ export default function CadCliPage() {
               />
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">CPF</label>
-              <input
-                name="cpf"
-                value={formData.cpf}
-                onChange={handleChange}
-                type="text"
-                className="p-2 w-full rounded border border-gray-300"
-              />
-            </div>
+         
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
                 Email

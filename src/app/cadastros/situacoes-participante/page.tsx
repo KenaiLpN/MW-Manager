@@ -167,9 +167,7 @@ export default function SituacoesParticipantePage() {
       <div className="flex flex-col w-full h-full">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
           <div className="flex items-center gap-2 ml-4">
-            <h1 className="text-xl font-bold text-[#133c86] mr-4">
-              Situações dos Participantes
-            </h1>
+           
             <div className="relative">
               <input
                 type="text"

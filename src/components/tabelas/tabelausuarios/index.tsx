@@ -44,10 +44,6 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
     );
   }
 
-  function formatCPF(cpf: string | null) {
-    if (!cpf) return "-";
-    return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
-  }
 
   return (
     <div className="p-4 overflow-x-auto ">
@@ -63,9 +59,7 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
               Função
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              CPF
-            </th>
+    
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
               Email
             </th>
@@ -90,10 +84,6 @@ const TabelaUsuarios: React.FC<TabelaUsuariosProps> = ({
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {getRoleLabel(usuario.UsuTipo)}
-              </td>
-
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {formatCPF(usuario.cpf)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {usuario.UsuEmail}

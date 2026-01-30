@@ -105,7 +105,7 @@ export default function LoginPage() {
     ${
       loading
         ? "bg-blue-400 cursor-not-allowed" // Estilo quando carregando
-        : "bg-gradient-to-t from-[#345ce2] via-[#6a8dff] to-[#345ce2] bg-[length:100%_200%] bg-bottom hover:bg-top" // Estilo normal com animação
+        : "bg-linear-to-t from-[#345ce2] via-[#6a8dff] to-[#345ce2] bg-size-[100%_200%] bg-bottom hover:bg-top" // Estilo normal com animação
     }`}
         >
           {loading ? "Entrando..." : "Entrar"} {/* Muda o texto */}
