@@ -1,12 +1,8 @@
 import React from "react";
 
 export interface StatusEncaminhamento {
-  IdStatus: number;
-  Descricao: string;
-  CorLegenda: string | null;
-  FinalizaProcesso: boolean | null;
-  PermiteReencaminhamento: boolean | null;
-  Ativo: boolean | null;
+  SteCodigo: number;
+  SteDescricao: string;
 }
 
 interface TabelaProps {
@@ -25,11 +21,7 @@ const TabelaStatusEncaminhamento: React.FC<TabelaProps> = ({
   onDelete,
 }) => {
   if (loading) {
-    return (
-      <div className="text-center p-8 text-[#133c86]">
-        Carregando...
-      </div>
-    );
+    return <div className="text-center p-8 text-[#133c86]">Carregando...</div>;
   }
 
   if (error) {
@@ -59,18 +51,6 @@ const TabelaStatusEncaminhamento: React.FC<TabelaProps> = ({
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
               Descrição
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Cor
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Finaliza?
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Reencaminha?
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Ativo?
-            </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tr-lg">
               Ações
             </th>
@@ -78,51 +58,23 @@ const TabelaStatusEncaminhamento: React.FC<TabelaProps> = ({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {dados.map((item) => (
-            <tr key={item.IdStatus} className="hover:bg-gray-50">
+            <tr key={item.SteCodigo} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {item.IdStatus}
+                {item.SteCodigo}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {item.Descricao}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {item.CorLegenda && (
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-6 h-6 rounded-full border border-gray-300 shadow-sm"
-                      style={{ backgroundColor: item.CorLegenda }}
-                    />
-                    <span>{item.CorLegenda}</span>
-                  </div>
-                )}
-              </td>
-              <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
-                {item.FinalizaProcesso ? "Sim" : "Não"}
-              </td>
-              <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
-                {item.PermiteReencaminhamento ? "Sim" : "Não"}
-              </td>
-              <td className="px-6 py-4 text-center whitespace-nowrap text-sm">
-                <span
-                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    item.Ativo
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {item.Ativo ? "Sim" : "Não"}
-                </span>
+                {item.SteDescricao}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button
                   onClick={() => onEdit(item)}
-                  className="text-indigo-600 hover:text-indigo-900 mr-4"
+                  className="text-indigo-600 hover:text-indigo-900 mr-4 cursor-pointer"
                 >
                   Editar
                 </button>
                 <button
-                  onClick={() => onDelete(item.IdStatus)}
-                  className="text-red-600 hover:text-red-900"
+                  onClick={() => onDelete(item.SteCodigo)}
+                  className="text-red-600 hover:text-red-900 cursor-pointer"
                 >
                   Excluir
                 </button>

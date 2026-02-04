@@ -20,22 +20,23 @@ export interface Usuario {
   atualizado_em?: string;
 }
 export interface Unidade {
-  id_unidade: number;
-  nome_unidade: string;
-  responsavel: string;
-  email_responsavel: string;
-  telefone: string;
-  cnpj: string;
-  endereco?: string;
-  bairro?: string;
-  cidade?: string;
-  estado?: string;
-  complemento?: string;
-  numero?: string;
-  telefone_responsavel?: string;
-  cep?: string;
-  role_responsavel?: string;
-  chk_ativo: boolean;
+  UniCodigo: number;
+  UniNome: string | null;
+  UniEndereco: string | null;
+  UniNumeroEndereco: string | null;
+  UniComplemento: string | null;
+  UniBairro: string | null;
+  UniCEP: string | null;
+  UniCidade: string | null;
+  UniEstado: string | null;
+  UniTelefone: string | null;
+  UniCGC: string | null;
+  UniEnderecoWeb: string | null;
+  UniEmailPadraoEnvio: string | null;
+  UniRepresentanteLegal: string | null;
+  UniRepresentanteCargo: string | null;
+  UniTipo: string | null;
+  UniDataRefPesquisa?: string | null;
 }
 
 export interface InstituicaoEnsino {

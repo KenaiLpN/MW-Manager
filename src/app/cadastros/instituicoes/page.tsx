@@ -183,6 +183,12 @@ export default function Instituicoes() {
     fetchInstituicoes(1, search);
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   const handleClearSearch = () => {
     setSearch("");
     setPage(1);
@@ -281,30 +287,44 @@ export default function Instituicoes() {
       <div className="flex flex-col w-full h-full">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
           <div className="flex items-center gap-2 ml-4">
-            <input
-              type="text"
-              placeholder="Buscar instituições..."
-              className="p-2 w-60 rounded bg-white"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSearch();
-              }}
-            />
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Buscar instituições..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleKeyPress}
+                className="p-2 pr-10 w-72 rounded bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#133c86]"
+              />
+              {search && (
+                <button
+                  onClick={handleClearSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                  title="Limpar pesquisa"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
             <button
               onClick={handleSearch}
-              className="px-4 py-2 bg-[#34495E] text-white rounded hover:bg-[#253341a4] cursor-pointer"
+              className="px-4 py-2 bg-[#133c86] text-white font-semibold rounded hover:bg-[#0f2e6b] transition-colors cursor-pointer"
             >
-              Buscar
+              Pesquisar
             </button>
-            {search && (
-              <button
-                onClick={handleClearSearch}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 cursor-pointer"
-              >
-                Limpar
-              </button>
-            )}
           </div>
           <button
             onClick={openModalNew}

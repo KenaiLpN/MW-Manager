@@ -1,9 +1,8 @@
 import React from "react";
 
 export interface GrauEscolaridade {
-  id_grau_escolaridade: number;
-  descricao: string;
-  chk_ativo: boolean;
+  GreCodigo: number;
+  GreDescricao: string;
 }
 
 interface TabelaProps {
@@ -22,11 +21,7 @@ const TabelaGrauEscolaridade: React.FC<TabelaProps> = ({
   onDelete,
 }) => {
   if (loading) {
-    return (
-      <div className="text-center p-8 text-[#133c86]">
-        Carregando...
-      </div>
-    );
+    return <div className="text-center p-8 text-[#133c86]">Carregando...</div>;
   }
 
   if (error) {
@@ -56,9 +51,6 @@ const TabelaGrauEscolaridade: React.FC<TabelaProps> = ({
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
               Descrição
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Status
-            </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tr-lg">
               Ações
             </th>
@@ -66,34 +58,23 @@ const TabelaGrauEscolaridade: React.FC<TabelaProps> = ({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {dados.map((item) => (
-            <tr key={item.id_grau_escolaridade} className="hover:bg-gray-50">
+            <tr key={item.GreCodigo} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {item.id_grau_escolaridade}
+                {item.GreCodigo}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {item.descricao}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm">
-                <span
-                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    item.chk_ativo
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {item.chk_ativo ? "Ativo" : "Inativo"}
-                </span>
+                {item.GreDescricao}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button
                   onClick={() => onEdit(item)}
-                  className="text-indigo-600 hover:text-indigo-900 mr-4"
+                  className="text-indigo-600 hover:text-indigo-900 mr-4 cursor-pointer"
                 >
                   Editar
                 </button>
                 <button
-                  onClick={() => onDelete(item.id_grau_escolaridade)}
-                  className="text-red-600 hover:text-red-900"
+                  onClick={() => onDelete(item.GreCodigo)}
+                  className="text-red-600 hover:text-red-900 cursor-pointer"
                 >
                   Excluir
                 </button>

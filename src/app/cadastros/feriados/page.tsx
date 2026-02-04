@@ -7,15 +7,15 @@ import api from "@/services/api";
 import TabelaFeriados, { Feriado } from "@/components/tabelas/tabelaferiados";
 
 interface FeriadoFormData {
-  descricao: string;
-  data_feriado: string; // YYYY-MM-DD para input date
-  unidade: string;
-  chk_ativo: boolean;
+  FerDescricao: string;
+  FerData: string; // YYYY-MM-DD para input date
+  FerUnidade: string;
+  FerTipo?: string;
 }
 
 export default function FeriadosPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingItem, setEditingItem] = useState<Feriado | null>(null);
 
   const [lista, setLista] = useState<Feriado[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -26,43 +26,43 @@ export default function FeriadosPage() {
   const [search, setSearch] = useState<string>("");
 
   const [formData, setFormData] = useState<FeriadoFormData>({
-    descricao: "",
-    data_feriado: "",
-    unidade: "",
-    chk_ativo: true,
+    FerDescricao: "",
+    FerData: "",
+    FerUnidade: "",
+    FerTipo: "",
   });
 
   const openModalNew = () => {
-    setEditingId(null);
+    setEditingItem(null);
     setFormData({
-      descricao: "",
-      data_feriado: "",
-      unidade: "",
-      chk_ativo: true,
+      FerDescricao: "",
+      FerData: "",
+      FerUnidade: "",
+      FerTipo: "",
     });
     setIsModalOpen(true);
   };
 
   const handleEdit = (item: Feriado) => {
-    setEditingId(item.id_feriado);
+    setEditingItem(item);
 
     // Convertendo ISO para YYYY-MM-DD para preencher o input type="date"
-    const dataFormatada = item.data_feriado
-      ? new Date(item.data_feriado).toISOString().split("T")[0]
+    const dataFormatada = item.FerData
+      ? new Date(item.FerData).toISOString().split("T")[0]
       : "";
 
     setFormData({
-      descricao: item.descricao,
-      data_feriado: dataFormatada,
-      unidade: item.unidade,
-      chk_ativo: item.chk_ativo,
+      FerDescricao: item.FerDescricao,
+      FerData: dataFormatada,
+      FerUnidade: String(item.FerUnidade),
+      FerTipo: item.FerTipo || "",
     });
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setEditingId(null);
+    setEditingItem(null);
   };
 
   async function fetchData(pagina: number, searchTerm: string = search) {
@@ -115,11 +115,13 @@ export default function FeriadosPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (item: Feriado) => {
     if (!window.confirm("Deseja excluir este feriado?")) return;
 
     try {
-      await api.delete(`/feriado/${id}`);
+      // Deletar usando unidade e data
+      const dataFormatada = new Date(item.FerData).toISOString().split("T")[0];
+      await api.delete(`/feriado/${item.FerUnidade}/${dataFormatada}`);
       alert("Excluído com sucesso!");
       fetchData(page);
     } catch (err: any) {
@@ -131,14 +133,20 @@ export default function FeriadosPage() {
     setSaving(true);
     try {
       // Validação simples
-      if (!formData.descricao || !formData.data_feriado || !formData.unidade) {
+      if (!formData.FerDescricao || !formData.FerData || !formData.FerUnidade) {
         alert("Preencha todos os campos obrigatórios.");
         setSaving(false);
         return;
       }
 
-      if (editingId) {
-        await api.put(`/feriado/${editingId}`, formData);
+      if (editingItem) {
+        const dataOriginal = new Date(editingItem.FerData)
+          .toISOString()
+          .split("T")[0];
+        await api.put(
+          `/feriado/${editingItem.FerUnidade}/${dataOriginal}`,
+          formData,
+        );
         alert("Atualizado com sucesso!");
       } else {
         await api.post("/feriado", formData);
@@ -248,7 +256,7 @@ export default function FeriadosPage() {
 
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h2 className="text-2xl font-bold m-4 text-gray-800">
-            {editingId ? "Editar Feriado" : "Novo Feriado"}
+            {editingItem ? "Editar Feriado" : "Novo Feriado"}
           </h2>
 
           <div className="p-4 grid grid-cols-1 gap-4">
@@ -257,11 +265,11 @@ export default function FeriadosPage() {
                 Descrição do Feriado
               </label>
               <input
-                name="descricao"
-                value={formData.descricao}
+                name="FerDescricao"
+                value={formData.FerDescricao}
                 onChange={handleChange}
                 type="text"
-                maxLength={255}
+                maxLength={50}
                 placeholder="Ex: Confraternização Universal"
                 className="p-2 w-full rounded border border-gray-300"
               />
@@ -273,8 +281,8 @@ export default function FeriadosPage() {
                   Data
                 </label>
                 <input
-                  name="data_feriado"
-                  value={formData.data_feriado}
+                  name="FerData"
+                  value={formData.FerData}
                   onChange={handleChange}
                   type="date"
                   className="p-2 w-full rounded border border-gray-300"
@@ -286,12 +294,11 @@ export default function FeriadosPage() {
                   Unidade
                 </label>
                 <input
-                  name="unidade"
-                  value={formData.unidade}
+                  name="FerUnidade"
+                  value={formData.FerUnidade}
                   onChange={handleChange}
-                  type="text"
-                  maxLength={100}
-                  placeholder="Ex: Matriz"
+                  type="number"
+                  placeholder="Ex: 1"
                   className="p-2 w-full rounded border border-gray-300"
                 />
               </div>

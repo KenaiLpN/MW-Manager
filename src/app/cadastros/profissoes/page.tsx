@@ -8,37 +8,33 @@ import TabelaProfissoes, {
   Profissao,
 } from "@/components/tabelas/tabelaprofissoes";
 
-interface ProfissaoFormData {
-  nome_profissao: string;
-  chk_ativo: boolean;
+interface ProFormData {
+  ProDescricao: string;
 }
 
 export default function ProfissoesPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const [profissoes, setProfissoes] = useState<Profissao[]>([]);
+  const [lista, setLista] = useState<Profissao[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [saving, setSaving] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
 
-  const initialFormState: ProfissaoFormData = {
-    nome_profissao: "",
-    chk_ativo: true,
-  };
+  const [formData, setFormData] = useState<ProFormData>({
+    ProDescricao: "",
+  });
 
-  const [formData, setFormData] = useState<ProfissaoFormData>(initialFormState);
-  const [saving, setSaving] = useState<boolean>(false);
-
-  async function fetchProfissoes(pagina: number, searchTerm: string = search) {
+  async function fetchData(pagina: number, searchTerm: string = search) {
     setLoading(true);
     try {
       const response = await api.get(
         `/profissao?page=${pagina}&limit=10${searchTerm ? `&search=${searchTerm}` : ""}`,
       );
-      setProfissoes(response.data.data);
+      setLista(response.data.data);
       setTotalPages(response.data.meta.totalPages);
     } catch (err) {
       console.error(err);
@@ -50,7 +46,7 @@ export default function ProfissoesPage() {
 
   const handleSearch = () => {
     setPage(1);
-    fetchProfissoes(1, search);
+    fetchData(1, search);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -62,24 +58,23 @@ export default function ProfissoesPage() {
   const handleClearSearch = () => {
     setSearch("");
     setPage(1);
-    fetchProfissoes(1, "");
+    fetchData(1, "");
   };
 
   useEffect(() => {
-    fetchProfissoes(page);
+    fetchData(page);
   }, [page]);
 
   const openModalNew = () => {
     setEditingId(null);
-    setFormData(initialFormState);
+    setFormData({ ProDescricao: "" });
     setIsModalOpen(true);
   };
 
   const handleEdit = (item: Profissao) => {
-    setEditingId(item.id_profissao);
+    setEditingId(item.ProCodigo);
     setFormData({
-      nome_profissao: item.nome_profissao,
-      chk_ativo: item.chk_ativo,
+      ProDescricao: item.ProDescricao,
     });
     setIsModalOpen(true);
   };
@@ -97,19 +92,12 @@ export default function ProfissoesPage() {
     }));
   };
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      chk_ativo: e.target.checked,
-    }));
-  };
-
   const handleDelete = async (id: number) => {
     if (!window.confirm("Deseja realmente excluir esta profissão?")) return;
     try {
       await api.delete(`/profissao/${id}`);
       alert("Excluído com sucesso!");
-      fetchProfissoes(page);
+      fetchData(page);
     } catch (err: any) {
       console.error(err);
       alert("Erro ao excluir.");
@@ -124,10 +112,10 @@ export default function ProfissoesPage() {
         alert("Atualizado com sucesso!");
       } else {
         await api.post("/profissao", formData);
-        alert("Criado com sucesso!");
+        alert("Cadastrado com sucesso!");
       }
       closeModal();
-      fetchProfissoes(page);
+      fetchData(page);
     } catch (err: any) {
       console.error(err);
       const msg = err.response?.data?.message || "Erro ao salvar.";
@@ -138,10 +126,10 @@ export default function ProfissoesPage() {
   };
 
   const handlePreviousPage = () => {
-    if (page > 1) setPage(page - 1);
+    if (page > 1) setPage((prev) => prev - 1);
   };
   const handleNextPage = () => {
-    if (page < totalPages) setPage(page + 1);
+    if (page < totalPages) setPage((prev) => prev + 1);
   };
 
   return (
@@ -202,7 +190,7 @@ export default function ProfissoesPage() {
 
         <div className="flex-1 overflow-auto">
           <TabelaProfissoes
-            dados={profissoes}
+            dados={lista}
             loading={loading}
             error={error}
             onEdit={handleEdit}
@@ -213,8 +201,7 @@ export default function ProfissoesPage() {
             {!loading && !error && (
               <div className="flex justify-between items-center p-2 bg-[#bacce6] border-t border-gray-200 rounded">
                 <span className="text-sm text-gray-700">
-                  Página <span className="font-semibold">{page}</span> de{" "}
-                  <span className="font-semibold">{totalPages}</span>
+                  Página <b>{page}</b> de <b>{totalPages}</b>
                 </span>
                 <div className="space-x-2">
                   <button
@@ -239,55 +226,39 @@ export default function ProfissoesPage() {
 
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h2 className="text-2xl font-bold m-4 text-gray-800">
-            {editingId ? "Editar Profissão" : "Nova Profissão"}
+            {editingId ? "Editar Profissão" : "Novo Profissão"}
           </h2>
 
           <div className="p-4 grid grid-cols-1 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Nome da Profissão <span className="text-red-500">*</span>
+                Nome da Profissão (Máx 50)
               </label>
               <input
-                name="nome_profissao"
-                value={formData.nome_profissao}
+                name="ProDescricao"
+                value={formData.ProDescricao}
                 onChange={handleChange}
                 type="text"
-                placeholder="Ex: Engenheiro de Software"
-                maxLength={100}
+                maxLength={50}
+                placeholder="Ex: Auxiliar Administrativo"
                 className="p-2 w-full rounded border border-gray-300"
               />
-            </div>
-
-            <div className="flex items-center gap-2 mt-2">
-              <input
-                type="checkbox"
-                id="chk_ativo"
-                checked={formData.chk_ativo}
-                onChange={handleCheckboxChange}
-                className="w-4 h-4 text-blue-600 rounded cursor-pointer"
-              />
-              <label
-                htmlFor="chk_ativo"
-                className="text-sm font-semibold text-gray-600 cursor-pointer"
-              >
-                Registro Ativo?
-              </label>
             </div>
           </div>
 
           <div className="flex justify-end gap-4 m-4 pt-4 border-t">
             <button
               onClick={closeModal}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 cursor-pointer"
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors cursor-pointer"
             >
               Cancelar
             </button>
             <button
               onClick={handleSalvar}
               disabled={saving}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 cursor-pointer"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 transition-colors cursor-pointer"
             >
-              {saving ? "Salvando..." : "Salvar"}
+              {saving ? "Salvando..." : "Confirmar"}
             </button>
           </div>
         </Modal>

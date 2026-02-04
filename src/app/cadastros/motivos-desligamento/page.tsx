@@ -4,16 +4,12 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal";
 import api from "@/services/api";
-import TabelaMotivoDesligamento, {
+import TabelaMotivos, {
   MotivoDesligamento,
 } from "@/components/tabelas/tabelamotivodesligamento";
 
 interface MotivoFormData {
-  Descricao: string;
-  Sigla: string;
-  TipoDesligamento: string;
-  Ativo: string; // Select (S/N)
-  DataCadastro: string; // date
+  MotDescricao: string;
 }
 
 export default function MotivosDesligamentoPage() {
@@ -25,46 +21,23 @@ export default function MotivosDesligamentoPage() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [saving, setSaving] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
 
-  // Inicializa com a data de hoje para novos cadastros
-  const today = new Date().toISOString().split("T")[0];
-
   const [formData, setFormData] = useState<MotivoFormData>({
-    Descricao: "",
-    Sigla: "",
-    TipoDesligamento: "",
-    Ativo: "S",
-    DataCadastro: today,
+    MotDescricao: "",
   });
+  const [saving, setSaving] = useState<boolean>(false);
 
   const openModalNew = () => {
     setEditingId(null);
-    setFormData({
-      Descricao: "",
-      Sigla: "",
-      TipoDesligamento: "",
-      Ativo: "S",
-      DataCadastro: today,
-    });
+    setFormData({ MotDescricao: "" });
     setIsModalOpen(true);
   };
 
   const handleEdit = (item: MotivoDesligamento) => {
-    setEditingId(item.IdMotivo);
-
-    // Formatar data
-    const dataFormatada = item.DataCadastro
-      ? new Date(item.DataCadastro).toISOString().split("T")[0]
-      : today;
-
+    setEditingId(item.MotCodigo);
     setFormData({
-      Descricao: item.Descricao,
-      Sigla: item.Sigla,
-      TipoDesligamento: item.TipoDesligamento,
-      Ativo: item.Ativo,
-      DataCadastro: dataFormatada,
+      MotDescricao: item.MotDescricao,
     });
     setIsModalOpen(true);
   };
@@ -119,19 +92,17 @@ export default function MotivosDesligamentoPage() {
     if (page < totalPages) setPage((prev) => prev + 1);
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Deseja excluir este motivo?")) return;
+    if (!window.confirm("Deseja realmente excluir este motivo?")) return;
 
     try {
       await api.delete(`/motivo-desligamento/${id}`);
-      alert("Excluído com sucesso!");
+      alert("Excluído!");
       fetchData(page);
     } catch (err: any) {
       alert("Erro ao excluir.");
@@ -141,18 +112,12 @@ export default function MotivosDesligamentoPage() {
   const handleSalvar = async () => {
     setSaving(true);
     try {
-      if (!formData.Descricao || !formData.Sigla || !formData.DataCadastro) {
-        alert("Preencha os campos obrigatórios.");
-        setSaving(false);
-        return;
-      }
-
       if (editingId) {
         await api.put(`/motivo-desligamento/${editingId}`, formData);
-        alert("Atualizado com sucesso!");
+        alert("Atualizado!");
       } else {
         await api.post("/motivo-desligamento", formData);
-        alert("Cadastrado com sucesso!");
+        alert("Criado!");
       }
       closeModal();
       fetchData(page);
@@ -176,7 +141,7 @@ export default function MotivosDesligamentoPage() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Buscar por descrição, sigla..."
+                placeholder="Buscar por descrição..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={handleKeyPress}
@@ -221,7 +186,7 @@ export default function MotivosDesligamentoPage() {
         </div>
 
         <div className="flex-1 overflow-auto">
-          <TabelaMotivoDesligamento
+          <TabelaMotivos
             dados={lista}
             loading={loading}
             error={error}
@@ -258,85 +223,23 @@ export default function MotivosDesligamentoPage() {
 
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h2 className="text-2xl font-bold m-4 text-gray-800">
-            {editingId ? "Editar Motivo" : "Novo Motivo de Desligamento"}
+            {editingId ? "Editar Motivo" : "Novo Motivo"}
           </h2>
 
           <div className="p-4 grid grid-cols-1 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Descrição
+                Descrição do Motivo (Máx 50)
               </label>
               <input
-                name="Descricao"
-                value={formData.Descricao}
+                name="MotDescricao"
+                value={formData.MotDescricao}
                 onChange={handleChange}
                 type="text"
-                maxLength={100}
+                maxLength={50}
                 placeholder="Ex: Pedido de Demissão"
                 className="p-2 w-full rounded border border-gray-300"
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600">
-                  Sigla
-                </label>
-                <input
-                  name="Sigla"
-                  value={formData.Sigla}
-                  onChange={handleChange}
-                  type="text"
-                  maxLength={10}
-                  placeholder="Ex: PD"
-                  className="p-2 w-full rounded border border-gray-300"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600">
-                  Tipo Desligamento
-                </label>
-                <input
-                  name="TipoDesligamento"
-                  value={formData.TipoDesligamento}
-                  onChange={handleChange}
-                  type="text"
-                  maxLength={50}
-                  placeholder="Ex: Voluntário"
-                  className="p-2 w-full rounded border border-gray-300"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600">
-                  Data Cadastro
-                </label>
-                <input
-                  name="DataCadastro"
-                  value={formData.DataCadastro}
-                  onChange={handleChange}
-                  type="date"
-                  className="p-2 w-full rounded border border-gray-300"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600">
-                  Ativo?
-                </label>
-                <select
-                  name="Ativo"
-                  value={formData.Ativo}
-                  onChange={handleChange}
-                  className="p-2 w-full rounded border border-gray-300 bg-white"
-                >
-                  <option value="S">Sim</option>
-                  <option value="N">Não</option>
-                </select>
-              </div>
             </div>
           </div>
 

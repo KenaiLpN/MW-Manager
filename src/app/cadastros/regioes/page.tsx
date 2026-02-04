@@ -8,11 +8,8 @@ import TabelaCadastroRegiao, {
   CadastroRegiao,
 } from "@/components/tabelas/tabelacadastroregiao";
 
-interface RegiaoFormData {
-  NomeRegiao: string;
-  SiglaRegiao: string;
-  ResponsavelRegional: string;
-  Ativo: boolean;
+interface RegFormData {
+  RegDescricao: string;
 }
 
 export default function RegioesPage() {
@@ -27,31 +24,20 @@ export default function RegioesPage() {
   const [saving, setSaving] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
 
-  const [formData, setFormData] = useState<RegiaoFormData>({
-    NomeRegiao: "",
-    SiglaRegiao: "",
-    ResponsavelRegional: "",
-    Ativo: true,
+  const [formData, setFormData] = useState<RegFormData>({
+    RegDescricao: "",
   });
 
   const openModalNew = () => {
     setEditingId(null);
-    setFormData({
-      NomeRegiao: "",
-      SiglaRegiao: "",
-      ResponsavelRegional: "",
-      Ativo: true,
-    });
+    setFormData({ RegDescricao: "" });
     setIsModalOpen(true);
   };
 
   const handleEdit = (item: CadastroRegiao) => {
-    setEditingId(item.IdRegiao);
+    setEditingId(item.RegCodigo);
     setFormData({
-      NomeRegiao: item.NomeRegiao,
-      SiglaRegiao: item.SiglaRegiao || "",
-      ResponsavelRegional: item.ResponsavelRegional || "",
-      Ativo: item.Ativo ?? true,
+      RegDescricao: item.RegDescricao,
     });
     setIsModalOpen(true);
   };
@@ -65,7 +51,7 @@ export default function RegioesPage() {
     setLoading(true);
     try {
       const response = await api.get(
-        `/regioes?page=${pagina}&limit=10${searchTerm ? `&search=${searchTerm}` : ""}`,
+        `/regiao?page=${pagina}&limit=10${searchTerm ? `&search=${searchTerm}` : ""}`,
       );
       setLista(response.data.data);
       setTotalPages(response.data.meta.totalPages);
@@ -107,18 +93,15 @@ export default function RegioesPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Deseja excluir esta região?")) return;
+    if (!window.confirm("Deseja realmente excluir esta região?")) return;
 
     try {
-      await api.delete(`/regioes/${id}`);
+      await api.delete(`/regiao/${id}`);
       alert("Excluído com sucesso!");
       fetchData(page);
     } catch (err: any) {
@@ -129,17 +112,11 @@ export default function RegioesPage() {
   const handleSalvar = async () => {
     setSaving(true);
     try {
-      if (!formData.NomeRegiao) {
-        alert("O Nome da Região é obrigatório.");
-        setSaving(false);
-        return;
-      }
-
       if (editingId) {
-        await api.put(`/regioes/${editingId}`, formData);
+        await api.put(`/regiao/${editingId}`, formData);
         alert("Atualizado com sucesso!");
       } else {
-        await api.post("/regioes", formData);
+        await api.post("/regiao", formData);
         alert("Cadastrado com sucesso!");
       }
       closeModal();
@@ -164,7 +141,7 @@ export default function RegioesPage() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Buscar por nome, sigla..."
+                placeholder="Buscar por descrição..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={handleKeyPress}
@@ -246,66 +223,23 @@ export default function RegioesPage() {
 
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h2 className="text-2xl font-bold m-4 text-gray-800">
-            {editingId ? "Editar Região" : "Nova Região"}
+            {editingId ? "Editar Região" : "Novo Região"}
           </h2>
 
           <div className="p-4 grid grid-cols-1 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Nome da Região <span className="text-red-500">*</span>
+                Descrição da Região (Máx 50)
               </label>
               <input
-                name="NomeRegiao"
-                value={formData.NomeRegiao}
+                name="RegDescricao"
+                value={formData.RegDescricao}
                 onChange={handleChange}
                 type="text"
-                maxLength={100}
-                placeholder="Ex: Sudeste"
+                maxLength={50}
+                placeholder="Ex: Região Norte"
                 className="p-2 w-full rounded border border-gray-300"
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600">
-                  Sigla
-                </label>
-                <input
-                  name="SiglaRegiao"
-                  value={formData.SiglaRegiao}
-                  onChange={handleChange}
-                  type="text"
-                  maxLength={10}
-                  placeholder="Ex: SE"
-                  className="p-2 w-full rounded border border-gray-300"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600">
-                  Responsável Regional
-                </label>
-                <input
-                  name="ResponsavelRegional"
-                  value={formData.ResponsavelRegional}
-                  onChange={handleChange}
-                  type="text"
-                  maxLength={100}
-                  placeholder="Ex: João da Silva"
-                  className="p-2 w-full rounded border border-gray-300"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 mt-2">
-              <input
-                type="checkbox"
-                name="Ativo"
-                checked={formData.Ativo}
-                onChange={handleChange}
-                className="h-5 w-5 cursor-pointer"
-              />
-              <label className="text-sm text-gray-700">Ativo?</label>
             </div>
           </div>
 

@@ -1,11 +1,10 @@
 import React from "react";
 
 export interface SituacaoParticipante {
-  id_situacao_participante: number;
-  abreviacao: string;
-  descricao: string;
-  tipo_situacao: string;
-  chk_ativo: boolean;
+  StaCodigo: number;
+  StaAbreviatura: string;
+  StaDescricao: string;
+  StaArea: string;
 }
 
 interface TabelaSituacoesProps {
@@ -62,10 +61,7 @@ const TabelaSituacoes: React.FC<TabelaSituacoesProps> = ({
               Descrição
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Tipo
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Status
+              Área
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tr-lg">
               Ações
@@ -74,29 +70,18 @@ const TabelaSituacoes: React.FC<TabelaSituacoesProps> = ({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {dados.map((item) => (
-            <tr key={item.id_situacao_participante} className="hover:bg-gray-50">
+            <tr key={item.StaCodigo} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {item.id_situacao_participante}
+                {item.StaCodigo}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-bold">
-                {item.abreviacao}
+                {item.StaAbreviatura}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {item.descricao}
+                {item.StaDescricao}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {item.tipo_situacao}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm">
-                <span
-                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    item.chk_ativo
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {item.chk_ativo ? "Ativo" : "Inativo"}
-                </span>
+                {item.StaArea}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button
@@ -106,7 +91,7 @@ const TabelaSituacoes: React.FC<TabelaSituacoesProps> = ({
                   Editar
                 </button>
                 <button
-                  onClick={() => onDelete(item.id_situacao_participante)}
+                  onClick={() => onDelete(item.StaCodigo)}
                   className="text-red-600 hover:text-red-900 cursor-pointer"
                 >
                   Excluir

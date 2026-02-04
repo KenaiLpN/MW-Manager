@@ -9,10 +9,9 @@ import TabelaSituacoes, {
 } from "@/components/tabelas/tabelasituacoes";
 
 interface SituacaoFormData {
-  abreviacao: string;
-  descricao: string;
-  tipo_situacao: string;
-  chk_ativo: boolean;
+  StaAbreviatura: string;
+  StaDescricao: string;
+  StaArea: string;
 }
 
 export default function SituacoesParticipantePage() {
@@ -27,10 +26,9 @@ export default function SituacoesParticipantePage() {
   const [search, setSearch] = useState<string>("");
 
   const initialFormState: SituacaoFormData = {
-    abreviacao: "",
-    descricao: "",
-    tipo_situacao: "",
-    chk_ativo: true,
+    StaAbreviatura: "",
+    StaDescricao: "",
+    StaArea: "",
   };
 
   const [formData, setFormData] = useState<SituacaoFormData>(initialFormState);
@@ -43,12 +41,11 @@ export default function SituacoesParticipantePage() {
   };
 
   const handleEdit = (item: SituacaoParticipante) => {
-    setEditingId(item.id_situacao_participante);
+    setEditingId(item.StaCodigo);
     setFormData({
-      abreviacao: item.abreviacao,
-      descricao: item.descricao,
-      tipo_situacao: item.tipo_situacao,
-      chk_ativo: item.chk_ativo,
+      StaAbreviatura: item.StaAbreviatura || "",
+      StaDescricao: item.StaDescricao || "",
+      StaArea: item.StaArea || "",
     });
     setIsModalOpen(true);
   };
@@ -61,7 +58,6 @@ export default function SituacoesParticipantePage() {
   async function fetchSituacoes(pagina: number, searchTerm: string = search) {
     setLoading(true);
     try {
-      // Ajuste para a rota criada no backend
       const response = await api.get(
         `/situacao-participante?page=${pagina}&limit=10${searchTerm ? `&search=${searchTerm}` : ""}`,
       );
@@ -114,14 +110,6 @@ export default function SituacoesParticipantePage() {
     }));
   };
 
-  // Checkbox precisa de tratamento especial
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      chk_ativo: e.target.checked,
-    }));
-  };
-
   const handleDelete = async (id: number) => {
     if (!window.confirm("Deseja realmente excluir este registro?")) return;
 
@@ -138,13 +126,11 @@ export default function SituacoesParticipantePage() {
   const handleSalvar = async () => {
     setSaving(true);
     try {
-      const payload = { ...formData };
-
       if (editingId) {
-        await api.put(`/situacao-participante/${editingId}`, payload);
+        await api.put(`/situacao-participante/${editingId}`, formData);
         alert("Atualizado com sucesso!");
       } else {
-        await api.post("/situacao-participante", payload);
+        await api.post("/situacao-participante", formData);
         alert("Criado com sucesso!");
       }
       closeModal();
@@ -167,7 +153,6 @@ export default function SituacoesParticipantePage() {
       <div className="flex flex-col w-full h-full">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
           <div className="flex items-center gap-2 ml-4">
-           
             <div className="relative">
               <input
                 type="text"
@@ -260,65 +245,47 @@ export default function SituacoesParticipantePage() {
           <div className="p-4 grid grid-cols-1 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Abreviação (Máx 10) <span className="text-red-500">*</span>
+                Abreviação (Máx 2) <span className="text-red-500">*</span>
               </label>
               <input
-                name="abreviacao"
-                value={formData.abreviacao}
+                name="StaAbreviatura"
+                value={formData.StaAbreviatura}
                 onChange={handleChange}
-                maxLength={10}
+                maxLength={2}
                 type="text"
-                placeholder="Ex: ATIVO"
+                placeholder="Ex: AT"
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Descrição (Máx 100) <span className="text-red-500">*</span>
+                Descrição (Máx 50) <span className="text-red-500">*</span>
               </label>
               <input
-                name="descricao"
-                value={formData.descricao}
-                onChange={handleChange}
-                maxLength={100}
-                type="text"
-                placeholder="Ex: Participante Ativo e Regular"
-                className="p-2 w-full rounded border border-gray-300"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Tipo da Situação (Máx 50){" "}
-                <span className="text-red-500">*</span>
-              </label>
-              <input
-                name="tipo_situacao"
-                value={formData.tipo_situacao}
+                name="StaDescricao"
+                value={formData.StaDescricao}
                 onChange={handleChange}
                 maxLength={50}
                 type="text"
-                placeholder="Ex: Cadastral, Financeiro..."
+                placeholder="Ex: Ativo"
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
 
-            {/* Checkbox Status - Apenas visível na edição ou se quiser criar inativo */}
-            <div className="flex items-center gap-2 mt-2">
-              <input
-                type="checkbox"
-                id="chk_ativo"
-                checked={formData.chk_ativo}
-                onChange={handleCheckboxChange}
-                className="w-4 h-4 text-blue-600 rounded cursor-pointer"
-              />
-              <label
-                htmlFor="chk_ativo"
-                className="text-sm font-semibold text-gray-600 cursor-pointer"
-              >
-                Registro Ativo?
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-semibold text-gray-600">
+                Área (Máx 1) <span className="text-red-500">*</span>
               </label>
+              <input
+                name="StaArea"
+                value={formData.StaArea}
+                onChange={handleChange}
+                maxLength={1}
+                type="text"
+                placeholder="Ex: A"
+                className="p-2 w-full rounded border border-gray-300"
+              />
             </div>
           </div>
 

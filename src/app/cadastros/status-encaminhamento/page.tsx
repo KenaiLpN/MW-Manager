@@ -4,16 +4,12 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal";
 import api from "@/services/api";
-import TabelaStatusEncaminhamento, {
+import TabelaStatus, {
   StatusEncaminhamento,
 } from "@/components/tabelas/tabelastatusencaminhamento";
 
-interface StatusFormData {
-  Descricao: string;
-  CorLegenda: string;
-  FinalizaProcesso: boolean;
-  PermiteReencaminhamento: boolean;
-  Ativo: boolean;
+interface SteFormData {
+  SteDescricao: string;
 }
 
 export default function StatusEncaminhamentoPage() {
@@ -28,34 +24,20 @@ export default function StatusEncaminhamentoPage() {
   const [saving, setSaving] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
 
-  const [formData, setFormData] = useState<StatusFormData>({
-    Descricao: "",
-    CorLegenda: "#000000",
-    FinalizaProcesso: false,
-    PermiteReencaminhamento: true,
-    Ativo: true,
+  const [formData, setFormData] = useState<SteFormData>({
+    SteDescricao: "",
   });
 
   const openModalNew = () => {
     setEditingId(null);
-    setFormData({
-      Descricao: "",
-      CorLegenda: "#000000",
-      FinalizaProcesso: false,
-      PermiteReencaminhamento: true,
-      Ativo: true,
-    });
+    setFormData({ SteDescricao: "" });
     setIsModalOpen(true);
   };
 
   const handleEdit = (item: StatusEncaminhamento) => {
-    setEditingId(item.IdStatus);
+    setEditingId(item.SteCodigo);
     setFormData({
-      Descricao: item.Descricao || "",
-      CorLegenda: item.CorLegenda || "#000000",
-      FinalizaProcesso: item.FinalizaProcesso ?? false,
-      PermiteReencaminhamento: item.PermiteReencaminhamento ?? true,
-      Ativo: item.Ativo ?? true,
+      SteDescricao: item.SteDescricao,
     });
     setIsModalOpen(true);
   };
@@ -75,7 +57,7 @@ export default function StatusEncaminhamentoPage() {
       setTotalPages(response.data.meta.totalPages);
     } catch (err) {
       console.error(err);
-      setError("Falha ao carregar dados. Verifique a API.");
+      setError("Falha ao carregar dados.");
     } finally {
       setLoading(false);
     }
@@ -111,15 +93,12 @@ export default function StatusEncaminhamentoPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Deseja excluir este status?")) return;
+    if (!window.confirm("Deseja realmente excluir este status?")) return;
 
     try {
       await api.delete(`/status-encaminhamento/${id}`);
@@ -133,12 +112,6 @@ export default function StatusEncaminhamentoPage() {
   const handleSalvar = async () => {
     setSaving(true);
     try {
-      if (!formData.Descricao) {
-        alert("A descrição é obrigatória.");
-        setSaving(false);
-        return;
-      }
-
       if (editingId) {
         await api.put(`/status-encaminhamento/${editingId}`, formData);
         alert("Atualizado com sucesso!");
@@ -213,7 +186,7 @@ export default function StatusEncaminhamentoPage() {
         </div>
 
         <div className="flex-1 overflow-auto">
-          <TabelaStatusEncaminhamento
+          <TabelaStatus
             dados={lista}
             loading={loading}
             error={error}
@@ -256,74 +229,17 @@ export default function StatusEncaminhamentoPage() {
           <div className="p-4 grid grid-cols-1 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Descrição <span className="text-red-500">*</span>
+                Descrição do Status (Máx 50)
               </label>
               <input
-                name="Descricao"
-                value={formData.Descricao}
+                name="SteDescricao"
+                value={formData.SteDescricao}
                 onChange={handleChange}
                 type="text"
-                maxLength={100}
-                placeholder="Ex: Em Análise"
+                maxLength={50}
+                placeholder="Ex: Em Processo"
                 className="p-2 w-full rounded border border-gray-300"
               />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-gray-600">
-                Cor da Legenda
-              </label>
-              <div className="flex gap-2 items-center">
-                <input
-                  name="CorLegenda"
-                  value={formData.CorLegenda}
-                  onChange={handleChange}
-                  type="color"
-                  className="h-10 w-20 p-1 rounded border border-gray-300 cursor-pointer"
-                />
-                <span className="text-gray-500 text-sm">
-                  {formData.CorLegenda}
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="FinalizaProcesso"
-                  checked={formData.FinalizaProcesso}
-                  onChange={handleChange}
-                  className="h-5 w-5 cursor-pointer"
-                />
-                <label className="text-sm text-gray-700">
-                  Finaliza o Processo?
-                </label>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="PermiteReencaminhamento"
-                  checked={formData.PermiteReencaminhamento}
-                  onChange={handleChange}
-                  className="h-5 w-5 cursor-pointer"
-                />
-                <label className="text-sm text-gray-700">
-                  Permite Reencaminhamento?
-                </label>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="Ativo"
-                  checked={formData.Ativo}
-                  onChange={handleChange}
-                  className="h-5 w-5 cursor-pointer"
-                />
-                <label className="text-sm text-gray-700">Ativo?</label>
-              </div>
             </div>
           </div>
 

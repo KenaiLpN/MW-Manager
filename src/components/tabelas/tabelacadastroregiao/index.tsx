@@ -1,12 +1,8 @@
 import React from "react";
 
 export interface CadastroRegiao {
-  IdRegiao: number;
-  NomeRegiao: string;
-  SiglaRegiao: string | null;
-  ResponsavelRegional: string | null;
-  Ativo: boolean | null;
-  DataCriacao: string | null;
+  RegCodigo: number;
+  RegDescricao: string;
 }
 
 interface TabelaProps {
@@ -25,11 +21,7 @@ const TabelaCadastroRegiao: React.FC<TabelaProps> = ({
   onDelete,
 }) => {
   if (loading) {
-    return (
-      <div className="text-center p-8 text-[#133c86]">
-        Carregando...
-      </div>
-    );
+    return <div className="text-center p-8 text-[#133c86]">Carregando...</div>;
   }
 
   if (error) {
@@ -57,16 +49,7 @@ const TabelaCadastroRegiao: React.FC<TabelaProps> = ({
               ID
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Nome
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Sigla
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Responsável
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Status
+              Descrição
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tr-lg">
               Ações
@@ -75,40 +58,23 @@ const TabelaCadastroRegiao: React.FC<TabelaProps> = ({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {dados.map((item) => (
-            <tr key={item.IdRegiao} className="hover:bg-gray-50">
+            <tr key={item.RegCodigo} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {item.IdRegiao}
+                {item.RegCodigo}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {item.NomeRegiao}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {item.SiglaRegiao || "-"}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {item.ResponsavelRegional || "-"}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm">
-                <span
-                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    item.Ativo
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {item.Ativo ? "Ativo" : "Inativo"}
-                </span>
+                {item.RegDescricao}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button
                   onClick={() => onEdit(item)}
-                  className="text-indigo-600 hover:text-indigo-900 mr-4"
+                  className="text-indigo-600 hover:text-indigo-900 mr-4 cursor-pointer"
                 >
                   Editar
                 </button>
                 <button
-                  onClick={() => onDelete(item.IdRegiao)}
-                  className="text-red-600 hover:text-red-900"
+                  onClick={() => onDelete(item.RegCodigo)}
+                  className="text-red-600 hover:text-red-900 cursor-pointer"
                 >
                   Excluir
                 </button>

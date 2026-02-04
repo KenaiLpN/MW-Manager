@@ -4,9 +4,13 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal";
 import api from "@/services/api";
-import TabelaGrauParentesco, {
+import TabelaGraus, {
   GrauParentesco,
 } from "@/components/tabelas/tabelagrauparentesco";
+
+interface ParFormData {
+  ParDescricao: string;
+}
 
 export default function GrausParentescoPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -20,22 +24,20 @@ export default function GrausParentescoPage() {
   const [saving, setSaving] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
 
-  const [formData, setFormData] = useState({
-    descricao: "",
-    chk_ativo: true,
+  const [formData, setFormData] = useState<ParFormData>({
+    ParDescricao: "",
   });
 
   const openModalNew = () => {
     setEditingId(null);
-    setFormData({ descricao: "", chk_ativo: true });
+    setFormData({ ParDescricao: "" });
     setIsModalOpen(true);
   };
 
   const handleEdit = (item: GrauParentesco) => {
-    setEditingId(item.id_grau_parentesco);
+    setEditingId(item.ParCodigo);
     setFormData({
-      descricao: item.descricao,
-      chk_ativo: item.chk_ativo,
+      ParDescricao: item.ParDescricao,
     });
     setIsModalOpen(true);
   };
@@ -91,11 +93,12 @@ export default function GrausParentescoPage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Deseja excluir este registro?")) return;
+    if (!window.confirm("Deseja realmente excluir este grau?")) return;
 
     try {
       await api.delete(`/grau-parentesco/${id}`);
@@ -109,7 +112,7 @@ export default function GrausParentescoPage() {
   const handleSalvar = async () => {
     setSaving(true);
     try {
-      if (!formData.descricao.trim()) {
+      if (!formData.ParDescricao.trim()) {
         alert("A descrição é obrigatória.");
         setSaving(false);
         return;
@@ -125,6 +128,7 @@ export default function GrausParentescoPage() {
       closeModal();
       fetchData(page);
     } catch (err: any) {
+      console.error(err);
       alert("Erro ao salvar.");
     } finally {
       setSaving(false);
@@ -183,12 +187,12 @@ export default function GrausParentescoPage() {
             onClick={openModalNew}
             className="px-6 py-3 bg-[#34495E] text-white font-semibold rounded-lg shadow-md hover:bg-[#253341a4] mr-4 cursor-pointer"
           >
-            Novo Cadastro
+            Novo Grau
           </button>
         </div>
 
         <div className="flex-1 overflow-auto">
-          <TabelaGrauParentesco
+          <TabelaGraus
             dados={lista}
             loading={loading}
             error={error}
@@ -225,23 +229,21 @@ export default function GrausParentescoPage() {
 
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h2 className="text-2xl font-bold m-4 text-gray-800">
-            {editingId
-              ? "Editar Grau de Parentesco"
-              : "Novo Grau de Parentesco"}
+            {editingId ? "Editar Grau" : "Novo Grau"}
           </h2>
 
-          <div className="p-4">
+          <div className="p-4 grid grid-cols-1 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Descrição
+                Descrição do Grau (Máx 50)
               </label>
               <input
-                name="descricao"
-                value={formData.descricao}
+                name="ParDescricao"
+                value={formData.ParDescricao}
                 onChange={handleChange}
                 type="text"
-                maxLength={100}
-                placeholder="Ex: Pai, Mãe, Avô..."
+                maxLength={50}
+                placeholder="Ex: Pai, Mãe, Tio..."
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>

@@ -8,7 +8,11 @@ import TabelaGrauEscolaridade, {
   GrauEscolaridade,
 } from "@/components/tabelas/tabelagrauescolaridade";
 
-export default function GrausEscolaridadePage() {
+interface GrauFormData {
+  GreDescricao: string;
+}
+
+export default function GrauEscolaridadePage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
@@ -20,22 +24,20 @@ export default function GrausEscolaridadePage() {
   const [saving, setSaving] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
 
-  const [formData, setFormData] = useState({
-    descricao: "",
-    chk_ativo: true,
+  const [formData, setFormData] = useState<GrauFormData>({
+    GreDescricao: "",
   });
 
   const openModalNew = () => {
     setEditingId(null);
-    setFormData({ descricao: "", chk_ativo: true });
+    setFormData({ GreDescricao: "" });
     setIsModalOpen(true);
   };
 
   const handleEdit = (item: GrauEscolaridade) => {
-    setEditingId(item.id_grau_escolaridade);
+    setEditingId(item.GreCodigo);
     setFormData({
-      descricao: item.descricao,
-      chk_ativo: item.chk_ativo,
+      GreDescricao: item.GreDescricao,
     });
     setIsModalOpen(true);
   };
@@ -91,11 +93,12 @@ export default function GrausEscolaridadePage() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Deseja excluir este registro?")) return;
+    if (!window.confirm("Deseja realmente excluir este grau?")) return;
 
     try {
       await api.delete(`/grau-escolaridade/${id}`);
@@ -109,12 +112,6 @@ export default function GrausEscolaridadePage() {
   const handleSalvar = async () => {
     setSaving(true);
     try {
-      if (!formData.descricao.trim()) {
-        alert("A descrição é obrigatória.");
-        setSaving(false);
-        return;
-      }
-
       if (editingId) {
         await api.put(`/grau-escolaridade/${editingId}`, formData);
         alert("Atualizado com sucesso!");
@@ -125,6 +122,7 @@ export default function GrausEscolaridadePage() {
       closeModal();
       fetchData(page);
     } catch (err: any) {
+      console.error(err);
       alert("Erro ao salvar.");
     } finally {
       setSaving(false);
@@ -183,7 +181,7 @@ export default function GrausEscolaridadePage() {
             onClick={openModalNew}
             className="px-6 py-3 bg-[#34495E] text-white font-semibold rounded-lg shadow-md hover:bg-[#253341a4] mr-4 cursor-pointer"
           >
-            Novo Cadastro
+            Novo Grau
           </button>
         </div>
 
@@ -225,22 +223,20 @@ export default function GrausEscolaridadePage() {
 
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h2 className="text-2xl font-bold m-4 text-gray-800">
-            {editingId
-              ? "Editar Grau de Escolaridade"
-              : "Novo Grau de Escolaridade"}
+            {editingId ? "Editar Grau" : "Novo Grau"}
           </h2>
 
-          <div className="p-4">
+          <div className="p-4 grid grid-cols-1 gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Descrição
+                Descrição do Grau (Máx 50)
               </label>
               <input
-                name="descricao"
-                value={formData.descricao}
+                name="GreDescricao"
+                value={formData.GreDescricao}
                 onChange={handleChange}
                 type="text"
-                maxLength={100}
+                maxLength={50}
                 placeholder="Ex: Ensino Médio Completo"
                 className="p-2 w-full rounded border border-gray-300"
               />

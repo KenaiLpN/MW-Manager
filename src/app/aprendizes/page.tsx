@@ -56,6 +56,23 @@ export default function Aprendizes() {
     }
   };
 
+  const handleSearch = () => {
+    setPage(1);
+    fetchAprendizes(1, search);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearch("");
+    setPage(1);
+    fetchAprendizes(1, "");
+  };
+
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       <AprendizSidebar />
@@ -78,22 +95,48 @@ export default function Aprendizes() {
           </button>
         </div>
 
-        {/* Search Bar for the table */}
-        <div className="mb-4 flex gap-2">
-          <input
-            type="text"
-            placeholder="Buscar por nome, CPF ou email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && fetchAprendizes(1, search)}
-            className="flex-1 p-3 rounded-lg border border-gray-300 outline-none focus:ring-2 focus:ring-blue-400 bg-white"
-          />
-          <button
-            onClick={() => fetchAprendizes(1, search)}
-            className="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            Buscar
-          </button>
+        {/* Search Bar Standardized */}
+        <div className="flex bg-[#bacce6] p-2 h-20 mb-6 rounded justify-between items-center">
+          <div className="flex items-center gap-2 ml-4">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Buscar por nome, CPF ou email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={handleKeyPress}
+                className="p-2 pr-10 w-96 rounded bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#133c86]"
+              />
+              {search && (
+                <button
+                  onClick={handleClearSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                  title="Limpar pesquisa"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+            <button
+              onClick={handleSearch}
+              className="px-4 py-2 bg-[#133c86] text-white font-semibold rounded hover:bg-[#0f2e6b] transition-colors cursor-pointer"
+            >
+              Pesquisar
+            </button>
+          </div>
         </div>
 
         {/* Tabela Modernizada */}
@@ -145,7 +188,7 @@ export default function Aprendizes() {
                     </td>
                     <td className="p-4 text-gray-600">
                       <span className="bg-gray-100 px-2 py-1 rounded text-sm underline decoration-blue-200">
-                        {a.unidade?.nome_unidade || "Não vinculada"}
+                        {a.unidade?.UniNome || "Não vinculada"}
                       </span>
                     </td>
                     <td className="p-4">

@@ -622,8 +622,8 @@ function CadastroForm() {
                   >
                     <option value="">Selecione...</option>
                     {unidades.map((u) => (
-                      <option key={u.id_unidade} value={u.id_unidade}>
-                        {u.nome_unidade}
+                      <option key={u.UniCodigo} value={u.UniCodigo}>
+                        {u.UniNome}
                       </option>
                     ))}
                   </select>

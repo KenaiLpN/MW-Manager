@@ -51,32 +51,24 @@ const TabelaUnidades: React.FC<TabelaUnidadesProps> = ({
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-[#bacce6]">
           <tr>
-            {/* Colunas ajustadas para refletir o JSON */}
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tl-lg">
               ID
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Campus
+              Nome da Unidade
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
               Endereço
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Número
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
               Bairro
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Cidade
+              Cidade/UF
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Estado
+              Telefone
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Status
-            </th>
-
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tr-lg">
               Ações
             </th>
@@ -84,43 +76,26 @@ const TabelaUnidades: React.FC<TabelaUnidadesProps> = ({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {unidades.map((unidade) => (
-            // Usando id_unidade como chave
-            <tr key={unidade.id_unidade} className="hover:bg-gray-50">
+            <tr key={unidade.UniCodigo} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {unidade.id_unidade}
+                {unidade.UniCodigo}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.nome_unidade}
+                {unidade.UniNome}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.endereco}
+                {unidade.UniEndereco}, {unidade.UniNumeroEndereco}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.numero}
+                {unidade.UniBairro}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.bairro}
+                {unidade.UniCidade} - {unidade.UniEstado}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.cidade}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {unidade.estado}
-              </td>
-
-               <td className="px-6 py-4 whitespace-nowrap text-sm">
-                <span
-                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    unidade.chk_ativo
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {unidade.chk_ativo ? "Ativo" : "Inativo"}
-                </span>
+                {unidade.UniTelefone}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                {/* Botões de Ação (ex: Editar, Excluir) */}
                 <button
                   onClick={() => onEdit(unidade)}
                   className="text-indigo-600 hover:text-indigo-900 mr-4"
@@ -128,7 +103,7 @@ const TabelaUnidades: React.FC<TabelaUnidadesProps> = ({
                   Editar
                 </button>
                 <button
-                  onClick={() => onDelete(unidade.id_unidade)}
+                  onClick={() => onDelete(unidade.UniCodigo)}
                   className="text-red-600 hover:text-red-900"
                 >
                   Excluir

@@ -1,11 +1,11 @@
 import React from "react";
 
 export interface Feriado {
-  id_feriado: number;
-  data_feriado: string; // ISO string da API
-  descricao: string;
-  unidade: string;
-  chk_ativo: boolean;
+  FerOrdem: number;
+  FerData: string; // ISO string da API
+  FerDescricao: string;
+  FerUnidade: number;
+  FerTipo?: string;
 }
 
 interface TabelaProps {
@@ -13,7 +13,7 @@ interface TabelaProps {
   loading: boolean;
   error: string | null;
   onEdit: (item: Feriado) => void;
-  onDelete: (id: number) => void;
+  onDelete: (item: Feriado) => void;
 }
 
 const TabelaFeriados: React.FC<TabelaProps> = ({
@@ -24,11 +24,7 @@ const TabelaFeriados: React.FC<TabelaProps> = ({
   onDelete,
 }) => {
   if (loading) {
-    return (
-      <div className="text-center p-8 text-[#133c86]">
-        Carregando...
-      </div>
-    );
+    return <div className="text-center p-8 text-[#133c86]">Carregando...</div>;
   }
 
   if (error) {
@@ -50,8 +46,7 @@ const TabelaFeriados: React.FC<TabelaProps> = ({
   const formatDate = (dateString: string) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
-    // timeZone: 'UTC' é importante para datas que vêm sem hora específica (YYYY-MM-DD)
-    return date.toLocaleDateString("pt-BR", { timeZone: 'UTC' });
+    return date.toLocaleDateString("pt-BR", { timeZone: "UTC" });
   };
 
   return (
@@ -71,9 +66,6 @@ const TabelaFeriados: React.FC<TabelaProps> = ({
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
               Unidade
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider">
-              Status
-            </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-[#133c86] uppercase tracking-wider rounded-tr-lg">
               Ações
             </th>
@@ -81,40 +73,29 @@ const TabelaFeriados: React.FC<TabelaProps> = ({
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {dados.map((item) => (
-            <tr key={item.id_feriado} className="hover:bg-gray-50">
+            <tr key={item.FerOrdem} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {item.id_feriado}
+                {item.FerOrdem}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {formatDate(item.data_feriado)}
+                {formatDate(item.FerData)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {item.descricao}
+                {item.FerDescricao}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {item.unidade}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm">
-                <span
-                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    item.chk_ativo
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {item.chk_ativo ? "Ativo" : "Inativo"}
-                </span>
+                {item.FerUnidade}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button
                   onClick={() => onEdit(item)}
-                  className="text-indigo-600 hover:text-indigo-900 mr-4"
+                  className="text-indigo-600 hover:text-indigo-900 mr-4 cursor-pointer"
                 >
                   Editar
                 </button>
                 <button
-                  onClick={() => onDelete(item.id_feriado)}
-                  className="text-red-600 hover:text-red-900"
+                  onClick={() => onDelete(item)}
+                  className="text-red-600 hover:text-red-900 cursor-pointer"
                 >
                   Excluir
                 </button>

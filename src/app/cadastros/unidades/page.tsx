@@ -10,21 +10,21 @@ import TabelaUnidades from "@/components/tabelas/tabelaunidades";
 
 // Definição da interface do Form para garantir tipagem
 interface UnidadeFormData {
-  nome_unidade: string;
-  cnpj: string;
-  telefone: string;
-  responsavel: string;
-  telefone_responsavel: string;
-  email_responsavel: string;
-  role_responsavel: string;
-  cep: string;
-  endereco: string;
-  numero: string;
-  complemento: string;
-  bairro: string;
-  cidade: string;
-  estado: string;
-  chk_ativo: boolean;
+  UniNome: string;
+  UniCGC: string;
+  UniTelefone: string;
+  UniRepresentanteLegal: string;
+  UniRepresentanteCargo: string;
+  UniEmailPadraoEnvio: string;
+  UniCEP: string;
+  UniEndereco: string;
+  UniNumeroEndereco: string;
+  UniComplemento: string;
+  UniBairro: string;
+  UniCidade: string;
+  UniEstado: string;
+  UniEnderecoWeb: string;
+  UniTipo: string;
 }
 
 export default function Unidades() {
@@ -41,21 +41,21 @@ export default function Unidades() {
 
   // Estado inicializado com os campos corretos da Unidade
   const [formData, setFormData] = useState<UnidadeFormData>({
-    nome_unidade: "",
-    cnpj: "",
-    telefone: "",
-    responsavel: "",
-    telefone_responsavel: "",
-    email_responsavel: "",
-    role_responsavel: "",
-    cep: "",
-    endereco: "",
-    numero: "",
-    complemento: "",
-    bairro: "",
-    cidade: "",
-    estado: "",
-    chk_ativo: true,
+    UniNome: "",
+    UniCGC: "",
+    UniTelefone: "",
+    UniRepresentanteLegal: "",
+    UniRepresentanteCargo: "",
+    UniEmailPadraoEnvio: "",
+    UniCEP: "",
+    UniEndereco: "",
+    UniNumeroEndereco: "",
+    UniComplemento: "",
+    UniBairro: "",
+    UniCidade: "",
+    UniEstado: "",
+    UniEnderecoWeb: "",
+    UniTipo: "",
   });
 
   const buscaCEP = async (cep: string) => {
@@ -69,10 +69,10 @@ export default function Unidades() {
         if (!data.erro) {
           setFormData((prev) => ({
             ...prev,
-            endereco: data.logradouro,
-            bairro: data.bairro,
-            cidade: data.localidade,
-            estado: data.uf,
+            UniEndereco: data.logradouro,
+            UniBairro: data.bairro,
+            UniCidade: data.localidade,
+            UniEstado: data.uf,
           }));
         }
       } catch (err) {
@@ -118,43 +118,44 @@ export default function Unidades() {
   const openModalNew = () => {
     setEditingId(null);
     setFormData({
-      nome_unidade: "",
-      cnpj: "",
-      telefone: "",
-      responsavel: "",
-      telefone_responsavel: "",
-      email_responsavel: "",
-      role_responsavel: "",
-      cep: "",
-      endereco: "",
-      numero: "",
-      complemento: "",
-      bairro: "",
-      cidade: "",
-      estado: "",
-      chk_ativo: true,
+      UniNome: "",
+      UniCGC: "",
+      UniTelefone: "",
+      UniRepresentanteLegal: "",
+      UniRepresentanteCargo: "",
+      UniEmailPadraoEnvio: "",
+      UniCEP: "",
+      UniEndereco: "",
+      UniNumeroEndereco: "",
+      UniComplemento: "",
+      UniBairro: "",
+      UniCidade: "",
+      UniEstado: "",
+      UniEnderecoWeb: "",
+      UniTipo: "",
     });
+
     setIsModalOpen(true);
   };
 
   const handleEditUnity = (item: any) => {
-    setEditingId(item.id_unidade || item.id); // Ajuste conforme seu banco de dados
+    setEditingId(item.UniCodigo);
     setFormData({
-      nome_unidade: item.nome_unidade || item.nome || "",
-      cnpj: item.cnpj || item.cpf || "", // Fallback caso venha como cpf do banco
-      telefone: item.telefone || "",
-      responsavel: item.responsavel || "",
-      telefone_responsavel: item.telefone_responsavel || "",
-      email_responsavel: item.email_responsavel || item.email || "",
-      role_responsavel: item.role_responsavel || "",
-      cep: item.cep || "",
-      endereco: item.endereco || "",
-      numero: item.numero || "",
-      complemento: item.complemento || "",
-      bairro: item.bairro || "",
-      cidade: item.cidade || "",
-      estado: item.estado || "",
-      chk_ativo: item.chk_ativo ?? true,
+      UniNome: item.UniNome || "",
+      UniCGC: item.UniCGC || "",
+      UniTelefone: item.UniTelefone || "",
+      UniRepresentanteLegal: item.UniRepresentanteLegal || "",
+      UniRepresentanteCargo: item.UniRepresentanteCargo || "",
+      UniEmailPadraoEnvio: item.UniEmailPadraoEnvio || "",
+      UniCEP: item.UniCEP || "",
+      UniEndereco: item.UniEndereco || "",
+      UniNumeroEndereco: item.UniNumeroEndereco || "",
+      UniComplemento: item.UniComplemento || "",
+      UniBairro: item.UniBairro || "",
+      UniCidade: item.UniCidade || "",
+      UniEstado: item.UniEstado || "",
+      UniEnderecoWeb: item.UniEnderecoWeb || "",
+      UniTipo: item.UniTipo || "",
     });
     setIsModalOpen(true);
   };
@@ -387,10 +388,11 @@ export default function Unidades() {
                 Nome da Unidade
               </label>
               <input
-                name="nome_unidade"
-                value={formData.nome_unidade}
+                name="UniNome"
+                value={formData.UniNome}
                 onChange={handleChange}
                 type="text"
+                maxLength={60}
                 placeholder="Nome da Unidade"
                 className="p-2 w-full rounded border border-gray-300"
               />
@@ -398,13 +400,14 @@ export default function Unidades() {
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                CNPJ
+                CGC / CNPJ
               </label>
               <input
-                name="cnpj"
-                value={formData.cnpj}
+                name="UniCGC"
+                value={formData.UniCGC}
                 onChange={handleChange}
                 type="text"
+                maxLength={18}
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
@@ -415,23 +418,26 @@ export default function Unidades() {
                 Telefone da Unidade
               </label>
               <input
-                name="telefone"
-                value={formData.telefone}
+                name="UniTelefone"
+                value={formData.UniTelefone}
                 onChange={handleChange}
                 type="text"
+                maxLength={10}
+                placeholder="Ex: 1140028922"
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Responsável
+                Representante Legal
               </label>
               <input
-                name="responsavel"
-                value={formData.responsavel}
+                name="UniRepresentanteLegal"
+                value={formData.UniRepresentanteLegal}
                 onChange={handleChange}
                 type="text"
+                maxLength={80}
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
@@ -439,26 +445,28 @@ export default function Unidades() {
             {/* Linha 3 */}
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Telefone do Responsável
+                Cargo do Representante
               </label>
               <input
-                name="telefone_responsavel"
-                value={formData.telefone_responsavel}
+                name="UniRepresentanteCargo"
+                value={formData.UniRepresentanteCargo}
                 onChange={handleChange}
                 type="text"
+                maxLength={50}
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Email do Responsável
+                Email Padrão de Envio
               </label>
               <input
-                name="email_responsavel"
-                value={formData.email_responsavel}
+                name="UniEmailPadraoEnvio"
+                value={formData.UniEmailPadraoEnvio}
                 onChange={handleChange}
                 type="text"
+                maxLength={80}
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
@@ -466,31 +474,31 @@ export default function Unidades() {
             {/* Linha 4 */}
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
-                Tipo / Função
+                Tipo
               </label>
               <select
-                name="role_responsavel"
-                value={formData.role_responsavel}
+                name="UniTipo"
+                value={formData.UniTipo}
                 onChange={handleChange}
                 className="p-2 w-full rounded border border-gray-300 cursor-pointer"
               >
                 <option value="">Selecione...</option>
-                {roles.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
+                <option value="M">Matriz</option>
+                <option value="F">Filial</option>
+                <option value="P">Parceiro</option>
+                <option value="O">Outro</option>
               </select>
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">CEP</label>
               <input
-                name="cep"
-                value={formData.cep}
+                name="UniCEP"
+                value={formData.UniCEP}
                 onChange={handleChange}
                 onBlur={(e) => buscaCEP(e.target.value)}
                 type="text"
+                maxLength={8}
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
@@ -501,8 +509,8 @@ export default function Unidades() {
                 Estado
               </label>
               <select
-                name="estado"
-                value={formData.estado}
+                name="UniEstado"
+                value={formData.UniEstado}
                 onChange={handleChange}
                 className="p-2 w-full rounded border border-gray-300 cursor-pointer"
               >
@@ -520,10 +528,11 @@ export default function Unidades() {
                 Cidade
               </label>
               <input
-                name="cidade"
-                value={formData.cidade}
+                name="UniCidade"
+                value={formData.UniCidade}
                 onChange={handleChange}
                 type="text"
+                maxLength={50}
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
@@ -534,10 +543,11 @@ export default function Unidades() {
                 Bairro
               </label>
               <input
-                name="bairro"
-                value={formData.bairro}
+                name="UniBairro"
+                value={formData.UniBairro}
                 onChange={handleChange}
                 type="text"
+                maxLength={50}
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
@@ -547,10 +557,11 @@ export default function Unidades() {
                 Endereço (Logradouro)
               </label>
               <input
-                name="endereco"
-                value={formData.endereco}
+                name="UniEndereco"
+                value={formData.UniEndereco}
                 onChange={handleChange}
                 type="text"
+                maxLength={50}
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
@@ -560,12 +571,12 @@ export default function Unidades() {
               <label className="text-sm font-semibold text-gray-600">
                 Número
               </label>
-              {/* ATENÇÃO: name mudado de 'número' para 'numero' para facilitar o JS */}
               <input
-                name="numero"
-                value={formData.numero}
+                name="UniNumeroEndereco"
+                value={formData.UniNumeroEndereco}
                 onChange={handleChange}
                 type="text"
+                maxLength={6}
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
@@ -575,10 +586,27 @@ export default function Unidades() {
                 Complemento
               </label>
               <input
-                name="complemento"
-                value={formData.complemento}
+                name="UniComplemento"
+                value={formData.UniComplemento}
                 onChange={handleChange}
                 type="text"
+                maxLength={30}
+                className="p-2 w-full rounded border border-gray-300"
+              />
+            </div>
+
+            {/* Linha 8 */}
+            <div className="flex flex-col gap-1 md:col-span-2">
+              <label className="text-sm font-semibold text-gray-600">
+                Endereço Web (Site)
+              </label>
+              <input
+                name="UniEnderecoWeb"
+                value={formData.UniEnderecoWeb}
+                onChange={handleChange}
+                type="text"
+                maxLength={80}
+                placeholder="Ex: www.fundacaofat.org.br"
                 className="p-2 w-full rounded border border-gray-300"
               />
             </div>
