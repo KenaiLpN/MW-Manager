@@ -7,6 +7,7 @@ import api from "@/services/api";
 import TabelaCadastroRegiao, {
   CadastroRegiao,
 } from "@/components/tabelas/tabelacadastroregiao";
+import Pagination from "@/components/pagination";
 
 interface RegFormData {
   RegDescricao: string;
@@ -196,34 +197,18 @@ export default function RegioesPage() {
 
           <div className="p-4">
             {!loading && !error && (
-              <div className="flex justify-between items-center p-2 bg-[#bacce6] border-t border-gray-200 rounded">
-                <span className="text-sm text-gray-700">
-                  Página <b>{page}</b> de <b>{totalPages}</b>
-                </span>
-                <div className="space-x-2">
-                  <button
-                    onClick={handlePreviousPage}
-                    disabled={page === 1}
-                    className="m-1 px-4 py-1 border rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    Anterior
-                  </button>
-                  <button
-                    onClick={handleNextPage}
-                    disabled={page === totalPages}
-                    className="px-4 py-1 border rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    Próxima
-                  </button>
-                </div>
-              </div>
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={(p) => setPage(p)}
+              />
             )}
           </div>
         </div>
 
         <Modal isOpen={isModalOpen} onClose={closeModal}>
           <h2 className="text-2xl font-bold m-4 text-gray-800">
-            {editingId ? "Editar Região" : "Novo Região"}
+            {editingId ? "Editar Região" : "Nova Região"}
           </h2>
 
           <div className="p-4 grid grid-cols-1 gap-4">

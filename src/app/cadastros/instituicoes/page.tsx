@@ -7,6 +7,7 @@ import api from "@/services/api";
 import TabelaInstituicoes, {
   Instituicao,
 } from "@/components/tabelas/tabelainstituicoes";
+import Pagination from "@/components/pagination";
 
 // Interface do Form
 interface InstituicaoFormData {
@@ -345,28 +346,11 @@ export default function Instituicoes() {
 
           <div className="p-4">
             {!loading && !error && (
-              <div className="flex justify-between items-center p-2 bg-[#bacce6] border-t border-gray-200 rounded">
-                <span className="text-sm text-gray-700">
-                  Página <span className="font-semibold">{page}</span> de{" "}
-                  <span className="font-semibold">{totalPages}</span>
-                </span>
-                <div className="space-x-2">
-                  <button
-                    onClick={handlePreviousPage}
-                    disabled={page === 1}
-                    className="m-1 px-4 py-1 border rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    Anterior
-                  </button>
-                  <button
-                    onClick={handleNextPage}
-                    disabled={page === totalPages}
-                    className="px-4 py-1 border rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    Próxima
-                  </button>
-                </div>
-              </div>
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={(p) => setPage(p)}
+              />
             )}
           </div>
         </div>

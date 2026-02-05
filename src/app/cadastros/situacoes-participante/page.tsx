@@ -7,6 +7,7 @@ import api from "@/services/api";
 import TabelaSituacoes, {
   SituacaoParticipante,
 } from "@/components/tabelas/tabelasituacoes";
+import Pagination from "@/components/pagination";
 
 interface SituacaoFormData {
   StaAbreviatura: string;
@@ -211,28 +212,11 @@ export default function SituacoesParticipantePage() {
 
           <div className="p-4">
             {!loading && !error && (
-              <div className="flex justify-between items-center p-2 bg-[#bacce6] border-t border-gray-200 rounded">
-                <span className="text-sm text-gray-700">
-                  Página <span className="font-semibold">{page}</span> de{" "}
-                  <span className="font-semibold">{totalPages}</span>
-                </span>
-                <div className="space-x-2">
-                  <button
-                    onClick={handlePreviousPage}
-                    disabled={page === 1}
-                    className="m-1 px-4 py-1 border rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    Anterior
-                  </button>
-                  <button
-                    onClick={handleNextPage}
-                    disabled={page === totalPages}
-                    className="px-4 py-1 border rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    Próxima
-                  </button>
-                </div>
-              </div>
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={(p) => setPage(p)}
+              />
             )}
           </div>
         </div>
@@ -301,7 +285,7 @@ export default function SituacoesParticipantePage() {
               disabled={saving}
               className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 transition-colors cursor-pointer"
             >
-              {saving ? "Salvando..." : "Salvar"}
+              {saving ? "Salvando..." : "Confirmar"}
             </button>
           </div>
         </Modal>

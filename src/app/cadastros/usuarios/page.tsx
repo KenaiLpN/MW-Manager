@@ -7,6 +7,7 @@ import TabelaUsuarios from "@/components/tabelas/tabelausuarios";
 import api from "@/services/api";
 import { Usuario } from "@/types";
 import { ROLE_OPTIONS } from "@/utils/roles";
+import Pagination from "@/components/pagination";
 
 export default function CadCliPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -23,7 +24,7 @@ export default function CadCliPage() {
     UsuCodigo: "",
     UsuNome: "",
     UsuEmail: "",
-    
+
     UsuTipo: "",
     UsuSenha: "",
     senha2: "",
@@ -37,7 +38,7 @@ export default function CadCliPage() {
     setFormData({
       UsuCodigo: "",
       UsuNome: "",
-     
+
       UsuEmail: "",
       UsuTipo: "",
       UsuSenha: "",
@@ -53,7 +54,7 @@ export default function CadCliPage() {
       UsuCodigo: usuario.UsuCodigo,
       UsuNome: usuario.UsuNome || "",
       UsuEmail: usuario.UsuEmail || "",
-      
+
       UsuTipo: usuario.UsuTipo || "",
       UsuSenha: "",
       senha2: "",
@@ -177,7 +178,7 @@ export default function CadCliPage() {
         UsuNome: dataToSend.UsuNome,
         UsuEmail: dataToSend.UsuEmail,
         UsuTipo: dataToSend.UsuTipo,
-        
+
         chk_ativo: dataToSend.chk_ativo,
       };
 
@@ -282,28 +283,11 @@ export default function CadCliPage() {
 
           <div className="p-4">
             {!loading && !error && (
-              <div className="flex justify-between items-center p-2 bg-[#bacce6] border-t border-gray-200 rounded">
-                <span className="text-sm text-gray-700">
-                  Página <span className="font-semibold">{page}</span> de{" "}
-                  <span className="font-semibold">{totalPages}</span>
-                </span>
-                <div className="space-x-2">
-                  <button
-                    onClick={handlePreviousPage}
-                    disabled={page === 1}
-                    className="m-1 px-4 py-1 border rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    Anterior
-                  </button>
-                  <button
-                    onClick={handleNextPage}
-                    disabled={page === totalPages}
-                    className="px-4 py-1 border rounded text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    Próxima
-                  </button>
-                </div>
-              </div>
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={(p) => setPage(p)}
+              />
             )}
           </div>
         </div>
@@ -343,7 +327,6 @@ export default function CadCliPage() {
               />
             </div>
 
-         
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-gray-600">
                 Email
