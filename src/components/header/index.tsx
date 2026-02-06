@@ -78,7 +78,17 @@ const navItems: NavItemWithSub[] = [
       { name: "Pesquisa Candidatos", href: "/aprendizes/candidatos" },
     ],
   },
-  { name: "Pedagógico", href: "/pedagogico" },
+  { 
+    name: "Pedagógico", 
+    href: "/pedagogico",
+    subMenu: [
+      { name: "Cadastro de Cursos", href: "/pedagogico" },
+      { name: "Disciplinas", href: "/pedagogico/disciplinas" },
+      { name: "Turmas", href: "/pedagogico/turmas" },
+      { name: "Conceitos", href: "/pedagogico/conceitos" },
+      { name: "Áreas de atuação", href: "/pedagogico/areas" },
+    ],
+   },
   { name: "Estatísticas", href: "/estatisticas" },
 ];
 
