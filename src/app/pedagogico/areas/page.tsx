@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import { PedagogicoSidebar } from "@/components/pedagogicosidebar";
 import Modal from "@/components/modal";
+import ConfirmModal from "@/components/modal/ConfirmModal";
 import api from "@/services/api";
 import TabelaAreasAtuacao, {
   AreaAtuacao,
 } from "@/components/tabelas/tabelaareasatuacao";
 import Pagination from "@/components/pagination";
+import { toast } from "react-hot-toast";
 
 export default function AreasAtuacaoPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -20,6 +22,9 @@ export default function AreasAtuacaoPage() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [formData, setFormData] = useState<
     Partial<
@@ -125,15 +130,25 @@ export default function AreasAtuacaoPage() {
     }));
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Deseja realmente excluir esta área de atuação?"))
-      return;
+  const handleDelete = (id: number) => {
+    setItemToDelete(id);
+    setIsConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    setDeleting(true);
     try {
-      await api.delete(`/areas/${id}`);
-      alert("Excluído com sucesso!");
+      await api.delete(`/areas/${itemToDelete}`);
+      toast.success("Excluído com sucesso!");
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
       fetchData(page);
     } catch (err: any) {
-      alert("Erro ao excluir.");
+      toast.error("Erro ao excluir.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -142,16 +157,16 @@ export default function AreasAtuacaoPage() {
     try {
       if (editingId) {
         await api.put(`/areas/${editingId}`, formData);
-        alert("Atualizado com sucesso!");
+        toast.success("Atualizado com sucesso!");
       } else {
         await api.post("/areas", formData);
-        alert("Cadastrado com sucesso!");
+        toast.success("Cadastrado com sucesso!");
       }
       closeModal();
       fetchData(page);
     } catch (err: any) {
       console.error(err);
-      alert("Erro ao salvar.");
+      toast.error("Erro ao salvar.");
     } finally {
       setSaving(false);
     }
@@ -365,6 +380,14 @@ export default function AreasAtuacaoPage() {
             </button>
           </div>
         </Modal>
+
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={confirmDelete}
+          loading={deleting}
+          message="Tem certeza que deseja excluir esta área de atuação? Esta ação não pode ser desfeita."
+        />
       </div>
     </div>
   );

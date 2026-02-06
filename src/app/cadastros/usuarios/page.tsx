@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal";
+import ConfirmModal from "../../../components/modal/ConfirmModal";
 import TabelaUsuarios from "@/components/tabelas/tabelausuarios";
 import api from "@/services/api";
 import { Usuario } from "@/types";
 import { ROLE_OPTIONS } from "@/utils/roles";
 import Pagination from "@/components/pagination";
+import { toast } from "react-hot-toast";
 
 export default function CadCliPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -19,6 +21,10 @@ export default function CadCliPage() {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [formData, setFormData] = useState({
     UsuCodigo: "",
@@ -128,25 +134,27 @@ export default function CadCliPage() {
   };
 
   // --- NOVA FUNÇÃO DE DELETE ---
-  const handleDeleteUser = async (id: string) => {
-    // 1. Confirmação visual nativa do browser
-    const confirmacao = window.confirm(
-      "Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.",
-    );
+  const handleDeleteUser = (id: string) => {
+    setItemToDelete(id);
+    setIsConfirmOpen(true);
+  };
 
-    if (!confirmacao) return;
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
 
+    setDeleting(true);
     try {
-      await api.delete(`/users/${id}`);
-      alert("Usuário excluído com sucesso!");
-
-      // Atualiza a lista na página atual
+      await api.delete(`/users/${itemToDelete}`);
+      toast.success("Usuário excluído com sucesso!");
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
       fetchUsuarios(page);
     } catch (err: any) {
       console.error("Erro ao excluir:", err);
-      // Mensagem amigável caso o backend devolva erro (ex: usuário tem vínculos)
       const msg = err.response?.data?.message || "Erro ao excluir usuário.";
-      alert(msg);
+      toast.error(msg);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -154,17 +162,19 @@ export default function CadCliPage() {
   const handleSalvar = async () => {
     // 1. Validações Iniciais
     if (formData.UsuSenha !== formData.senha2) {
-      alert("As senhas não coincidem. Por favor, verifique.");
+      toast.error("As senhas não coincidem. Por favor, verifique.");
       return;
     }
 
     if (!editingId && formData.UsuSenha.length < 8) {
-      alert("Para novos usuários, a senha deve ter pelo menos 8 caracteres.");
+      toast.error(
+        "Para novos usuários, a senha deve ter pelo menos 8 caracteres.",
+      );
       return;
     }
 
     if (!formData.UsuCodigo) {
-      alert("Preencha o Código do Usuário.");
+      toast.error("Preencha o Código do Usuário.");
       return;
     }
 
@@ -192,11 +202,11 @@ export default function CadCliPage() {
       if (editingId) {
         // --- MODO EDIÇÃO (PUT) ---
         await api.put(`/users/${editingId}`, payload);
-        alert("Usuário atualizado com sucesso!");
+        toast.success("Usuário atualizado com sucesso!");
       } else {
         // --- MODO CRIAÇÃO (POST) ---
         await api.post("/users", payload);
-        alert("Usuário cadastrado com sucesso!");
+        toast.success("Usuário cadastrado com sucesso!");
       }
 
       closeModal();
@@ -207,9 +217,9 @@ export default function CadCliPage() {
 
       if (err.response?.data) {
         console.log("Detalhes do erro Zod:", err.response.data);
-        alert(`Erro de validação: ${JSON.stringify(err.response.data)}`);
+        toast.error(`Erro de validação: ${JSON.stringify(err.response.data)}`);
       } else {
-        alert("Erro ao salvar usuário.");
+        toast.error("Erro ao salvar usuário.");
       }
     } finally {
       setSaving(false);
@@ -222,7 +232,6 @@ export default function CadCliPage() {
         <CadSidebar />
       </aside>
 
-      
       <div className="flex flex-col w-full h-full ">
         <div className="flex bg-[#bacce6] p-2 h-20 m-5 rounded justify-between items-center">
           <div className="flex items-center gap-2 ml-4">
@@ -409,6 +418,14 @@ export default function CadCliPage() {
             </button>
           </div>
         </Modal>
+
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={confirmDelete}
+          loading={deleting}
+          message="Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita."
+        />
       </div>
     </div>
   );

@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
-import Modal from "../../../components/modal"; // Ajuste o caminho conforme sua estrutura
+import Modal from "@/components/modal";
+import ConfirmModal from "@/components/modal/ConfirmModal";
+import { toast } from "react-hot-toast";
 
 import api from "@/services/api";
 // import { Cliente } from "@/types"; // Se tiver um tipo específico para Unidade, use-o aqui
@@ -39,6 +41,9 @@ export default function Unidades() {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Estado inicializado com os campos corretos da Unidade
   const [formData, setFormData] = useState<UnidadeFormData>({
@@ -224,21 +229,27 @@ export default function Unidades() {
     }));
   };
 
-  const handleDeleteUnity = async (id: number) => {
-    const confirmacao = window.confirm(
-      "Tem certeza que deseja excluir esta unidade? Esta ação não pode ser desfeita.",
-    );
+  const handleDeleteUnity = (id: number) => {
+    setItemToDelete(id);
+    setIsConfirmOpen(true);
+  };
 
-    if (!confirmacao) return;
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
 
+    setDeleting(true);
     try {
-      await api.delete(`/unidade/${id}`); // Ajuste a rota se necessário
-      alert("Unidade excluída com sucesso!");
+      await api.delete(`/unidade/${itemToDelete}`);
+      toast.success("Unidade excluída com sucesso!");
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
       fetchUnidades(page);
     } catch (err: any) {
       console.error("Erro ao excluir:", err);
       const msg = err.response?.data?.message || "Erro ao excluir unidade.";
-      alert(msg);
+      toast.error(msg);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -261,11 +272,11 @@ export default function Unidades() {
       if (editingId) {
         // --- PUT ---
         await api.put(`/unidade/${editingId}`, payload);
-        alert("Unidade atualizada com sucesso!");
+        toast.success("Unidade atualizada com sucesso!");
       } else {
         // --- POST ---
         await api.post("/unidade", payload);
-        alert("Unidade cadastrada com sucesso!");
+        toast.success("Unidade cadastrada com sucesso!");
       }
 
       closeModal();
@@ -273,9 +284,9 @@ export default function Unidades() {
     } catch (err: any) {
       console.error("Erro completo:", err);
       if (err.response?.data) {
-        alert(`Erro de validação: ${JSON.stringify(err.response.data)}`);
+        toast.error(`Erro de validação: ${JSON.stringify(err.response.data)}`);
       } else {
-        alert("Erro ao salvar unidade.");
+        toast.error("Erro ao salvar unidade.");
       }
     } finally {
       setSaving(false);
@@ -612,6 +623,14 @@ export default function Unidades() {
             </button>
           </div>
         </Modal>
+
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={confirmDelete}
+          loading={deleting}
+          message="Tem certeza que deseja excluir esta unidade? Esta ação não pode ser desfeita."
+        />
       </div>
     </div>
   );

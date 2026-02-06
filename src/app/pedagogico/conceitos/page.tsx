@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import { PedagogicoSidebar } from "@/components/pedagogicosidebar";
 import Modal from "@/components/modal";
+import ConfirmModal from "@/components/modal/ConfirmModal";
 import api from "@/services/api";
 import TabelaConceitos, {
   Conceito,
 } from "@/components/tabelas/tabelaconceitos";
 import Pagination from "@/components/pagination";
+import { toast } from "react-hot-toast";
 
 export default function ConceitosPage() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -20,6 +22,9 @@ export default function ConceitosPage() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [formData, setFormData] = useState<Partial<Conceito>>({
     ConCodigo: "",
@@ -96,14 +101,25 @@ export default function ConceitosPage() {
     }));
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Deseja realmente excluir este conceito?")) return;
+  const handleDelete = (id: string) => {
+    setItemToDelete(id);
+    setIsConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    setDeleting(true);
     try {
-      await api.delete(`/conceitos/${id}`);
-      alert("Excluído com sucesso!");
+      await api.delete(`/conceitos/${itemToDelete}`);
+      toast.success("Excluído com sucesso!");
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
       fetchData(page);
     } catch (err: any) {
-      alert("Erro ao excluir.");
+      toast.error("Erro ao excluir.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -112,16 +128,16 @@ export default function ConceitosPage() {
     try {
       if (editingId) {
         await api.put(`/conceitos/${editingId}`, formData);
-        alert("Atualizado com sucesso!");
+        toast.success("Atualizado com sucesso!");
       } else {
         await api.post("/conceitos", formData);
-        alert("Cadastrado com sucesso!");
+        toast.success("Cadastrado com sucesso!");
       }
       closeModal();
       fetchData(page);
     } catch (err: any) {
       console.error(err);
-      alert("Erro ao salvar.");
+      toast.error("Erro ao salvar.");
     } finally {
       setSaving(false);
     }
@@ -278,6 +294,14 @@ export default function ConceitosPage() {
             </button>
           </div>
         </Modal>
+
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={confirmDelete}
+          loading={deleting}
+          message="Tem certeza que deseja excluir este conceito? Esta ação não pode ser desfeita."
+        />
       </div>
     </div>
   );

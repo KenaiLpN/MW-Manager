@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal";
 import api from "@/services/api";
+import { toast } from "react-hot-toast";
+import ConfirmModal from "@/components/modal/ConfirmModal";
 import TabelaFeriados, { Feriado } from "@/components/tabelas/tabelaferiados";
 import Pagination from "@/components/pagination";
 
@@ -25,6 +27,9 @@ export default function FeriadosPage() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<Feriado | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [formData, setFormData] = useState<FeriadoFormData>({
     FerDescricao: "",
@@ -116,17 +121,28 @@ export default function FeriadosPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDelete = async (item: Feriado) => {
-    if (!window.confirm("Deseja excluir este feriado?")) return;
+  const handleDelete = (item: Feriado) => {
+    setItemToDelete(item);
+    setIsConfirmOpen(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    setDeleting(true);
     try {
-      // Deletar usando unidade e data
-      const dataFormatada = new Date(item.FerData).toISOString().split("T")[0];
-      await api.delete(`/feriado/${item.FerUnidade}/${dataFormatada}`);
-      alert("Excluído com sucesso!");
+      const dataFormatada = new Date(itemToDelete.FerData)
+        .toISOString()
+        .split("T")[0];
+      await api.delete(`/feriado/${itemToDelete.FerUnidade}/${dataFormatada}`);
+      toast.success("Excluído com sucesso!");
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
       fetchData(page);
     } catch (err: any) {
-      alert("Erro ao excluir.");
+      toast.error("Erro ao excluir.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -135,7 +151,7 @@ export default function FeriadosPage() {
     try {
       // Validação simples
       if (!formData.FerDescricao || !formData.FerData || !formData.FerUnidade) {
-        alert("Preencha todos os campos obrigatórios.");
+        toast.error("Preencha todos os campos obrigatórios.");
         setSaving(false);
         return;
       }
@@ -148,16 +164,16 @@ export default function FeriadosPage() {
           `/feriado/${editingItem.FerUnidade}/${dataOriginal}`,
           formData,
         );
-        alert("Atualizado com sucesso!");
+        toast.success("Atualizado com sucesso!");
       } else {
         await api.post("/feriado", formData);
-        alert("Cadastrado com sucesso!");
+        toast.success("Cadastrado com sucesso!");
       }
       closeModal();
       fetchData(page);
     } catch (err: any) {
       console.error(err);
-      alert("Erro ao salvar.");
+      toast.error("Erro ao salvar.");
     } finally {
       setSaving(false);
     }
@@ -306,6 +322,14 @@ export default function FeriadosPage() {
             </button>
           </div>
         </Modal>
+
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={confirmDelete}
+          loading={deleting}
+          message="Tem certeza que deseja excluir este feriado? Esta ação não pode ser desfeita."
+        />
       </div>
     </div>
   );

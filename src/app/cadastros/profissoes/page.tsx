@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal";
 import api from "@/services/api";
+import { toast } from "react-hot-toast";
+import ConfirmModal from "@/components/modal/ConfirmModal";
 import TabelaProfissoes, {
   Profissao,
 } from "@/components/tabelas/tabelaprofissoes";
@@ -24,6 +26,9 @@ export default function ProfissoesPage() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [formData, setFormData] = useState<ProFormData>({
     ProDescricao: "",
@@ -93,15 +98,26 @@ export default function ProfissoesPage() {
     }));
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Deseja realmente excluir esta profissão?")) return;
+  const handleDelete = (id: number) => {
+    setItemToDelete(id);
+    setIsConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    setDeleting(true);
     try {
-      await api.delete(`/profissao/${id}`);
-      alert("Excluído com sucesso!");
+      await api.delete(`/profissao/${itemToDelete}`);
+      toast.success("Excluído com sucesso!");
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
       fetchData(page);
     } catch (err: any) {
       console.error(err);
-      alert("Erro ao excluir.");
+      toast.error("Erro ao excluir.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -110,17 +126,17 @@ export default function ProfissoesPage() {
     try {
       if (editingId) {
         await api.put(`/profissao/${editingId}`, formData);
-        alert("Atualizado com sucesso!");
+        toast.success("Atualizado com sucesso!");
       } else {
         await api.post("/profissao", formData);
-        alert("Cadastrado com sucesso!");
+        toast.success("Cadastrado com sucesso!");
       }
       closeModal();
       fetchData(page);
     } catch (err: any) {
       console.error(err);
       const msg = err.response?.data?.message || "Erro ao salvar.";
-      alert(msg);
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
@@ -247,6 +263,14 @@ export default function ProfissoesPage() {
             </button>
           </div>
         </Modal>
+
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={confirmDelete}
+          loading={deleting}
+          message="Tem certeza que deseja excluir esta profissão? Esta ação não pode ser desfeita."
+        />
       </div>
     </div>
   );

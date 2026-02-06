@@ -4,6 +4,8 @@ import api from "@/services/api";
 import { useRouter } from "next/navigation";
 import UserDropDown from "@/components/userdropdown";
 
+import { toast } from "react-hot-toast";
+
 export default function LoginPage() {
   const [UsuCodigo, setUsuCodigo] = useState("");
   const [senha, setSenha] = useState("");
@@ -17,7 +19,7 @@ export default function LoginPage() {
     setLoginError(false);
 
     if (!UsuTipo) {
-      alert("Selecione o tipo de perfil.");
+      toast.error("Selecione o tipo de perfil.");
       setLoading(false);
       return;
     }

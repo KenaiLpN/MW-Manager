@@ -12,6 +12,7 @@ import { SaudeDeficienciaForm } from "@/components/forms/aprendiz/SaudeDeficienc
 import { AprendizFormData } from "@/components/forms/aprendiz/types";
 import { ArrowLeft, Save } from "lucide-react";
 import api from "@/services/api";
+import { toast } from "react-hot-toast";
 
 function CadastroForm() {
   const router = useRouter();
@@ -178,7 +179,7 @@ function CadastroForm() {
       setFormData(formattedData);
     } catch (err) {
       console.error("Erro ao buscar aprendiz", err);
-      alert("Erro ao carregar dados do aprendiz.");
+      toast.error("Erro ao carregar dados do aprendiz.");
     } finally {
       setLoading(false);
     }
@@ -212,7 +213,7 @@ function CadastroForm() {
 
   const handleSave = async () => {
     if (!formData.NomeJovem) {
-      alert("O nome completo é obrigatório.");
+      toast.error("O nome completo é obrigatório.");
       return;
     }
 
@@ -224,10 +225,10 @@ function CadastroForm() {
 
       if (editingId) {
         await api.put(`/aprendiz/${editingId}`, dataToSend);
-        alert("Aprendiz atualizado com sucesso!");
+        toast.success("Aprendiz atualizado com sucesso!");
       } else {
         await api.post("/aprendiz", dataToSend);
-        alert("Aprendiz cadastrado com sucesso!");
+        toast.success("Aprendiz cadastrado com sucesso!");
       }
       router.push("/aprendizes");
     } catch (err: any) {
@@ -236,7 +237,7 @@ function CadastroForm() {
         err.response?.data?.message ||
         err.response?.data?.error ||
         "Erro ao salvar aprendiz.";
-      alert(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }

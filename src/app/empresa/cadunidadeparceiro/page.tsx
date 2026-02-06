@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { EmpSidebar } from "@/components/empsidebar";
 import Modal from "../../../components/modal";
 import api from "@/services/api";
+import { toast } from "react-hot-toast";
+import ConfirmModal from "@/components/modal/ConfirmModal";
 import TabelaUnidadeParceiro, {
   UnidadeParceiro,
 } from "@/components/tabelas/tabelaunidadeparceiro";
@@ -43,6 +45,12 @@ export default function CadUnidadeParceiroPage() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{
+    codigo: number;
+    parceiroId: number;
+  } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [formData, setFormData] = useState<UnidadeFormData>({
     ParUniCodigoParceiro: "",
@@ -134,7 +142,7 @@ export default function CadUnidadeParceiroPage() {
       });
       setIsModalOpen(true);
     } catch (err) {
-      alert("Erro ao carregar detalhes da unidade.");
+      toast.error("Erro ao carregar detalhes da unidade.");
     }
   };
 
@@ -169,21 +177,33 @@ export default function CadUnidadeParceiroPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDelete = async (codigo: number, parceiroId: number) => {
-    if (!window.confirm("Deseja realmente excluir esta unidade?")) return;
+  const handleDelete = (codigo: number, parceiroId: number) => {
+    setItemToDelete({ codigo, parceiroId });
+    setIsConfirmOpen(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    setDeleting(true);
     try {
-      await api.delete(`/unidades-parceiro/${codigo}/${parceiroId}`);
-      alert("Excluída com sucesso!");
+      await api.delete(
+        `/unidades-parceiro/${itemToDelete.codigo}/${itemToDelete.parceiroId}`,
+      );
+      toast.success("Excluída com sucesso!");
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
       fetchData(page);
     } catch (err: any) {
-      alert("Erro ao excluir.");
+      toast.error("Erro ao excluir.");
+    } finally {
+      setDeleting(false);
     }
   };
 
   const handleSalvar = async () => {
     if (!formData.ParUniDescricao.trim() || !formData.ParUniCodigoParceiro) {
-      alert("Descrição e Empresa (Parceiro) são obrigatórios.");
+      toast.error("Descrição e Empresa (Parceiro) são obrigatórios.");
       return;
     }
 
@@ -194,16 +214,16 @@ export default function CadUnidadeParceiroPage() {
           `/unidades-parceiro/${editingId.codigo}/${editingId.parceiro}`,
           formData,
         );
-        alert("Atualizado com sucesso!");
+        toast.success("Atualizado com sucesso!");
       } else {
         await api.post("/unidades-parceiro", formData);
-        alert("Cadastrado com sucesso!");
+        toast.success("Cadastrado com sucesso!");
       }
       closeModal();
       fetchData(page);
     } catch (err: any) {
       console.error(err);
-      alert("Erro ao salvar.");
+      toast.error("Erro ao salvar.");
     } finally {
       setSaving(false);
     }
@@ -429,6 +449,14 @@ export default function CadUnidadeParceiroPage() {
             </button>
           </div>
         </Modal>
+
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={confirmDelete}
+          loading={deleting}
+          message="Tem certeza que deseja excluir esta unidade? Esta ação não pode ser desfeita."
+        />
       </div>
     </div>
   );

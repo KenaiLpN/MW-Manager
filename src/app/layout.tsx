@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "Sistema de Gestão",
 };
 
+import { Toaster } from "react-hot-toast";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,6 +19,15 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body className={inter.className} suppressHydrationWarning={true}>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: "#133c86",
+              color: "#fff",
+            },
+          }}
+        />
         <PrivateLayout>{children}</PrivateLayout>
       </body>
     </html>

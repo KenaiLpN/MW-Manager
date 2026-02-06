@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal";
 import api from "@/services/api";
+import { toast } from "react-hot-toast";
+import ConfirmModal from "@/components/modal/ConfirmModal";
 import TabelaMotivos, {
   MotivoDesligamento,
 } from "@/components/tabelas/tabelamotivodesligamento";
@@ -23,6 +25,9 @@ export default function MotivosDesligamentoPage() {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [formData, setFormData] = useState<MotivoFormData>({
     MotDescricao: "",
@@ -98,15 +103,25 @@ export default function MotivosDesligamentoPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Deseja realmente excluir este motivo?")) return;
+  const handleDelete = (id: number) => {
+    setItemToDelete(id);
+    setIsConfirmOpen(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    setDeleting(true);
     try {
-      await api.delete(`/motivo-desligamento/${id}`);
-      alert("Excluído!");
+      await api.delete(`/motivo-desligamento/${itemToDelete}`);
+      toast.success("Excluído com sucesso!");
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
       fetchData(page);
     } catch (err: any) {
-      alert("Erro ao excluir.");
+      toast.error("Erro ao excluir.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -115,16 +130,16 @@ export default function MotivosDesligamentoPage() {
     try {
       if (editingId) {
         await api.put(`/motivo-desligamento/${editingId}`, formData);
-        alert("Atualizado!");
+        toast.success("Atualizado!");
       } else {
         await api.post("/motivo-desligamento", formData);
-        alert("Criado!");
+        toast.success("Criado!");
       }
       closeModal();
       fetchData(page);
     } catch (err: any) {
       console.error(err);
-      alert("Erro ao salvar.");
+      toast.error("Erro ao salvar.");
     } finally {
       setSaving(false);
     }
@@ -244,6 +259,14 @@ export default function MotivosDesligamentoPage() {
             </button>
           </div>
         </Modal>
+
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={confirmDelete}
+          loading={deleting}
+          message="Tem certeza que deseja excluir este motivo? Esta ação não pode ser desfeita."
+        />
       </div>
     </div>
   );

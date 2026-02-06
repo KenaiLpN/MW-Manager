@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal";
 import api from "@/services/api";
+import { toast } from "react-hot-toast";
+import ConfirmModal from "@/components/modal/ConfirmModal";
 import TabelaGraus, {
   GrauParentesco,
 } from "@/components/tabelas/tabelagrauparentesco";
@@ -24,6 +26,9 @@ export default function GrausParentescoPage() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [saving, setSaving] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [formData, setFormData] = useState<ParFormData>({
     ParDescricao: "",
@@ -98,15 +103,25 @@ export default function GrausParentescoPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Deseja realmente excluir este grau?")) return;
+  const handleDelete = (id: number) => {
+    setItemToDelete(id);
+    setIsConfirmOpen(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    setDeleting(true);
     try {
-      await api.delete(`/grau-parentesco/${id}`);
-      alert("Excluído com sucesso!");
+      await api.delete(`/grau-parentesco/${itemToDelete}`);
+      toast.success("Excluído com sucesso!");
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
       fetchData(page);
     } catch (err: any) {
-      alert("Erro ao excluir.");
+      toast.error("Erro ao excluir.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -114,23 +129,23 @@ export default function GrausParentescoPage() {
     setSaving(true);
     try {
       if (!formData.ParDescricao.trim()) {
-        alert("A descrição é obrigatória.");
+        toast.error("A descrição é obrigatória.");
         setSaving(false);
         return;
       }
 
       if (editingId) {
         await api.put(`/grau-parentesco/${editingId}`, formData);
-        alert("Atualizado com sucesso!");
+        toast.success("Atualizado com sucesso!");
       } else {
         await api.post("/grau-parentesco", formData);
-        alert("Cadastrado com sucesso!");
+        toast.success("Cadastrado com sucesso!");
       }
       closeModal();
       fetchData(page);
     } catch (err: any) {
       console.error(err);
-      alert("Erro ao salvar.");
+      toast.error("Erro ao salvar.");
     } finally {
       setSaving(false);
     }
@@ -250,6 +265,14 @@ export default function GrausParentescoPage() {
             </button>
           </div>
         </Modal>
+
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={confirmDelete}
+          loading={deleting}
+          message="Tem certeza que deseja excluir este grau? Esta ação não pode ser desfeita."
+        />
       </div>
     </div>
   );

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { CadSidebar } from "@/components/cadsidebar";
 import Modal from "../../../components/modal";
 import api from "@/services/api";
+import { toast } from "react-hot-toast";
+import ConfirmModal from "@/components/modal/ConfirmModal";
 import TabelaInstituicoes, {
   Instituicao,
 } from "@/components/tabelas/tabelainstituicoes";
@@ -40,6 +42,9 @@ export default function Instituicoes() {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Estado inicial do formulário
   const initialFormState: InstituicaoFormData = {
@@ -214,21 +219,27 @@ export default function Instituicoes() {
     }));
   };
 
-  const handleDelete = async (id: number) => {
-    const confirmacao = window.confirm(
-      "Tem certeza que deseja excluir esta instituição? Ação irreversível.",
-    );
+  const handleDelete = (id: number) => {
+    setItemToDelete(id);
+    setIsConfirmOpen(true);
+  };
 
-    if (!confirmacao) return;
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
 
+    setDeleting(true);
     try {
-      await api.delete(`/instituicao/${id}`);
-      alert("Instituição excluída com sucesso!");
+      await api.delete(`/instituicao/${itemToDelete}`);
+      toast.success("Instituição excluída com sucesso!");
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
       fetchInstituicoes(page, search);
     } catch (err: any) {
       console.error("Erro ao excluir:", err);
       const msg = err.response?.data?.message || "Erro ao excluir.";
-      alert(msg);
+      toast.error(msg);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -258,11 +269,11 @@ export default function Instituicoes() {
       if (editingId) {
         // --- PUT ---
         await api.put(`/instituicao/${editingId}`, payload);
-        alert("Instituição atualizada com sucesso!");
+        toast.success("Instituição atualizada com sucesso!");
       } else {
         // --- POST ---
         await api.post("/instituicao", payload);
-        alert("Instituição cadastrada com sucesso!");
+        toast.success("Instituição cadastrada com sucesso!");
       }
 
       closeModal();
@@ -270,9 +281,9 @@ export default function Instituicoes() {
     } catch (err: any) {
       console.error("Erro completo:", err);
       if (err.response?.data) {
-        alert(`Erro: ${JSON.stringify(err.response.data)}`);
+        toast.error(`Erro: ${JSON.stringify(err.response.data)}`);
       } else {
-        alert("Erro ao salvar instituição.");
+        toast.error("Erro ao salvar instituição.");
       }
     } finally {
       setSaving(false);
@@ -609,6 +620,14 @@ export default function Instituicoes() {
             </button>
           </div>
         </Modal>
+
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={confirmDelete}
+          loading={deleting}
+          message="Tem certeza que deseja excluir esta instituição? Esta ação não pode ser desfeita."
+        />
       </div>
     </div>
   );
